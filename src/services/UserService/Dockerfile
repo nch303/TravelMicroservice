@@ -1,24 +1,17 @@
-﻿# 1. Build stage
+﻿# build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy file csproj và restore dependencies
-COPY ["UserService.csproj", "./"]
-RUN dotnet restore
+# copy đúng csproj của API layer (vì đây là entrypoint)
+COPY UserService.API/UserService.API.csproj ./UserService.API/
+RUN dotnet restore UserService.API/UserService.API.csproj
 
-# Copy toàn bộ code và build
-COPY . .
-RUN dotnet publish -c Release -o /app
+# copy toàn bộ source
+COPY . ./
+RUN dotnet publish UserService.API/UserService.API.csproj -c Release -o /app/publish
 
-# 2. Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-
-# Copy kết quả build từ stage trước
-COPY --from=build /app .
-
-# Mở port mặc định 80
-EXPOSE 80
-
-# Chạy app
-ENTRYPOINT ["dotnet", "UserService.dll"]
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "UserService.API.dll"]
