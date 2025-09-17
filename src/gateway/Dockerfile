@@ -1,19 +1,26 @@
-﻿# build stage
+﻿# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# copy file csproj
+# Copy csproj và restore
 COPY ApiGateway/ApiGateway.csproj ApiGateway/
 RUN dotnet restore ApiGateway/ApiGateway.csproj
 
-# copy toàn bộ source code
+# Copy toàn bộ source code và publish
 COPY ApiGateway/. ./ApiGateway/
 WORKDIR /src/ApiGateway
 RUN dotnet publish -c Release -o /app/publish
 
-# runtime stage
+# Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "ApiGateway.dll"]
 
+# Copy publish từ build stage
+COPY --from=build /app/publish .
+
+# EXPOSE port trong container (phải khớp docker-compose)
+EXPOSE 80
+EXPOSE 443
+
+# Run ApiGateway
+ENTRYPOINT ["dotnet", "ApiGateway.dll"]
