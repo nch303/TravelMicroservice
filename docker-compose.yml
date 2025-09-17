@@ -4,13 +4,15 @@ services:
     build:
       context: ./src/gateway
       dockerfile: Dockerfile
+    container_name: apigateway
     ports:
       - "5000:8080"
-
+      
   userservice:
     build:
       context: ./src/services/UserService
       dockerfile: Dockerfile
+    container_name: userservice
     ports:
       - "5001:8080"
 
