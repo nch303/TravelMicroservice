@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  apigateway:
+    build:
+      context: ./src/gateway
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+
+  userservice:
+    build:
+      context: ./src/services/UserService
+      dockerfile: Dockerfile
+    ports:
+      - "5001:8080"
+
+networks:
+  default:
+    name: travelnet
