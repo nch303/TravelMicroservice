@@ -1,20 +1,23 @@
 ﻿using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using MMLib.SwaggerForOcelot.DependencyInjection;
-using MMLib.SwaggerForOcelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+// 1. Đăng ký Swagger
+builder.Services.AddSwaggerGen();
 
-// Chỉ cần cái này, KHÔNG thêm AddSwaggerGen nữa
+// 2. Đăng ký Ocelot + SwaggerForOcelot
 builder.Services.AddOcelot(builder.Configuration);
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
 var app = builder.Build();
 
-// Enable swagger ui cho Ocelot
-app.UseSwaggerForOcelotUI();
+// 3. Middleware
+app.UseSwaggerForOcelotUI(opt =>
+{
+    opt.PathToSwaggerGenerator = "/swagger/docs";
+})
+.UseOcelot()
+.Wait();
 
-await app.UseOcelot();
 app.Run();
