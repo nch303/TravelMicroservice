@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: apigateway
     ports:
-      - "5120:8080"
+      - "5120:80"
       
   userservice:
     build:
@@ -14,7 +14,7 @@ services:
       dockerfile: Dockerfile
     container_name: userservice
     ports:
-      - "5001:8080"
+      - "5001:80"
 
 networks:
   default:

@@ -40,7 +40,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "userservice",
-          "Port": 8080
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/userservice/{everything}",
