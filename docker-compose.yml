@@ -25,7 +25,6 @@
 #     name: travelnet
 
 version: '3.8'
-
 services:
   apigateway:
     build:
@@ -35,7 +34,7 @@ services:
     ports:
       - "5120:80"
     environment:
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=https://+:80
     depends_on:
       - userservice   # đảm bảo gateway chạy sau khi userservice đã start
     networks:
@@ -49,7 +48,7 @@ services:
     ports:
       - "5001:80"
     environment:
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=https://+:80
     networks:
       - travelnet
 
