@@ -41,35 +41,33 @@ using MMLib.SwaggerForOcelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load Ocelot config
+// load cấu hình ocelot.json
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
-
-// ✅ Đăng ký SwaggerGen riêng biệt (chỉ để satisfy dependency)
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "API Gateway",
-        Version = "v1"
-    });
-});
 
 // Add Ocelot
 builder.Services.AddOcelot(builder.Configuration);
 
-// Add SwaggerForOcelot
+// Add Swagger + SwaggerForOcelot
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Api Gateway",
+        Version = "v1"
+    });
+});
+
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
 var app = builder.Build();
 
-// ✅ SwaggerForOcelotUI
+// SwaggerForOcelot UI
 app.UseSwaggerForOcelotUI(opt =>
 {
-    // Endpoint này để SwaggerForOcelot lấy swagger.json từ services
-    opt.PathToSwaggerGenerator = "/swagger/docs";
+    opt.PathToSwaggerGenerator = "/swagger/docs"; // mặc định
 });
 
-// ✅ Ocelot middleware (phải luôn sau UseSwaggerForOcelotUI)
+// Ocelot
 await app.UseOcelot();
 
 app.Run();
