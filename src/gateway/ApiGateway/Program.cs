@@ -8,8 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Load ocelot.json
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
-// Đăng ký Swagger & Ocelot
-builder.Services.AddSwaggerGen(); // bắt buộc
+// Đăng ký Ocelot + Swagger cho Ocelot
 builder.Services.AddOcelot(builder.Configuration);
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
