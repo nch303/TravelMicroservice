@@ -18,7 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{5D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gateway", "gateway", "{464673B4-DFDA-440A-931A-4048A11DF36B}"
 	ProjectSection(SolutionItems) = preProject
-		src\gateway\ApiGateway\Dockerfile = src\gateway\ApiGateway\Dockerfile
+		src\gateway\Dockerfile = src\gateway\Dockerfile
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGateway", "src\gateway\ApiGateway\ApiGateway.csproj", "{9C105DB6-2020-4A0D-9805-FE28FE8FB3C7}"
