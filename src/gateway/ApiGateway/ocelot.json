@@ -32,27 +32,25 @@
 //}
 
 
-
-
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/api/users/{everything}",
+      "DownstreamPathTemplate": "/api/userservice/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "userservice",
-          "Port": 80
+          "Port": 8080
         }
       ],
-      "UpstreamPathTemplate": "/user/{everything}",
+      "UpstreamPathTemplate": "/userservice/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "SwaggerKey": "userservice"
+      "SwaggerKey": "users"
     }
   ],
   "SwaggerEndPoints": [
     {
-      "Key": "userservice",
+      "Key": "users",
       "Config": [
         {
           "Name": "User Service",
@@ -63,7 +61,6 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://apigateway:80"
+    "BaseUrl": "http://localhost:5120"
   }
 }
-
