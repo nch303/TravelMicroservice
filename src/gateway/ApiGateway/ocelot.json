@@ -35,7 +35,7 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/api/userservice/{everything}",
+      "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -43,7 +43,7 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/userservice/{everything}",
+      "UpstreamPathTemplate": "/api/users/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "users"
     }
