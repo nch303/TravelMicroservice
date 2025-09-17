@@ -36,7 +36,7 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/api/users/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "userservice",
@@ -55,12 +55,12 @@
         {
           "Name": "User Service",
           "Version": "v1",
-          "Url": "https://userservice/swagger/v1/swagger.json"
+          "Url": "http://userservice/swagger/v1/swagger.json"
         }
       ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://143.198.203.34:5120"
+    "BaseUrl": "http://143.198.203.34:5120"
   }
 }
