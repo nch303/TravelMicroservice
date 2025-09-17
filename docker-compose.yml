@@ -7,11 +7,7 @@ services:
     container_name: apigateway
     ports:
       - "5120:80"
-    depends_on:
-      - userservice
-    networks:
-      - travelnet
-
+      
   userservice:
     build:
       context: ./src/services/UserService
@@ -19,9 +15,7 @@ services:
     container_name: userservice
     ports:
       - "5001:80"
-    networks:
-      - travelnet
 
 networks:
-  travelnet:
-    driver: bridge
+  default:
+    name: travelnet
