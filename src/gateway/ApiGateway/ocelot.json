@@ -61,6 +61,7 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://143.198.203.34:5120"
+    "BaseUrl": "http://localhost:5000"
   }
 }
+

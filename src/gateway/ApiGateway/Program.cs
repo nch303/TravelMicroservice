@@ -5,21 +5,23 @@ using MMLib.SwaggerForOcelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load ocelot.json
+// Load cấu hình Ocelot
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
-// Đăng ký Ocelot + Swagger cho Ocelot
+// Đăng ký Ocelot và SwaggerForOcelot
 builder.Services.AddOcelot(builder.Configuration);
+builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
 var app = builder.Build();
 
-// Swagger UI cho API Gateway
+// Dùng SwaggerForOcelot UI
 app.UseSwaggerForOcelotUI(opt =>
 {
     opt.PathToSwaggerGenerator = "/swagger/docs";
 });
 
+// Sử dụng Ocelot middleware
 await app.UseOcelot();
 
 app.Run();
