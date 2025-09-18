@@ -17,7 +17,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Add services
 builder.Services.AddScoped<IUserService, UsersService>();
+builder.Services.AddScoped<EmailService>();
+
+// Add repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IOtpRepository, OtpRepository>();
 
 // Cấu hình JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

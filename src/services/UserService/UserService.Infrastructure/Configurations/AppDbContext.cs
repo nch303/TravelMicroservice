@@ -8,6 +8,7 @@ namespace Infrastructure.Configurations
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<OtpVerification> OtpVerifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,10 +25,23 @@ namespace Infrastructure.Configurations
                 entity.HasIndex(u => u.Email).IsUnique();
             });
 
+            modelBuilder.Entity<OtpVerification>(entity =>
+            {
+                entity.HasKey(o => o.Id);
+                entity.Property(o => o.Email).IsRequired().HasMaxLength(255);
+                entity.Property(o => o.OtpCode).IsRequired().HasMaxLength(10);
+                entity.Property(o => o.ExpiresAt).IsRequired();
+                entity.Property(o => o.Purpose).IsRequired().HasMaxLength(100);
+                entity.Property(o => o.IsUsed).IsRequired();
+            });
+
             base.OnModelCreating(modelBuilder);
         }
     }
 }
 
-//dotnet ef migrations add InitialCreate --project E:\TravelProject\TravelMicroservice\UserService.Infrastructure\UserService.Infrastructure.csproj --startup-project E:\TravelProject\TravelMicroservice\UserService.API\UserService.API.csproj
-//dotnet ef database update --project E:\TravelProject\TravelMicroservice\UserService.Infrastructure\UserService.Infrastructure.csproj --startup-project E:\TravelProject\TravelMicroservice\UserService.API\UserService.API.csproj
+//dotnet ef migrations add otpVerification --project "E:\TravelProject\TravelMicroservice\src\services\UserService\UserService.Infrastructure\UserService.Infrastructure.csproj" --startup-project "E:\TravelProject\TravelMicroservice\src\services\UserService\UserService.API\UserService.API.csproj"
+
+
+//dotnet ef database update --project "E:\TravelProject\TravelMicroservice\src\services\UserService\UserService.Infrastructure\UserService.Infrastructure.csproj" --startup-project "E:\TravelProject\TravelMicroservice\src\services\UserService\UserService.API\UserService.API.csproj"
+
