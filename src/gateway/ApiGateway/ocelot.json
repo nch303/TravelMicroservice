@@ -1,51 +1,30 @@
-//{
-//  "Routes": [
-//    {
-//      "DownstreamPathTemplate": "/api/users/{everything}",
-//      "DownstreamScheme": "https",
-//      "DownstreamHostAndPorts": [
-//        {
-//          "Host": "localhost",
-//          "Port": 7019
-//        }
-//      ],
-//      "UpstreamPathTemplate": "/api/users/{everything}",
-//      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-//      "SwaggerKey": "users"
-//    }
-//  ],
-//  "SwaggerEndPoints": [
-//    {
-//      "Key": "users",
-//      "Config": [
-//        {
-//          "Name": "User Service",
-//          "Version": "v1",
-//          "Url": "https://localhost:7019/swagger/v1/swagger.json"
-//        }
-//      ]
-//    }
-//  ],
-//  "GlobalConfiguration": {
-//    "BaseUrl": "https://localhost:5120"
-//  }
-//}
-
-
 {
   "Routes": [
     {
       "DownstreamPathTemplate": "/api/users/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "userservice",
-          "Port": 80
+          "Host": "localhost",
+          "Port": 7019
         }
       ],
-      "UpstreamPathTemplate": "/users/{everything}",
+      "UpstreamPathTemplate": "/api/users/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "users"
+    },
+    {
+      "DownstreamPathTemplate": "/api/auth/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7020
+        }
+      ],
+      "UpstreamPathTemplate": "/api/auth/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "SwaggerKey": "auth"
     }
   ],
   "SwaggerEndPoints": [
@@ -53,15 +32,59 @@
       "Key": "users",
       "Config": [
         {
-          "Name": "User Service",
+          "Name": "Users Service",
           "Version": "v1",
-          "Url": "http://userservice/swagger/v1/swagger.json"
+          "Url": "https://localhost:7019/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "auth",
+      "Config": [
+        {
+          "Name": "Auth Service",
+          "Version": "v1",
+          "Url": "https://localhost:7020/swagger/v1/swagger.json"
         }
       ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5000"
+    "BaseUrl": "https://localhost:5120"
   }
 }
+
+
+//{
+//  "Routes": [
+//    {
+//      "DownstreamPathTemplate": "/api/auth/{everything}",
+//      "DownstreamScheme": "http",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "authservice",
+//          "Port": 80
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/auth/{everything}",
+//      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+//      "SwaggerKey": "auth"
+//    }
+//  ],
+//  "SwaggerEndPoints": [
+//    {
+//      "Key": "auth",
+//      "Config": [
+//        {
+//          "Name": "Auth Service",
+//          "Version": "v1",
+//          "Url": "http://authservice/swagger/v1/swagger.json"
+//        }
+//      ]
+//    }
+//  ],
+//  "GlobalConfiguration": {
+//    "BaseUrl": "http://localhost:5000"
+//  }
+//}
 
