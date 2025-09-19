@@ -3,12 +3,12 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # copy đúng csproj của API layer (vì đây là entrypoint)
-COPY UserService.API/UserService.API.csproj ./UserService.API/
-RUN dotnet restore UserService.API/UserService.API.csproj
+COPY AuthService.API/AuthService.API.csproj ./AuthService.API/
+RUN dotnet restore AuthService.API/AuthService.API.csproj
 
 # copy toàn bộ source
 COPY . ./
-RUN dotnet publish UserService.API/UserService.API.csproj -c Release -o /app/publish
+RUN dotnet publish AuthService.API/AuthService.API.csproj -c Release -o /app/publish
 
 # runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
