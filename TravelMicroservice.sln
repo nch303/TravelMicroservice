@@ -20,7 +20,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGateway", "src\gateway\A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AuthService", "AuthService", "{79C31FCA-759B-4788-9AD9-15064C3A6358}"
 	ProjectSection(SolutionItems) = preProject
-		Dockerfile = Dockerfile
+		src\services\AuthService\Dockerfile = src\services\AuthService\Dockerfile
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Application", "src\services\AuthService\AuthService.Application\AuthService.Application.csproj", "{135BD88C-979D-401F-B05A-44690E14732A}"
