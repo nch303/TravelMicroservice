@@ -1,30 +1,4 @@
-﻿# version: '3.8'
-# services:
-#   apigateway:
-#     build:
-#       context: ./src/gateway
-#       dockerfile: Dockerfile
-#     container_name: apigateway
-#     ports:
-#       - "5120:80"
-#     environment:
-#       - ASPNETCORE_URLS=http://+:80
-      
-#   userservice:
-#     build:
-#       context: ./src/services/UserService
-#       dockerfile: Dockerfile
-#     container_name: userservice
-#     ports:
-#       - "5001:80"
-#     environment:
-#       - ASPNETCORE_URLS=http://+:80
-
-# networks:
-#   default:
-#     name: travelnet
-
-version: '3.8'
+﻿version: '3.8'
 
 services:
   apigateway:
@@ -37,15 +11,15 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:80
     depends_on:
-      - userservice   # đảm bảo gateway chạy sau khi userservice đã start
+      - authservice   # đảm bảo gateway chạy sau khi authservice đã start
     networks:
       - travelnet
 
-  userservice:
+  authservice:
     build:
-      context: ./src/services/UserService
+      context: ./src/services/AuthService
       dockerfile: Dockerfile
-    container_name: userservice
+    container_name: authservice
     ports:
       - "5001:80"
     environment:
