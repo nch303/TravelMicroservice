@@ -11,7 +11,8 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:80
     depends_on:
-      - authservice   # đảm bảo gateway chạy sau khi authservice đã start
+      - authservice
+      - userservice
     networks:
       - travelnet
 
@@ -26,6 +27,18 @@ services:
       - ASPNETCORE_URLS=http://+:80
     networks:
       - travelnet
+
+  userservice:
+     build:
+       context: ./src/services/UserService
+       dockerfile: Dockerfile
+     container_name: userservice
+     ports:
+       - "5002:80"
+     environment:
+       - ASPNETCORE_URLS=http://+:80
+     networks:
+       - travelnet
 
 networks:
   travelnet:
