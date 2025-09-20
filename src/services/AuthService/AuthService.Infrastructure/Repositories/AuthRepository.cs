@@ -39,7 +39,7 @@ namespace AuthService.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateUser(Account account)
+        public async Task ChangePasswordAsync(Account account)
         {
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();

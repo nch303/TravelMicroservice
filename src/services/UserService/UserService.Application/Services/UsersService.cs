@@ -9,11 +9,11 @@ using UserService.Domain.IRepositories;
 
 namespace UserService.Application.Services
 {
-    public class UserService: IUserService
+    public class UsersService: IUserService
     {
         private readonly IUserRepository _userRepository;
 
-        public UserService(IUserRepository userRepository)
+        public UsersService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
         }
@@ -46,6 +46,16 @@ namespace UserService.Application.Services
             }
 
             return await _userRepository.UpdateProfileAsync(user);
+        }
+
+        public async Task<User> CreateProfile(User user)
+        {
+            var existedUser = _userRepository.GetByIdAsync(user.Id);
+            if (existedUser != null && existedUser.Result != null)
+            {
+                throw new Exception("User already exists");
+            }
+            return await _userRepository.CreateProfileAsync(user);
         }
     }
 }

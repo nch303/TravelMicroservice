@@ -1,6 +1,8 @@
-﻿using AutoMapper;
+﻿
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Application.DTOs.Requests;
+using UserService.Application.DTOs.Responses;
 using UserService.Application.IServices;
 using UserService.Domain.Entities;
 
@@ -22,26 +24,64 @@ namespace UserService.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var user = await _userService.GetById(id);
-            var userResponse = _mapper.Map<UpdateUserRequest>(user);
-            return Ok(userResponse);
+            try
+            {
+                var user = await _userService.GetById(id);
+                var userResponse = _mapper.Map<UpdateUserRequest>(user);
+                return Ok(userResponse);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpGet("all")]
         public async Task<IActionResult> GetAll()
         {
-            var users = await _userService.GetAll();
-            var userResponses = _mapper.Map<List<UpdateUserRequest>>(users);
-            return Ok(userResponses);
+            try
+            {
+                var users = await _userService.GetAll();
+                var userResponses = _mapper.Map<List<UpdateUserRequest>>(users);
+                return Ok(userResponses);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPut("update")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserRequest request)
         {
-            var user = _mapper.Map<User>(request);
-            var updatedUser = await _userService.UpdateProfile(user);
-            var userResponse = _mapper.Map<UpdateUserRequest>(updatedUser);
-            return Ok(userResponse);
+            try 
+            {
+                var user = _mapper.Map<User>(request);
+                var updatedUser = await _userService.UpdateProfile(user);
+                var userResponse = _mapper.Map<UpdateUserRequest>(updatedUser);
+                return Ok(userResponse);
+            }
+            catch
+            {
+                return BadRequest(new { message = "Update profile failed" });
+            }
+            
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateProfile([FromBody] CreateProfileRequest request)
+        {
+            try 
+            {
+                var user = _mapper.Map<User>(request);
+                var createdUser = await _userService.CreateProfile(user);
+                var userResponse = _mapper.Map<UserResponse>(createdUser);
+                return Ok(userResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }         
         }
     }
 }

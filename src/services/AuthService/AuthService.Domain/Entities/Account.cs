@@ -17,8 +17,6 @@ namespace AuthService.Domain.Entities
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
         [Required]
-        public string Name { get; set; } = string.Empty;
-        [Required]
         public string PasswordHash { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = false;
@@ -28,6 +26,8 @@ namespace AuthService.Domain.Entities
 
         [ForeignKey("RoleId")]
         public Role? Role { get; set; }
+
+        public ICollection<RefreshToken>? RefreshTokens { get; set; }
 
     }
 }

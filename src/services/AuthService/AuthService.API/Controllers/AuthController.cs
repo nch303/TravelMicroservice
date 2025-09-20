@@ -1,5 +1,9 @@
 ﻿using AuthService.Application.DTOs.Requests;
+using AuthService.Application.IServiceClients;
 using AuthService.Application.IServices;
+using AuthService.Domain.Entities;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -7,13 +11,20 @@ namespace AuthService.API.Controllers
 {
     [ApiController]
     [Route("api/auth")]
-    public class AuthController: ControllerBase
+    public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IRefreshTokenService _refreshTokenService;
+        private readonly IUserServiceClient _userServiceClient;
+        private readonly IMapper _mapper;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IRefreshTokenService refreshTokenService,
+                              IUserServiceClient userServiceClient, IMapper mapper)
         {
             _authService = authService;
+            _refreshTokenService = refreshTokenService;
+            _userServiceClient = userServiceClient;
+            _mapper = mapper;
         }
 
         [HttpPost("register")]
@@ -21,7 +32,16 @@ namespace AuthService.API.Controllers
         {
             try
             {
-                await _authService.RegisterAsync(registerDto);
+                var account = _mapper.Map<Account>(registerDto);
+                var accountId = Guid.NewGuid();
+                account.Id = accountId;
+                await _authService.RegisterAsync(account);
+
+                //Tạo Profile User trong UserService qua ServiceClient
+                var profile = _mapper.Map<CreateProfileRequest>(registerDto);
+                profile.Id = accountId; 
+                await _userServiceClient.CreateUserProfileAsync(profile);
+
                 return Ok(new { Message = "Đã gửi OTP về email của bạn" });
             }
             catch (Exception ex)
@@ -41,7 +61,7 @@ namespace AuthService.API.Controllers
                 if (!success) return BadRequest(new { Message = "OTP không hợp lệ hoặc đã hết hạn" });
                 return Ok(new { Message = "Tài khoản đã được kích hoạt" });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
@@ -74,7 +94,7 @@ namespace AuthService.API.Controllers
                 await _authService.SendResetOtpAsync(email);
                 return Ok(new { message = "Đã gửi mã OTP về email của bạn" });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
@@ -89,7 +109,7 @@ namespace AuthService.API.Controllers
                 await _authService.ResetPasswordAsync(request.Email, request.OtpCode, request.NewPassword);
                 return Ok(new { message = "Đổi mật khẩu thành công" });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
@@ -122,15 +142,47 @@ namespace AuthService.API.Controllers
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
 
                 // 5. Cập nhật DB
-                await _authService.UpdateUser(user);
+                await _authService.ChangePasswordAsync(user);
 
                 return Ok(new { message = "Password changed successfully" });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
 
+        }
+
+        [HttpGet("refresh-token")]
+        public async Task<IActionResult> RefreshToken(string refreshToken)
+        {
+            try
+            {
+                // 1. Lấy userId từ JWT
+                var token = _refreshTokenService.GetByTokenAsync(refreshToken);
+                var accountId = token.Result.AccountId.ToString();
+
+                if (string.IsNullOrEmpty(accountId))
+                    return Unauthorized("Invalid token");
+
+                // 2. Tìm user trong DB
+                var user = await _authService.GetByIdAsync(Guid.Parse(accountId));
+
+                if (user == null)
+                    return NotFound("User not found");
+
+                var (newAccessToken, newRefreshToken) = await _authService.RefreshAsync(refreshToken, user);
+
+                return Ok(new { accessToken = newAccessToken, refreshToken = newRefreshToken });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }    
         }
     }
 }

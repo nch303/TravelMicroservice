@@ -1,4 +1,7 @@
 ﻿using AuthService.Application.Extensions;
+using AuthService.Application.IServiceClients;
+using AuthService.Application.Mappings;
+using AuthService.Application.ServiceClients;
 using AuthService.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -9,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Cấu hình JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -26,7 +32,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+            ClockSkew = TimeSpan.Zero
         };
     });
 
@@ -38,7 +45,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "AuthService API",
         Version = "v1", // Version của API
-        Description = "API for User Management",
+        Description = "API for Auth Management",
         // Không cần OpenApiSpecVersion, Swagger sẽ tự suy ra từ cấu hình
     });
 
@@ -71,6 +78,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddControllers();
+
+
 
 var app = builder.Build();
 

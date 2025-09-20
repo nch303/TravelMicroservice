@@ -1,5 +1,6 @@
 ﻿using AuthService.Application.DTOs.Requests;
 using AuthService.Application.DTOs.Responses;
+using AuthService.Application.IServiceClients;
 using AuthService.Application.IServices;
 using AuthService.Domain.Entities;
 using AuthService.Domain.IRepositories;
@@ -22,26 +23,31 @@ namespace AuthService.Application.Services
         private readonly IConfiguration _configuration;
         private readonly IOtpRepository _otpRepository;
         private readonly IEmailService _emailService;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-        public AuthServices(IAuthRepository userRepository, IConfiguration configuration, IOtpRepository optRepository, IEmailService emailService)
+        public AuthServices(IAuthRepository userRepository, IConfiguration configuration, 
+            IOtpRepository optRepository, IEmailService emailService,
+            IRefreshTokenRepository refreshTokenRepository)
         {
             _userRepository = userRepository;
             _configuration = configuration;
             _otpRepository = optRepository;
             _emailService = emailService;
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
-        public async Task RegisterAsync(RegisterRequest registerDto)
+        public async Task RegisterAsync(Account newAccount)
         {
-            var existingUser = await _userRepository.GetByEmailAsync(registerDto.Email);
+            var existingUser = await _userRepository.GetByEmailAsync(newAccount.Email);
             if (existingUser != null)
                 throw new Exception("Email đã tồn tại");
 
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(newAccount.PasswordHash);
+
             var account = new Account 
             { 
-                Name = registerDto.Name, 
-                Email = registerDto.Email, 
+                Id = newAccount.Id,
+                Email = newAccount.Email, 
                 PasswordHash = passwordHash,
                 IsActive = false,
                 RoleId = 2 // Mặc định role user
@@ -76,11 +82,27 @@ namespace AuthService.Application.Services
                 throw new Exception("Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để xác nhận tài khoản.");
 
             var token = GenerateJwtToken(account);
+
+            // Tạo refresh token
+            var refreshToken = new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                Token = Guid.NewGuid().ToString("N"),
+                CreatedAt = DateTime.UtcNow,
+                InitialLoginAt = DateTime.UtcNow,
+                AccountId = account.Id,
+                IsRevoked = false
+            };
+            await _refreshTokenRepository.CreateTokenAsync(refreshToken);
+
+            int expiryMinutes = int.Parse(_configuration["JwtSettings:ExpiryInMinutes"]!);
+
             return new AuthResponse
             {
                 Token = token,
-                UserName = account.Name,
-                ExpiresAt = DateTime.Now.AddHours(1)
+                UserName = account.Email,
+                ExpiresAt = DateTime.Now.AddMinutes(expiryMinutes),
+                RefreshToken = refreshToken.Token
             };
         }
 
@@ -181,14 +203,48 @@ namespace AuthService.Application.Services
             return user;
         }
 
-        public async Task UpdateUser(Account user)
+        public async Task ChangePasswordAsync(Account user)
         {
             var existingUser = await _userRepository.GetByIdAsync(user.Id);
             if (existingUser == null) throw new Exception("Người dùng không tồn tại");
-            existingUser.Name = user.Name;
-            existingUser.Email = user.Email;
+            existingUser.PasswordHash = user.PasswordHash;
             // Cập nhật các trường khác nếu cần
-            await _userRepository.UpdateUser(user);
+            await _userRepository.ChangePasswordAsync(user);
+        }
+
+        public async Task<(string accessToken, string refreshToken)> RefreshAsync(string refreshToken, Account account)
+        {
+            var storedToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+
+            if(storedToken == null || storedToken.AccountId != account.Id)
+                throw new UnauthorizedAccessException("Invalid refresh token.");
+
+            if (storedToken == null || storedToken.IsRevoked)
+                throw new UnauthorizedAccessException("Invalid refresh token.");
+
+            // ✅ Kiểm tra absolute expiration (ví dụ 90 ngày)
+            int absoluteDays = int.Parse(_configuration["JwtSettings:AbsoluteExpiryDays"] ?? "90");
+            if (DateTime.UtcNow > storedToken.InitialLoginAt.AddDays(absoluteDays))
+                throw new UnauthorizedAccessException("Session expired, please login again.");
+
+            // Nếu hợp lệ → cấp AccessToken + RefreshToken mới
+            var newAccessToken = GenerateJwtToken(account); // access token mới
+
+            var newRefreshToken = new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                Token = Guid.NewGuid().ToString("N"),
+                CreatedAt = DateTime.UtcNow,
+                InitialLoginAt = storedToken.InitialLoginAt, // Giữ nguyên mốc login ban đầu
+                AccountId = account.Id,
+                IsRevoked = false
+            };
+
+            storedToken.IsRevoked = true; // hủy token cũ
+            await _refreshTokenRepository.RevokeTokenAsync(storedToken); // hủy token cũ 
+            await _refreshTokenRepository.CreateTokenAsync(newRefreshToken); // lưu token mới
+
+            return (newAccessToken, newRefreshToken.Token);
         }
 
     }

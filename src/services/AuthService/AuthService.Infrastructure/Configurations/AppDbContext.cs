@@ -17,6 +17,8 @@ namespace AuthService.Infrastructure.Configurations
 
         public DbSet<Account> Accounts { get; set; }
         public DbSet<OtpVerification> OtpVerifications { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,13 +26,19 @@ namespace AuthService.Infrastructure.Configurations
             {
                 entity.HasKey(u => u.Id);
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(255);
-                entity.Property(u => u.Name).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(255);
                 entity.Property(u => u.CreatedAt).IsRequired();
                 entity.Property(u => u.IsActive).IsRequired();
 
                 // Unique constraint cho email
                 entity.HasIndex(u => u.Email).IsUnique();
+
+                // Quan hệ 1 Role - nhiều Account
+                entity.HasOne(u => u.Role)
+                      .WithMany(r => r.Accounts)
+                      .HasForeignKey(u => u.RoleId)
+                      .OnDelete(DeleteBehavior.Restrict); // tránh xóa Role thì xóa luôn Account
+
             });
 
             modelBuilder.Entity<OtpVerification>(entity =>
@@ -42,6 +50,28 @@ namespace AuthService.Infrastructure.Configurations
                 entity.Property(o => o.Purpose).IsRequired().HasMaxLength(100);
                 entity.Property(o => o.IsUsed).IsRequired();
             });
+
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.HasKey(r => r.Id);
+                entity.Property(r => r.Name).IsRequired().HasMaxLength(100);         
+            });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(rt => rt.Id);
+                entity.Property(rt => rt.Token).IsRequired().HasMaxLength(500);
+                entity.Property(rt => rt.CreatedAt).IsRequired();
+                entity.Property(rt => rt.InitialLoginAt).IsRequired();
+                entity.Property(rt => rt.IsRevoked).IsRequired();
+
+                entity.HasOne(rt => rt.Account)
+                      .WithMany(a => a.RefreshTokens)
+                      .HasForeignKey(rt => rt.AccountId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+
 
             base.OnModelCreating(modelBuilder);
         }

@@ -1,4 +1,6 @@
-﻿using AuthService.Application.IServices;
+﻿using AuthService.Application.IServiceClients;
+using AuthService.Application.IServices;
+using AuthService.Application.ServiceClients;
 using AuthService.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -15,6 +17,20 @@ namespace AuthService.Application.Extensions
         {
             services.AddScoped<IAuthService, AuthServices>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+
+            // Cấu hình gọi API từ các service khác
+
+            //Local
+            //var link = "https://localhost:5120";
+
+            //Docker
+            var link = "http://apigateway:80";
+
+            services.AddHttpClient<IUserServiceClient, UserServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri(link);
+            });
 
             return services;
         }

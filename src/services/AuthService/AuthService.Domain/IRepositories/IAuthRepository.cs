@@ -13,6 +13,6 @@ namespace AuthService.Domain.IRepositories
         Task<Account?> GetByIdAsync(Guid id);
         Task AddAsync(Account account);
         Task SaveChangesAsync();
-        Task UpdateUser(Account account);
+        Task ChangePasswordAsync(Account account);
     }
 }

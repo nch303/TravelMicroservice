@@ -21,6 +21,7 @@ namespace AuthService.Infrastructure.Extensions
 
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IOtpRepository, OtpRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             return services;
         }
