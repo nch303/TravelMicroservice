@@ -20,7 +20,7 @@ namespace AuthService.Application.ServiceClients
 
         public async Task CreateUserProfileAsync(CreateProfileRequest request)
         {
-            var response = await _httpClient.PostAsJsonAsync("/api/user/create", request);
+            var response = await _httpClient.PostAsJsonAsync("/user/create", request);
 
             if (!response.IsSuccessStatusCode)
             {
