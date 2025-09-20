@@ -7,6 +7,10 @@
         "Action": "Start"
       },
       {
+        "Path": "src\\services\\UserService\\UserService.API\\UserService.API.csproj",
+        "Action": "Start"
+      },
+      {
         "Path": "src\\gateway\\ApiGateway\\ApiGateway.csproj",
         "Action": "Start",
         "DebugTarget": "https"

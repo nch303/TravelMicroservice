@@ -70,7 +70,7 @@ namespace AuthService.Application.Services
             var account = await _userRepository.GetByEmailAsync(loginDto.Email);
 
             if (account == null || BCrypt.Net.BCrypt.Verify(loginDto.Password, account.PasswordHash) == false)
-                throw new Exception("Email hoặc password sai");
+                throw new InvalidOperationException("Email hoặc password sai");
 
             if (account!.IsActive == false)
                 throw new Exception("Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để xác nhận tài khoản.");
@@ -80,7 +80,7 @@ namespace AuthService.Application.Services
             {
                 Token = token,
                 UserName = account.Name,
-                ExpiresAt = DateTime.UtcNow.AddHours(1)
+                ExpiresAt = DateTime.Now.AddHours(1)
             };
         }
 
@@ -92,15 +92,16 @@ namespace AuthService.Application.Services
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
-                new Claim(ClaimTypes.Email, account.Email),
-                new Claim(ClaimTypes.Name, account.Name)
+                new Claim(ClaimTypes.Email, account.Email)
             };
+
+            int expiryMinutes = int.Parse(_configuration["JwtSettings:ExpiryInMinutes"]!);
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["JwtSettings:Issuer"],
                 audience: _configuration["JwtSettings:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
                 signingCredentials: credentials
             );
 
