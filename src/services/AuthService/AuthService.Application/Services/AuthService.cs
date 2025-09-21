@@ -68,7 +68,7 @@ namespace AuthService.Application.Services
             await _otpRepository.SaveChangesAsync();
 
             // Gửi email OTP
-            await SendOtpEmail(account.Email, otpCode);
+            //await SendOtpEmail(account.Email, otpCode);
         }
 
         public async Task<AuthResponse> LoginAsync(LoginRequest loginDto)
