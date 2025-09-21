@@ -24,6 +24,7 @@ services:
     ports:
       - "5001:80"
     environment:
+      - BREVO_API_KEY=${BREVO_API_KEY} 
       - ASPNETCORE_URLS=http://+:80
     networks:
       - travelnet
@@ -43,3 +44,4 @@ services:
 networks:
   travelnet:
     driver: bridge
+
