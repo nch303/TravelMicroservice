@@ -27,7 +27,7 @@ namespace UserService.API.Controllers
             try
             {
                 var user = await _userService.GetById(id);
-                var userResponse = _mapper.Map<UpdateUserRequest>(user);
+                var userResponse = _mapper.Map<UserResponse>(user);
                 return Ok(userResponse);
             }
             catch(Exception ex)
@@ -42,7 +42,7 @@ namespace UserService.API.Controllers
             try
             {
                 var users = await _userService.GetAll();
-                var userResponses = _mapper.Map<List<UpdateUserRequest>>(users);
+                var userResponses = _mapper.Map<List<UserResponse>>(users);
                 return Ok(userResponses);
             }
             catch(Exception ex)
@@ -58,7 +58,7 @@ namespace UserService.API.Controllers
             {
                 var user = _mapper.Map<User>(request);
                 var updatedUser = await _userService.UpdateProfile(user);
-                var userResponse = _mapper.Map<UpdateUserRequest>(updatedUser);
+                var userResponse = _mapper.Map<UserResponse>(updatedUser);
                 return Ok(userResponse);
             }
             catch

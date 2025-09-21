@@ -107,7 +107,7 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5000"
+    "BaseUrl": "http://apigateway:80"
   }
 }
 
