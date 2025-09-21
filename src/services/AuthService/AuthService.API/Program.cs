@@ -3,6 +3,7 @@ using AuthService.Application.IServiceClients;
 using AuthService.Application.Mappings;
 using AuthService.Application.ServiceClients;
 using AuthService.Infrastructure.Extensions;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -12,6 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
+//ENV
+Env.Load();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

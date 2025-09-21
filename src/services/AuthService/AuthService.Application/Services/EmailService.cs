@@ -21,38 +21,11 @@ namespace AuthService.Application.Services
             _configuration = configuration;
         }
 
-        //public async Task SendEmailAsync(string toEmail, string subject, string body)
-        //{
-        //    var smtpServer = _configuration["EmailSettings:SmtpHost"];
-        //    var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
-        //    var senderName = _configuration["EmailSettings:SenderName"];
-        //    var senderEmail = _configuration["EmailSettings:SenderEmail"];
-        //    var username = _configuration["EmailSettings:Username"];
-        //    var password = _configuration["EmailSettings:Password"];
-
-        //    var smtpClient = new SmtpClient(smtpServer)
-        //    {
-        //        Port = smtpPort,
-        //        Credentials = new NetworkCredential(username, password),
-        //        EnableSsl = true,
-        //    };
-
-        //    var mailMessage = new MailMessage
-        //    {
-        //        From = new MailAddress(senderEmail, senderName),
-        //        Subject = subject,
-        //        Body = body,
-        //        IsBodyHtml = true,
-        //    };
-        //    mailMessage.To.Add(toEmail);
-
-        //    await smtpClient.SendMailAsync(mailMessage);
-        //}
-
         public async Task SendEmailAsync(string toEmail, string subjects, string body)
         {
             using var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("api-key", "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");
+            var apiKey = Environment.GetEnvironmentVariable("BREVO_API_KEY");
+            client.DefaultRequestHeaders.Add("api-key", apiKey);
 
             var payload = new
             {
