@@ -87,11 +87,11 @@ namespace AuthService.API.Controllers
         }
 
         [HttpPost("request-password-reset")]
-        public async Task<IActionResult> RequestPasswordReset([FromBody] string email)
+        public async Task<IActionResult> RequestPasswordReset(RequestPassResetRequest request)
         {
             try
             {
-                await _authService.SendResetOtpAsync(email);
+                await _authService.SendResetOtpAsync(request.Email);
                 return Ok(new { message = "Đã gửi mã OTP về email của bạn" });
             }
             catch (Exception ex)
