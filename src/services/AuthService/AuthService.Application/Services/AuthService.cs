@@ -135,7 +135,7 @@ namespace AuthService.Application.Services
                 Email = email,
                 OtpCode = new Random().Next(100000, 999999).ToString(),
                 ExpiresAt = DateTime.UtcNow.AddMinutes(10),
-                Purpose = "Register"
+                Purpose = purpose
             };
             return newOtp;
         }
