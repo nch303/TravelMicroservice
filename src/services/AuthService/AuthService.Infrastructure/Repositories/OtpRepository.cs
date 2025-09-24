@@ -31,6 +31,14 @@ namespace AuthService.Infrastructure.Repositories
                     o.Purpose == purpose);
         }
 
+        public async Task<List<OtpVerification>> GetAllByAccountAsync(string email, string purpose)
+        {
+            return await _context.OtpVerifications
+                .Where(o => o.Email == email &&
+                            o.Purpose == purpose)
+                .ToListAsync();
+        }
+
         public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
     }
 }

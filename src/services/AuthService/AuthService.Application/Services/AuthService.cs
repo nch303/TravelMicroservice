@@ -5,6 +5,7 @@ using AuthService.Application.IServices;
 using AuthService.Domain.Entities;
 using AuthService.Domain.IRepositories;
 using BCrypt.Net;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -19,26 +20,28 @@ namespace AuthService.Application.Services
 {
     public class AuthServices: IAuthService
     {
-        private readonly IAuthRepository _userRepository;
+        private readonly IAuthRepository _authRepository;
         private readonly IConfiguration _configuration;
         private readonly IOtpRepository _otpRepository;
         private readonly IEmailService _emailService;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthServices(IAuthRepository userRepository, IConfiguration configuration, 
+        public AuthServices(IAuthRepository authRepository, IConfiguration configuration, 
             IOtpRepository optRepository, IEmailService emailService,
-            IRefreshTokenRepository refreshTokenRepository)
+            IRefreshTokenRepository refreshTokenRepository, IHttpContextAccessor httpContextAccessor)
         {
-            _userRepository = userRepository;
+            _authRepository = authRepository;
             _configuration = configuration;
             _otpRepository = optRepository;
             _emailService = emailService;
             _refreshTokenRepository = refreshTokenRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task RegisterAsync(Account newAccount)
         {
-            var existingUser = await _userRepository.GetByEmailAsync(newAccount.Email);
+            var existingUser = await _authRepository.GetByEmailAsync(newAccount.Email);
             if (existingUser != null)
                 throw new Exception("Email đã tồn tại");
 
@@ -52,28 +55,22 @@ namespace AuthService.Application.Services
                 IsActive = false,
                 RoleId = 2 // Mặc định role user
             };
-            await _userRepository.AddAsync(account);
-            await _userRepository.SaveChangesAsync();
+            await _authRepository.AddAsync(account);
+            await _authRepository.SaveChangesAsync();
 
             // Tạo OTP
-            var otpCode = GenerateOtp();
-            var otpEntity = new OtpVerification
-            {
-                Email = account.Email,
-                OtpCode = otpCode,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(5),
-                Purpose = "Register"
-            };
+            var otpEntity = GenerateOtp(newAccount.Email, "Register");
+            
             await _otpRepository.AddAsync(otpEntity);
             await _otpRepository.SaveChangesAsync();
 
             // Gửi email OTP
-            await SendOtpEmail(account.Email, otpCode);
+            await SendOtpEmail(account.Email, otpEntity.OtpCode);
         }
 
         public async Task<AuthResponse> LoginAsync(LoginRequest loginDto)
         {
-            var account = await _userRepository.GetByEmailAsync(loginDto.Email);
+            var account = await _authRepository.GetByEmailAsync(loginDto.Email);
 
             if (account == null || BCrypt.Net.BCrypt.Verify(loginDto.Password, account.PasswordHash) == false)
                 throw new InvalidOperationException("Email hoặc password sai");
@@ -81,7 +78,7 @@ namespace AuthService.Application.Services
             if (account!.IsActive == false)
                 throw new Exception("Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để xác nhận tài khoản.");
 
-            var token = GenerateJwtToken(account);
+            var token = GenerateJwtToken(loginDto.Email).Result;
 
             // Tạo refresh token
             var refreshToken = new RefreshToken
@@ -106,15 +103,16 @@ namespace AuthService.Application.Services
             };
         }
 
-        private string GenerateJwtToken(Account account)
+        private async Task<string> GenerateJwtToken(string email)
         {
+            var account = await _authRepository.GetByEmailAsync(email);
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
-                new Claim(ClaimTypes.Email, account.Email)
+                new Claim(ClaimTypes.Email, email)
             };
 
             int expiryMinutes = int.Parse(_configuration["JwtSettings:ExpiryInMinutes"]!);
@@ -130,20 +128,48 @@ namespace AuthService.Application.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private string GenerateOtp(int length = 6)
+        private OtpVerification GenerateOtp(string email, string purpose)
         {
-            var random = new Random();
-            return string.Concat(Enumerable.Range(0, length).Select(_ => random.Next(0, 10)));
+            var newOtp = new OtpVerification
+            {
+                Email = email,
+                OtpCode = new Random().Next(100000, 999999).ToString(),
+                ExpiresAt = DateTime.UtcNow.AddMinutes(10),
+                Purpose = "Register"
+            };
+            return newOtp;
         }
 
         private async Task SendOtpEmail(string email, string otp)
         {
             var subject = "Mã OTP xác nhận tài khoản";
-            var body = $"Mã OTP của bạn là <b>{otp}</b>. Hạn dùng: 5 phút.";
+            var body = $"Mã OTP của bạn là <b>{otp}</b>. Hạn dùng: 10 phút.";
             await _emailService.SendEmailAsync(email, subject, body);
         }
 
-        public async Task<bool> GetValidOtpAsync(string email, string otpCode, string purpose)
+        public async Task ResendRegisterOtpAsync(string email)
+        {
+            var user = await _authRepository.GetByEmailAsync(email);
+            if (user == null) throw new Exception("Email không tồn tại");
+
+            // Inactivate all previous OTPs for this email and purpose
+            var existingOtps = await _otpRepository.GetAllByAccountAsync(email, "Register");
+            foreach (var otp in existingOtps)
+            {
+                otp.IsUsed = true;
+            }
+
+            var newOtp = GenerateOtp(email, "Register");
+
+            await _otpRepository.AddAsync(newOtp);
+            await _otpRepository.SaveChangesAsync();
+
+            string subject = "OTP Register";
+            string body = $"Mã OTP của bạn là: <b>{newOtp.OtpCode}</b>. Hết hạn trong 10 phút.";
+            await _emailService.SendEmailAsync(email, subject, body);
+        }
+
+        public async Task<bool> GetValidRegisterOtpAsync(string email, string otpCode, string purpose)
         {
             var otp = await _otpRepository.GetValidOtpAsync(email, otpCode, purpose);
             if (otp == null)
@@ -153,63 +179,87 @@ namespace AuthService.Application.Services
             await _otpRepository.SaveChangesAsync();
 
             // Kích hoạt user
-            var user = await _userRepository.GetByEmailAsync(email);
+            var user = await _authRepository.GetByEmailAsync(email);
             if (user != null) user.IsActive = true;
-            await _userRepository.SaveChangesAsync();
+            await _authRepository.SaveChangesAsync();
 
             return true;
         }
 
-        public async Task SendResetOtpAsync(string email)
+        public async Task SendResetPasswordOtpAsync(string email)
         {
-            var user = await _userRepository.GetByEmailAsync(email);
+            var user = await _authRepository.GetByEmailAsync(email);
             if (user == null) throw new Exception("Email không tồn tại");
 
-            var otp = new OtpVerification
+            // Inactivate all previous OTPs for this email and purpose
+            var existingOtps = await _otpRepository.GetAllByAccountAsync(email, "ResetPassword");
+            foreach (var otp in existingOtps)
             {
-                Email = email,
-                OtpCode = new Random().Next(100000, 999999).ToString(),
-                ExpiresAt = DateTime.UtcNow.AddMinutes(10),
-                Purpose = "ResetPassword"
-            };
+               otp.IsUsed = true;
+            }
 
-            await _otpRepository.AddAsync(otp);
+            var newOtp = GenerateOtp(email, "ResetPassword");
+
+            await _otpRepository.AddAsync(newOtp);
             await _otpRepository.SaveChangesAsync();
 
             string subject = "OTP Reset Password";
-            string body = $"Mã OTP của bạn là: <b>{otp.OtpCode}</b>. Hết hạn trong 10 phút.";
+            string body = $"Mã OTP của bạn là: <b>{newOtp.OtpCode}</b>. Hết hạn trong 10 phút.";
             await _emailService.SendEmailAsync(email, subject, body);
         }
 
-        public async Task ResetPasswordAsync(string email, string otpCode, string newPassword)
+        public async Task<string> GetValidResetPasswordOtpAsync(string email, string otpCode, string purpose)
         {
-            var otp = await _otpRepository.GetValidOtpAsync(email, otpCode, "ResetPassword");
-            if (otp == null) throw new Exception("OTP không hợp lệ hoặc hết hạn");
+            var otp = await _otpRepository.GetValidOtpAsync(email, otpCode, purpose);
+            if (otp == null)
+                throw new Exception("OTP không hợp lệ hoặc đã hết hạn");
 
-            var user = await _userRepository.GetByEmailAsync(email);
+            otp.IsUsed = true;
+            await _otpRepository.SaveChangesAsync();
+
+            var resetToken = GenerateJwtToken(email).Result;
+
+            return resetToken;
+        }
+
+        public async Task ResetPasswordAsync(string resetToken, string newPassword)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(resetToken);
+
+            // Get expiration time
+            DateTime expires = token.ValidTo;
+            if (DateTime.UtcNow > expires)
+                throw new Exception("Token đã hết hạn");
+
+            // Get email from claims
+            var email = token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(email))
+                throw new Exception("Token không hợp lệ (không có email)");
+
+            var user = await _authRepository.GetByEmailAsync(email);
             if (user == null) throw new Exception("Người dùng không tồn tại");
 
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
-            otp.IsUsed = true;
 
-            await _userRepository.SaveChangesAsync();
+            await _authRepository.SaveChangesAsync();
             await _otpRepository.SaveChangesAsync();
         }
 
         public async Task<Account?> GetByIdAsync(Guid id)
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await _authRepository.GetByIdAsync(id);
             if (user == null) throw new Exception("Người dùng không tồn tại");
             return user;
         }
 
         public async Task ChangePasswordAsync(Account user)
         {
-            var existingUser = await _userRepository.GetByIdAsync(user.Id);
+            var existingUser = await _authRepository.GetByIdAsync(user.Id);
             if (existingUser == null) throw new Exception("Người dùng không tồn tại");
             existingUser.PasswordHash = user.PasswordHash;
             // Cập nhật các trường khác nếu cần
-            await _userRepository.ChangePasswordAsync(user);
+            await _authRepository.ChangePasswordAsync(user);
         }
 
         public async Task<(string accessToken, string refreshToken)> RefreshAsync(string refreshToken, Account account)
@@ -228,7 +278,7 @@ namespace AuthService.Application.Services
                 throw new UnauthorizedAccessException("Session expired, please login again.");
 
             // Nếu hợp lệ → cấp AccessToken + RefreshToken mới
-            var newAccessToken = GenerateJwtToken(account); // access token mới
+            var newAccessToken = GenerateJwtToken(account.Email).Result; // access token mới
 
             var newRefreshToken = new RefreshToken
             {
@@ -246,6 +296,71 @@ namespace AuthService.Application.Services
 
             return (newAccessToken, newRefreshToken.Token);
         }
+
+
+        public async Task<Account> GetCurrentAccount()
+        {
+            // Take token from header Authorization
+            var authorizationHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authorizationHeader))
+            {
+                throw new Exception("Authorization header is missing.");
+            }
+
+            // Take Token and remove "Bearer " prefix if it exists
+            var token = authorizationHeader.StartsWith("Bearer ")
+                ? authorizationHeader.Substring("Bearer ".Length).Trim()
+                : authorizationHeader.Trim();
+
+            // Encode the token 
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var secretKey = _configuration["JwtSettings:SecretKey"];
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                throw new Exception("JWT Secret Key is not configured.");
+            }
+
+            var key = Encoding.ASCII.GetBytes(secretKey);
+
+            try
+            {
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration["JwtSettings:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = _configuration["JwtSettings:Audience"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+
+                var jwtToken = (JwtSecurityToken)validatedToken;
+                var userIdClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+                if (userIdClaim == null)
+                {
+                    throw new Exception("Invalid token: User ID not found.");
+                }
+
+                if (!Guid.TryParse(userIdClaim.Value, out var userId))
+                {
+                    throw new Exception("Invalid token: User ID is not a valid GUID.");
+                }
+
+                var account = await _authRepository.GetByIdAsync(userId);
+                return account ?? throw new Exception("Account not found for the provided user ID.");
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                throw new Exception("Token has expired.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to validate token: {ex.Message}", ex);
+            }
+        }
+
 
     }
 }

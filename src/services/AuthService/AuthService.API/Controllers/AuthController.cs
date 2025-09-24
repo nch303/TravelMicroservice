@@ -1,4 +1,5 @@
 ﻿using AuthService.Application.DTOs.Requests;
+using AuthService.Application.DTOs.Responses;
 using AuthService.Application.IServiceClients;
 using AuthService.Application.IServices;
 using AuthService.Domain.Entities;
@@ -39,7 +40,7 @@ namespace AuthService.API.Controllers
 
                 //Tạo Profile User trong UserService qua ServiceClient
                 var profile = _mapper.Map<CreateProfileRequest>(registerDto);
-                profile.Id = accountId; 
+                profile.Id = accountId;
                 await _userServiceClient.CreateUserProfileAsync(profile);
 
                 return Ok(new { Message = "Đã gửi OTP về email của bạn" });
@@ -57,7 +58,7 @@ namespace AuthService.API.Controllers
         {
             try
             {
-                var success = await _authService.GetValidOtpAsync(dto.Email, dto.OtpCode, "Register");
+                var success = await _authService.GetValidRegisterOtpAsync(dto.Email, dto.OtpCode, "Register");
                 if (!success) return BadRequest(new { Message = "OTP không hợp lệ hoặc đã hết hạn" });
                 return Ok(new { Message = "Tài khoản đã được kích hoạt" });
             }
@@ -66,6 +67,20 @@ namespace AuthService.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
 
+        }
+
+        [HttpGet("resend-register-otp")]
+        public async Task<IActionResult> ResendRegisterOtp(string email)
+        {
+            try
+            {
+                await _authService.ResendRegisterOtpAsync(email);
+                return Ok(new { Message = "Đã gửi lại mã OTP về email của bạn" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("login")]
@@ -91,8 +106,23 @@ namespace AuthService.API.Controllers
         {
             try
             {
-                await _authService.SendResetOtpAsync(request.Email);
+                await _authService.SendResetPasswordOtpAsync(request.Email);
                 return Ok(new { message = "Đã gửi mã OTP về email của bạn" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
+
+        [HttpPost("verify-reset-password-otp")]
+        public async Task<IActionResult> VerifyResetPasswordOtp([FromBody] OtpRequest dto)
+        {
+            try
+            {
+                var resetToken = await _authService.GetValidResetPasswordOtpAsync(dto.Email, dto.OtpCode, "ResetPassword");
+                return Ok(resetToken);
             }
             catch (Exception ex)
             {
@@ -106,7 +136,7 @@ namespace AuthService.API.Controllers
         {
             try
             {
-                await _authService.ResetPasswordAsync(request.Email, request.OtpCode, request.NewPassword);
+                await _authService.ResetPasswordAsync(request.resetToken, request.NewPassword);
                 return Ok(new { message = "Đổi mật khẩu thành công" });
             }
             catch (Exception ex)
@@ -182,7 +212,26 @@ namespace AuthService.API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
-            }    
+            }
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            try
+            {
+                var user = await _authService.GetCurrentAccount();
+                var userResponse = _mapper.Map<AccountResponse>(user);
+
+                var profile = await _userServiceClient.GetProfileAsync(user.Id);
+                userResponse.Profile = profile;
+                return Ok(userResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

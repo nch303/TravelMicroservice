@@ -12,12 +12,15 @@ namespace AuthService.Application.IServices
     public interface IAuthService
     {
         Task RegisterAsync(Account account);
-        Task<bool> GetValidOtpAsync(string email, string otpCode, string purpose);
+        Task<bool> GetValidRegisterOtpAsync(string email, string otpCode, string purpose);
         Task<AuthResponse> LoginAsync(LoginRequest loginDto);
-        Task SendResetOtpAsync(string email);
-        Task ResetPasswordAsync(string email, string otpCode, string newPassword);
+        Task ResendRegisterOtpAsync(string email);
+        Task SendResetPasswordOtpAsync(string email);
+        Task<string> GetValidResetPasswordOtpAsync(string email, string otpCode, string purpose);
+        Task ResetPasswordAsync(string resetToken, string newPassword);
         Task<Account?> GetByIdAsync(Guid id);
         Task ChangePasswordAsync(Account user);
         Task<(string accessToken, string refreshToken)> RefreshAsync(string refreshToken, Account account);
+        Task<Account> GetCurrentAccount();
     }
 }

@@ -11,6 +11,7 @@ namespace AuthService.Domain.IRepositories
     {
         Task AddAsync(OtpVerification otp);
         Task<OtpVerification?> GetValidOtpAsync(string email, string otpCode, string purpose);
+        Task<List<OtpVerification>> GetAllByAccountAsync(string email, string purpose);
         Task SaveChangesAsync();
 
     }

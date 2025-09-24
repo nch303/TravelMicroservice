@@ -22,10 +22,10 @@ namespace UserService.Infrastructure.Configurations
             {
                 entity.HasKey(u => u.Id);
                 entity.Property(u => u.DateOfBirth);
-                entity.Property(u => u.Address).IsRequired();
-                entity.Property(u => u.AvatarUrl).IsRequired();
-                entity.Property(u => u.Gender).IsRequired();
-                entity.Property(u => u.PhoneNumber).IsRequired();
+                entity.Property(u => u.Address);
+                entity.Property(u => u.AvatarUrl);
+                entity.Property(u => u.Gender);
+                entity.Property(u => u.PhoneNumber);
                 entity.Property(u => u.Name).IsRequired();
             });
 

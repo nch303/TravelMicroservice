@@ -1,4 +1,5 @@
 ﻿using AuthService.Application.DTOs.Requests;
+using AuthService.Application.DTOs.Responses;
 using AuthService.Application.IServiceClients;
 using System;
 using System.Collections.Generic;
@@ -20,12 +21,24 @@ namespace AuthService.Application.ServiceClients
 
         public async Task CreateUserProfileAsync(CreateProfileRequest request)
         {
-            var response = await _httpClient.PostAsJsonAsync("/user/create", request);
+            var response = await _httpClient.PostAsJsonAsync("api/user/create", request);
 
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception("Failed to create user profile");
             }
+        }
+
+        public async Task<ProfileResponse?> GetProfileAsync(Guid userId)
+        {
+            var response = await _httpClient.GetAsync($"api/user/{userId}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Failed to get profile for user {userId}");
+            }
+
+            return await response.Content.ReadFromJsonAsync<ProfileResponse>();
         }
     }
 }
