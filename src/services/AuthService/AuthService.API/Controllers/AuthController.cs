@@ -121,8 +121,8 @@ namespace AuthService.API.Controllers
         {
             try
             {
-                var resetToken = await _authService.GetValidResetPasswordOtpAsync(dto.Email, dto.OtpCode, "ResetPassword");
-                return Ok(resetToken);
+                var token = await _authService.GetValidResetPasswordOtpAsync(dto.Email, dto.OtpCode, "ResetPassword");
+                return Ok(new { resetToken = token });
             }
             catch (Exception ex)
             {
