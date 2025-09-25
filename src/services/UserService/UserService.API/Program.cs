@@ -1,16 +1,21 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.Text;
+using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
 using UserService.Application.Extensions;
 using UserService.Application.Mappings;
+using UserService.Infrastructure.Configurations;
 using UserService.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
+// Load .env into environment variables
+Env.Load();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

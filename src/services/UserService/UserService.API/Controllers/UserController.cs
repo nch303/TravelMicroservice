@@ -13,12 +13,14 @@ namespace UserService.API.Controllers
     public class UserController: ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly ICloudinaryService _cloudinaryService;
         private readonly IMapper _mapper;
 
-        public UserController(IUserService userService, IMapper mapper)
+        public UserController(IUserService userService, IMapper mapper, ICloudinaryService cloudinaryService)
         {
             _userService = userService;
             _mapper = mapper;
+            _cloudinaryService = cloudinaryService;
         }
 
         [HttpGet("{id}")]
@@ -69,11 +71,27 @@ namespace UserService.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateProfile([FromBody] CreateProfileRequest request)
+        public async Task<IActionResult> CreateProfile([FromForm] CreateProfileRequest request)
         {
             try 
             {
+                string? avatarUrl = null;
+
+                try
+                {
+                    if (request.AvatarUrl != null && request.AvatarUrl.Length > 0)
+                    {
+                        using var stream = request.AvatarUrl.OpenReadStream();
+                        avatarUrl = await _cloudinaryService.UploadImageAsync(stream, request.AvatarUrl.FileName);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    return BadRequest($"File upload failed: {ex.Message}");
+                }
+
                 var user = _mapper.Map<User>(request);
+                user.AvatarUrl = avatarUrl!;
                 var createdUser = await _userService.CreateProfile(user);
                 var userResponse = _mapper.Map<UserResponse>(createdUser);
                 return Ok(userResponse);
