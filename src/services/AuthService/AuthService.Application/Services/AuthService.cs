@@ -219,18 +219,18 @@ namespace AuthService.Application.Services
 
             var resetToken = GenerateJwtToken(email).Result;
 
+            var user = await _authRepository.GetByEmailAsync(email);
+            user!.ResetToken = resetToken;
+
+            await _authRepository.SaveChangesAsync();
+
             return resetToken;
         }
 
         public async Task ResetPasswordAsync(string resetToken, string newPassword)
         {
             var handler = new JwtSecurityTokenHandler();
-            var token = handler.ReadJwtToken(resetToken);
-
-            // Get expiration time
-            DateTime expires = token.ValidTo;
-            if (DateTime.UtcNow > expires)
-                throw new Exception("Token đã hết hạn");
+            var token = handler.ReadJwtToken(resetToken);            
 
             // Get email from claims
             var email = token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
@@ -240,10 +240,19 @@ namespace AuthService.Application.Services
             var user = await _authRepository.GetByEmailAsync(email);
             if (user == null) throw new Exception("Người dùng không tồn tại");
 
+            // Compare tokens in DB and request
+            if (user.ResetToken != resetToken)
+                throw new Exception("Token không hợp lệ (không đúng token)");
+
+            // Get expiration time
+            DateTime expires = token.ValidTo;
+            if (DateTime.UtcNow > expires)
+                throw new Exception("Token đã hết hạn");
+
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.ResetToken = "";
 
             await _authRepository.SaveChangesAsync();
-            await _otpRepository.SaveChangesAsync();
         }
 
         public async Task<Account?> GetByIdAsync(Guid id)

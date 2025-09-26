@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Application.DTOs.Requests;
 using UserService.Application.DTOs.Responses;
@@ -54,27 +55,17 @@ namespace UserService.API.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserRequest request)
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromForm] UpdateUserRequest request)
         {
-            try 
+            try
             {
-                var user = _mapper.Map<User>(request);
-                var updatedUser = await _userService.UpdateProfile(user);
-                var userResponse = _mapper.Map<UserResponse>(updatedUser);
-                return Ok(userResponse);
-            }
-            catch
-            {
-                return BadRequest(new { message = "Update profile failed" });
-            }
-            
-        }
+                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid token: User ID not found" });
+                }
 
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateProfile([FromForm] CreateProfileRequest request)
-        {
-            try 
-            {
                 string? avatarUrl = null;
 
                 try
@@ -85,13 +76,30 @@ namespace UserService.API.Controllers
                         avatarUrl = await _cloudinaryService.UploadImageAsync(stream, request.AvatarUrl.FileName);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     return BadRequest($"File upload failed: {ex.Message}");
                 }
 
                 var user = _mapper.Map<User>(request);
                 user.AvatarUrl = avatarUrl!;
+                user.Id = userId; // Ensure the user ID is set from the token
+                var updatedUser = await _userService.UpdateProfile(user);
+                var userResponse = _mapper.Map<UserResponse>(updatedUser);
+                return Ok(userResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateProfile([FromBody] CreateProfileRequest request)
+        {
+            try
+            {
+                var user = _mapper.Map<User>(request);
                 var createdUser = await _userService.CreateProfile(user);
                 var userResponse = _mapper.Map<UserResponse>(createdUser);
                 return Ok(userResponse);
@@ -99,7 +107,7 @@ namespace UserService.API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
-            }         
+            }   
         }
     }
 }

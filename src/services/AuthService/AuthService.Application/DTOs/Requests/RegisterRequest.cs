@@ -20,7 +20,6 @@ namespace AuthService.Application.DTOs.Requests
         public string Name { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
-        public IFormFile? AvatarUrl { get; set; }
         public string Gender { get; set; } = string.Empty;
     }
 }

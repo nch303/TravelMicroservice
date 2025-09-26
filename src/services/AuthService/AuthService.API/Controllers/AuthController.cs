@@ -29,7 +29,7 @@ namespace AuthService.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromForm] RegisterRequest registerDto)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest registerDto)
         {
             try
             {
