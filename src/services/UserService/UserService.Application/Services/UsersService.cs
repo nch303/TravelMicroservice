@@ -27,7 +27,7 @@ namespace UserService.Application.Services
             return users;
         }
 
-        public Task<User> GetById(Guid id)
+        public Task<User?> GetById(Guid id)
         {
             var user = _userRepository.GetByIdAsync(id);
             if(user == null || user.Result == null)

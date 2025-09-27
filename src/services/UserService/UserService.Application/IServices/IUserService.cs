@@ -9,7 +9,7 @@ namespace UserService.Application.IServices
 {
     public interface IUserService
     {
-        Task<User> GetById(Guid id);
+        Task<User?> GetById(Guid id);
         Task<List<User>> GetAll();
         Task<User> UpdateProfile(User user);
         Task<User> CreateProfile(User user);
