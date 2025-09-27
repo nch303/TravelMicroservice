@@ -21,7 +21,7 @@ namespace AuthService.Application.ServiceClients
 
         public async Task CreateUserProfileAsync(CreateProfileRequest request)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/user/create", request);
+            var response = await _httpClient.PostAsJsonAsync("/api/user/create", request);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -31,7 +31,7 @@ namespace AuthService.Application.ServiceClients
 
         public async Task<ProfileResponse?> GetProfileAsync(Guid userId)
         {
-            var response = await _httpClient.GetAsync($"api/user/{userId}");
+            var response = await _httpClient.GetAsync($"/api/user/{userId}");
 
             if (!response.IsSuccessStatusCode)
             {

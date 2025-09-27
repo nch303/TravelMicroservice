@@ -44,6 +44,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Infrastructure"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Domain", "src\services\UserService\UserService.Domain\UserService.Domain.csproj", "{1898F87E-410A-4B68-BCD5-B2EC7E652EE5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MessageService", "MessageService", "{3522A76A-05BA-44C5-86E2-6872DD6DF25A}"
+	ProjectSection(SolutionItems) = preProject
+		src\services\MessageService\Dockerfile = src\services\MessageService\Dockerfile
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageService.Application", "src\services\MessageService\MessageService.Application\MessageService.Application.csproj", "{5F3495CF-957A-49CE-AE38-4F552CCD95DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageService.Infrastructure", "src\services\MessageService\MessageService.Infrastructure\MessageService.Infrastructure.csproj", "{09C57E2B-91F7-4B80-AAE8-0D6A1FD92D78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageService.Domain", "src\services\MessageService\MessageService.Domain\MessageService.Domain.csproj", "{14976EC1-DD2A-49C4-85C7-52BDE53A18EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageService.API", "src\services\MessageService\MessageService.API\MessageService.API.csproj", "{CA41BC35-CD5F-43E2-A2DF-AD8D3B1323FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +99,22 @@ Global
 		{1898F87E-410A-4B68-BCD5-B2EC7E652EE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1898F87E-410A-4B68-BCD5-B2EC7E652EE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1898F87E-410A-4B68-BCD5-B2EC7E652EE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F3495CF-957A-49CE-AE38-4F552CCD95DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F3495CF-957A-49CE-AE38-4F552CCD95DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F3495CF-957A-49CE-AE38-4F552CCD95DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F3495CF-957A-49CE-AE38-4F552CCD95DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09C57E2B-91F7-4B80-AAE8-0D6A1FD92D78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09C57E2B-91F7-4B80-AAE8-0D6A1FD92D78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09C57E2B-91F7-4B80-AAE8-0D6A1FD92D78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09C57E2B-91F7-4B80-AAE8-0D6A1FD92D78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14976EC1-DD2A-49C4-85C7-52BDE53A18EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14976EC1-DD2A-49C4-85C7-52BDE53A18EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14976EC1-DD2A-49C4-85C7-52BDE53A18EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14976EC1-DD2A-49C4-85C7-52BDE53A18EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA41BC35-CD5F-43E2-A2DF-AD8D3B1323FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA41BC35-CD5F-43E2-A2DF-AD8D3B1323FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA41BC35-CD5F-43E2-A2DF-AD8D3B1323FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA41BC35-CD5F-43E2-A2DF-AD8D3B1323FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,6 +133,11 @@ Global
 		{0968F093-76D3-48D0-8D3B-D7CE1AEC382C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{06484D8C-F311-4E3F-A06E-183F3C82D072} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{1898F87E-410A-4B68-BCD5-B2EC7E652EE5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{3522A76A-05BA-44C5-86E2-6872DD6DF25A} = {5D6FDDF7-0D87-4ABA-BBDA-2A4996BA0760}
+		{5F3495CF-957A-49CE-AE38-4F552CCD95DD} = {3522A76A-05BA-44C5-86E2-6872DD6DF25A}
+		{09C57E2B-91F7-4B80-AAE8-0D6A1FD92D78} = {3522A76A-05BA-44C5-86E2-6872DD6DF25A}
+		{14976EC1-DD2A-49C4-85C7-52BDE53A18EF} = {3522A76A-05BA-44C5-86E2-6872DD6DF25A}
+		{CA41BC35-CD5F-43E2-A2DF-AD8D3B1323FB} = {3522A76A-05BA-44C5-86E2-6872DD6DF25A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DDF00A1D-DAD5-44E8-B8DC-398CBD101221}
