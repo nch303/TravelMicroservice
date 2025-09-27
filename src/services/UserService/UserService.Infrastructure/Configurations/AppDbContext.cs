@@ -21,11 +21,11 @@ namespace UserService.Infrastructure.Configurations
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(u => u.Id);
-                entity.Property(u => u.DateOfBirth);
-                entity.Property(u => u.Address);
-                entity.Property(u => u.AvatarUrl);
+                entity.Property(u => u.DateOfBirth).IsRequired();
+                entity.Property(u => u.Address).IsRequired(false);
+                entity.Property(u => u.AvatarUrl).IsRequired(false);
                 entity.Property(u => u.Gender).IsRequired();
-                entity.Property(u => u.PhoneNumber);
+                entity.Property(u => u.PhoneNumber).IsRequired(false);
                 entity.Property(u => u.Name).IsRequired();
             });
 
