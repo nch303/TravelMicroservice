@@ -11,6 +11,10 @@
         "Action": "Start"
       },
       {
+        "Path": "src\\services\\ScheduleService\\ScheduleService.API\\ScheduleService.API.csproj",
+        "Action": "Start"
+      },
+      {
         "Path": "src\\gateway\\ApiGateway\\ApiGateway.csproj",
         "Action": "Start",
         "DebugTarget": "https"

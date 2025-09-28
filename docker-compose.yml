@@ -35,7 +35,7 @@ services:
        dockerfile: Dockerfile
      container_name: userservice
      ports:
-       - "5003:80"
+       - "5002:80"
      environment:
        - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
        - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
@@ -43,6 +43,18 @@ services:
        - ASPNETCORE_URLS=http://+:80
      networks:
        - travelnet
+
+  scheduleservice:
+     build:
+       context: ./src/services/ScheduleService
+       dockerfile: Dockerfile
+     container_name: scheduleservice
+     ports:
+       - "5003:80"
+     environment:
+       - ASPNETCORE_URLS=http://+:80
+     networks:
+       - travelnet  
 
 networks:
   travelnet:

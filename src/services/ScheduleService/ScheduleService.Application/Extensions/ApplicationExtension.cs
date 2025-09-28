@@ -1,23 +1,22 @@
-﻿using AuthService.Application.IServiceClients;
-using AuthService.Application.IServices;
-using AuthService.Application.ServiceClients;
-using AuthService.Application.Services;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using ScheduleService.Application.IServiceClients;
+using ScheduleService.Application.IServices;
+using ScheduleService.Application.ServiceClients;
+using ScheduleService.Application.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuthService.Application.Extensions
+namespace ScheduleService.Application.Extensions
 {
     public static class ApplicationExtensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            services.AddScoped<IAuthService, AuthServices>();
-            services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+            services.AddScoped<IScheduleService, SchedulesService>();
+            services.AddScoped<IScheduleParticipantService, ScheduleParticipantService>();
 
             // Cấu hình gọi API từ các service khác
 
@@ -27,7 +26,7 @@ namespace AuthService.Application.Extensions
             //Docker
             //var link = "http://apigateway:80";
 
-            services.AddHttpClient<IUserServiceClient, UserServiceClient>(client =>
+            services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(client =>
             {
                 client.BaseAddress = new Uri(link);
             });
@@ -35,5 +34,4 @@ namespace AuthService.Application.Extensions
             return services;
         }
     }
-
 }
