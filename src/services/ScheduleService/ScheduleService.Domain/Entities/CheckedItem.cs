@@ -14,5 +14,8 @@ namespace ScheduleService.Domain.Entities
         // Foreign key to Schedule (1-N)
         public Guid ScheduleId { get; set; }
         public Schedule Schedule { get; set; }
+
+        // Quan hệ N-N thông qua CheckedItemParticipant
+        public ICollection<CheckedItemParticipant> CheckedItemParticipants { get; set; }
     }
 }

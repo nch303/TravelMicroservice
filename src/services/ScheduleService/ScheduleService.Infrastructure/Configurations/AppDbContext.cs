@@ -16,8 +16,8 @@ namespace ScheduleService.Infrastructure.Configurations
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<ScheduleParticipant> ScheduleParticipants { get; set; }
         public DbSet<ScheduleActivity> ScheduleActivities { get; set; }
-        public DbSet<CheckedItem> CheckLists { get; set; }
-        public DbSet<CheckedItemUser> CheckedItemUsers { get; set; }
+        public DbSet<CheckedItem> CheckedItems { get; set; }
+        public DbSet<CheckedItemParticipant> CheckedItemParticipants { get; set; }
         public DbSet<ScheduleMedia> ScheduleMedias { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -85,12 +85,22 @@ namespace ScheduleService.Infrastructure.Configurations
                     .OnDelete(DeleteBehavior.Cascade); // Xoá cascade nếu Schedule bị xoá
             });
 
-            modelBuilder.Entity<CheckedItemUser>(entity =>
+            modelBuilder.Entity<CheckedItemParticipant>(entity =>
             {
-                entity.HasKey(clu => clu.CheckedItemId);
-                entity.Property(clu => clu.UserId).IsRequired();
-                entity.Property(clu => clu.IsChecked).HasDefaultValue(false);
-                entity.Property(clu => clu.CheckedAt);
+                entity.HasKey(cip => new { cip.CheckedItemId, cip.ScheduleParticipantId });
+
+                entity.Property(cip => cip.IsChecked).HasDefaultValue(false);
+                entity.Property(cip => cip.CheckedAt);
+
+                entity.HasOne(cip => cip.CheckedItem)
+                      .WithMany(ci => ci.CheckedItemParticipants)
+                      .HasForeignKey(cip => cip.CheckedItemId)
+                      .OnDelete(DeleteBehavior.Cascade); // giữ cascade ở đây
+
+                entity.HasOne(cip => cip.ScheduleParticipant)
+                      .WithMany(sp => sp.CheckedItemParticipants)
+                      .HasForeignKey(cip => cip.ScheduleParticipantId)
+                      .OnDelete(DeleteBehavior.Restrict); // hoặc NoAction
             });
 
             modelBuilder.Entity<ScheduleMedia>(entity =>

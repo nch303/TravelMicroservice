@@ -6,26 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ScheduleService.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class updateDBcontext : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "CheckedItemUser",
-                columns: table => new
-                {
-                    CheckedItemId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IsChecked = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    CheckedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CheckedItemUser", x => x.CheckedItemId);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Schedules",
                 columns: table => new
@@ -51,7 +36,7 @@ namespace ScheduleService.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CheckedItem",
+                name: "CheckedItems",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -61,9 +46,9 @@ namespace ScheduleService.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CheckedItem", x => x.Id);
+                    table.PrimaryKey("PK_CheckedItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CheckedItem_Schedules_ScheduleId",
+                        name: "FK_CheckedItems_Schedules_ScheduleId",
                         column: x => x.ScheduleId,
                         principalTable: "Schedules",
                         principalColumn: "Id",
@@ -71,7 +56,7 @@ namespace ScheduleService.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ScheduleActivity",
+                name: "ScheduleActivities",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -87,9 +72,9 @@ namespace ScheduleService.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ScheduleActivity", x => x.Id);
+                    table.PrimaryKey("PK_ScheduleActivities", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ScheduleActivity_Schedules_ScheduleId",
+                        name: "FK_ScheduleActivities_Schedules_ScheduleId",
                         column: x => x.ScheduleId,
                         principalTable: "Schedules",
                         principalColumn: "Id",
@@ -97,7 +82,7 @@ namespace ScheduleService.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ScheduleMedia",
+                name: "ScheduleMedias",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -112,9 +97,9 @@ namespace ScheduleService.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ScheduleMedia", x => x.Id);
+                    table.PrimaryKey("PK_ScheduleMedias", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ScheduleMedia_Schedules_ScheduleId",
+                        name: "FK_ScheduleMedias_Schedules_ScheduleId",
                         column: x => x.ScheduleId,
                         principalTable: "Schedules",
                         principalColumn: "Id",
@@ -122,7 +107,7 @@ namespace ScheduleService.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ScheduleParticipant",
+                name: "ScheduleParticipants",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -134,33 +119,64 @@ namespace ScheduleService.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ScheduleParticipant", x => x.Id);
+                    table.PrimaryKey("PK_ScheduleParticipants", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ScheduleParticipant_Schedules_ScheduleId",
+                        name: "FK_ScheduleParticipants_Schedules_ScheduleId",
                         column: x => x.ScheduleId,
                         principalTable: "Schedules",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "CheckedItemParticipants",
+                columns: table => new
+                {
+                    CheckedItemId = table.Column<int>(type: "int", nullable: false),
+                    ScheduleParticipantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsChecked = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    CheckedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CheckedItemParticipants", x => new { x.CheckedItemId, x.ScheduleParticipantId });
+                    table.ForeignKey(
+                        name: "FK_CheckedItemParticipants_CheckedItems_CheckedItemId",
+                        column: x => x.CheckedItemId,
+                        principalTable: "CheckedItems",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CheckedItemParticipants_ScheduleParticipants_ScheduleParticipantId",
+                        column: x => x.ScheduleParticipantId,
+                        principalTable: "ScheduleParticipants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
-                name: "IX_CheckedItem_ScheduleId",
-                table: "CheckedItem",
+                name: "IX_CheckedItemParticipants_ScheduleParticipantId",
+                table: "CheckedItemParticipants",
+                column: "ScheduleParticipantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CheckedItems_ScheduleId",
+                table: "CheckedItems",
                 column: "ScheduleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ScheduleActivity_ScheduleId",
-                table: "ScheduleActivity",
+                name: "IX_ScheduleActivities_ScheduleId",
+                table: "ScheduleActivities",
                 column: "ScheduleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ScheduleMedia_ScheduleId",
-                table: "ScheduleMedia",
+                name: "IX_ScheduleMedias_ScheduleId",
+                table: "ScheduleMedias",
                 column: "ScheduleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ScheduleParticipant_ScheduleId",
-                table: "ScheduleParticipant",
+                name: "IX_ScheduleParticipants_ScheduleId",
+                table: "ScheduleParticipants",
                 column: "ScheduleId");
         }
 
@@ -168,19 +184,19 @@ namespace ScheduleService.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CheckedItem");
+                name: "CheckedItemParticipants");
 
             migrationBuilder.DropTable(
-                name: "CheckedItemUser");
+                name: "ScheduleActivities");
 
             migrationBuilder.DropTable(
-                name: "ScheduleActivity");
+                name: "ScheduleMedias");
 
             migrationBuilder.DropTable(
-                name: "ScheduleMedia");
+                name: "CheckedItems");
 
             migrationBuilder.DropTable(
-                name: "ScheduleParticipant");
+                name: "ScheduleParticipants");
 
             migrationBuilder.DropTable(
                 name: "Schedules");

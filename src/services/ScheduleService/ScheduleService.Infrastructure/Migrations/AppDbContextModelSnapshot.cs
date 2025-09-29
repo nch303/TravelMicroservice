@@ -42,16 +42,16 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("CheckLists");
+                    b.ToTable("CheckedItems");
                 });
 
-            modelBuilder.Entity("ScheduleService.Domain.Entities.CheckedItemUser", b =>
+            modelBuilder.Entity("ScheduleService.Domain.Entities.CheckedItemParticipant", b =>
                 {
                     b.Property<int>("CheckedItemId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CheckedItemId"));
+                    b.Property<Guid>("ScheduleParticipantId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CheckedAt")
                         .HasColumnType("datetime2");
@@ -61,12 +61,11 @@ namespace ScheduleService.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.HasKey("CheckedItemId", "ScheduleParticipantId");
 
-                    b.HasKey("CheckedItemId");
+                    b.HasIndex("ScheduleParticipantId");
 
-                    b.ToTable("CheckedItemUsers");
+                    b.ToTable("CheckedItemParticipants");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.Schedule", b =>
@@ -276,6 +275,25 @@ namespace ScheduleService.Infrastructure.Migrations
                     b.Navigation("Schedule");
                 });
 
+            modelBuilder.Entity("ScheduleService.Domain.Entities.CheckedItemParticipant", b =>
+                {
+                    b.HasOne("ScheduleService.Domain.Entities.CheckedItem", "CheckedItem")
+                        .WithMany("CheckedItemParticipants")
+                        .HasForeignKey("CheckedItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ScheduleService.Domain.Entities.ScheduleParticipant", "ScheduleParticipant")
+                        .WithMany("CheckedItemParticipants")
+                        .HasForeignKey("ScheduleParticipantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CheckedItem");
+
+                    b.Navigation("ScheduleParticipant");
+                });
+
             modelBuilder.Entity("ScheduleService.Domain.Entities.ScheduleActivity", b =>
                 {
                     b.HasOne("ScheduleService.Domain.Entities.Schedule", "Schedule")
@@ -309,6 +327,11 @@ namespace ScheduleService.Infrastructure.Migrations
                     b.Navigation("Schedule");
                 });
 
+            modelBuilder.Entity("ScheduleService.Domain.Entities.CheckedItem", b =>
+                {
+                    b.Navigation("CheckedItemParticipants");
+                });
+
             modelBuilder.Entity("ScheduleService.Domain.Entities.Schedule", b =>
                 {
                     b.Navigation("CheckLists");
@@ -318,6 +341,11 @@ namespace ScheduleService.Infrastructure.Migrations
                     b.Navigation("ScheduleMedias");
 
                     b.Navigation("ScheduleParticipants");
+                });
+
+            modelBuilder.Entity("ScheduleService.Domain.Entities.ScheduleParticipant", b =>
+                {
+                    b.Navigation("CheckedItemParticipants");
                 });
 #pragma warning restore 612, 618
         }
