@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ScheduleService.Domain.Enums;
 
 namespace ScheduleService.Domain.Entities
 {
@@ -21,7 +22,7 @@ namespace ScheduleService.Domain.Entities
         public bool IsShared { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public string Status { get; set; }
+        public ScheduleStatus Status { get; set; }
 
         public Schedule()
         {

@@ -15,5 +15,6 @@ namespace ScheduleService.Application.IServices
         Task JoinScheduleAsync(string sharedCode, Guid userId);
         Task<Schedule> UpdateScheduleByIdAsync(Schedule newSchedule, Guid id);
         Task<bool> CancelScheduleAsync(Guid id);
+        Task CreateScheduleAsync(Schedule schedule);
     }
 }

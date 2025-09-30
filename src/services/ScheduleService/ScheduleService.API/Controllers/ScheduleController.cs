@@ -22,15 +22,20 @@ namespace ScheduleService.API.Controllers
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IScheduleParticipantService _scheduleParticipantService;
         private readonly ICheckItemParticipantService _checkItemParticipantService;
-        private readonly IScheduleActivityService _scheduleActivitiesService;
+        private readonly IScheduleActivityService _scheduleActivityService;
+        private readonly ICheckedItemService _checkedItemService;
+
 
         public ScheduleController(IScheduleService scheduleService, IMapper mapper, IAuthServiceClient authServiceClient
-            , IScheduleParticipantService scheduleParticipantService)
+            , IScheduleParticipantService scheduleParticipantService, IScheduleActivityService scheduleActivityService, 
+            ICheckedItemService checkedItemService)
         {
             _scheduleService = scheduleService;
             _mapper = mapper;
             _authServiceClient = authServiceClient;
             _scheduleParticipantService = scheduleParticipantService;
+            _scheduleActivityService = scheduleActivityService;
+            _checkedItemService = checkedItemService;
         }
 
         [HttpGet("{id}")]
@@ -101,6 +106,7 @@ namespace ScheduleService.API.Controllers
             }
         }
 
+
         [HttpPut("schedule/{id}")]
         public async Task<IActionResult> UpdateSchedule(Guid id, [FromBody] UpdateScheduleRequest newSchedule)
         {
@@ -109,6 +115,32 @@ namespace ScheduleService.API.Controllers
                 var updated = await _scheduleService.UpdateScheduleByIdAsync(_mapper.Map<Schedule>(newSchedule), id);
                 var result = _mapper.Map<ScheduleResponse>(updated);
                 return Ok(result);
+
+        [HttpPost("create")]
+        [Authorize]
+        public async Task<IActionResult> CreateSchedule([FromBody] CreateScheduleRequest request)
+        {
+            try
+            {
+                var user = await _authServiceClient.GetCurrentAccountAsync();
+                var schedule = _mapper.Map<Schedule>(request);
+                schedule.OwnerId = user!.Id;
+                schedule.Status = ScheduleStatus.Active;
+                schedule.CreatedAt = DateTime.UtcNow;
+                await _scheduleService.CreateScheduleAsync(schedule);
+                // Add owner as a participant
+                var participant = new ScheduleParticipant
+                {
+                    Id = Guid.NewGuid(),
+                    ScheduleId = schedule.Id,
+                    UserId = user.Id,
+                    Role = ParticipantRole.Owner,
+                    Status = ParticipantStatus.Active
+                };
+                await _scheduleParticipantService.AddScheduleParticipantAsync(participant);
+                await _scheduleService.SaveChangesAsync();
+                var scheduleResponse = _mapper.Map<ScheduleResponse>(schedule);
+                return Ok(scheduleResponse);
             }
             catch (Exception ex)
             {
@@ -130,6 +162,17 @@ namespace ScheduleService.API.Controllers
                 {
                     return BadRequest(new { message = "Schedule cancel unsuccessfull" });
                 }
+
+        [HttpPost("activity/add")]
+        [Authorize]
+        public async Task<IActionResult> AddActivityToSchedule([FromBody] CreateScheduleActivityRequest request)
+        {
+            try
+            {
+                var activity = _mapper.Map<ScheduleActivity>(request);
+                await _scheduleActivityService.AddActivityAsync(activity);
+                var activityResponse = _mapper.Map<ScheduleActivityResponse>(activity);
+                return Ok(activityResponse);
             }
             catch (Exception ex)
             {
@@ -144,6 +187,16 @@ namespace ScheduleService.API.Controllers
             {
                 await _scheduleParticipantService.LeaveScheduleAsync(scheduleId, userId);
                 return NoContent();
+
+        [HttpGet("activities/getAll{scheduleId}")]
+        [Authorize]
+        public async Task<IActionResult> GetAllActivitiesByScheduleId(Guid scheduleId)
+        {
+            try
+            {
+                var activities = await _scheduleActivityService.GetActivitiesByScheduleIdAsync(scheduleId);
+                var activitiesResponse = _mapper.Map<List<ScheduleActivityResponse>>(activities);
+                return Ok(activitiesResponse);
             }
             catch (Exception ex)
             {
@@ -158,6 +211,17 @@ namespace ScheduleService.API.Controllers
             {
                 var activities = await _scheduleActivitiesService.GetActiviyListByScheduleId(id);
                 return Ok(activities);
+
+        [HttpPost("checked-items/add")]
+        [Authorize]
+        public async Task<IActionResult> AddCheckedItemToActivity([FromBody] List<CreateCheckedItemRequest> request)
+        {
+            try
+            {   
+                var checkedItems = _mapper.Map<List<CheckedItem>>(request);
+                await _checkedItemService.AddCheckedItemsAsync(checkedItems);
+                var checkedItemResponse = _mapper.Map<List<CheckedItemResponse>>(checkedItems);
+                return Ok(checkedItemResponse);
             }
             catch (Exception ex)
             {
@@ -198,6 +262,21 @@ namespace ScheduleService.API.Controllers
         {
             await _checkItemParticipantService.DeleteManyAsync(keys);
             return NoContent();
+
+        [HttpGet("checked-items/{scheduleId}")]
+        [Authorize]
+        public async Task<IActionResult> GetCheckedItemsByScheduleId(Guid scheduleId)
+        {
+            try
+            {
+                var items = await _checkedItemService.GetByScheduleIdAsync(scheduleId);
+                var response = _mapper.Map<List<CheckedItemResponse>>(items);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

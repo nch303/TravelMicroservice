@@ -19,6 +19,7 @@ namespace ScheduleService.Application.Extensions
             services.AddScoped<IScheduleParticipantService, ScheduleParticipantService>();
             services.AddScoped<IScheduleActivityService, ScheduleActivityService>();
             services.AddScoped<ICheckItemParticipantService, CheckItemParticipantService>();
+            services.AddScoped<ICheckedItemService, CheckedItemService>();
 
             // Cấu hình gọi API từ các service khác
 

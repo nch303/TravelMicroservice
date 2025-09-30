@@ -5,16 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using ScheduleService.Domain.Entities;
 
-
-
-namespace ScheduleService.Application.IServices
+namespace ScheduleService.Domain.IRepositories
 {
-    public interface IScheduleActivityService
+    public interface IScheduleAcitvitiyRepository
     {
-        Task<ScheduleActivity> UpdateActivityById(ScheduleActivity newActivity, int activityId);
-        Task DeleteActivityById(int activityId);
         Task AddActivityAsync(ScheduleActivity activity);
         Task<List<ScheduleActivity>> GetActivitiesByScheduleIdAsync(Guid scheduleId);
     }
 }
-

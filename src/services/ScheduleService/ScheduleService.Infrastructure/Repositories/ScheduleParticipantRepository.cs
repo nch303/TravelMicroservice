@@ -48,7 +48,7 @@ namespace ScheduleService.Infrastructure.Repositories
         public async Task<int> AmountParticipantsInScheduleAsync(Guid scheduleId)
         {
             return await _context.ScheduleParticipants
-                .CountAsync(sp => sp.ScheduleId == scheduleId && sp.Status == "Active");
+                .CountAsync(sp => sp.ScheduleId == scheduleId && sp.Status == ParticipantStatus.Active);
         }
     }
 }

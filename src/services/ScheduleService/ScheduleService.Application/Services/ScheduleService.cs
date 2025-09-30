@@ -79,7 +79,7 @@ namespace ScheduleService.Application.Services
                 ScheduleId = schedule.Id,
                 Role = ParticipantRole.Viewer,
                 JoineddAt = DateTime.UtcNow,
-                Status = "Active"
+                Status = ParticipantStatus.Active
             };
 
             await _scheduleParticipantRepository.AddScheduleParticipantAsync(participant);
@@ -124,6 +124,11 @@ namespace ScheduleService.Application.Services
             await _scheduleRepository.SaveChangesAsync();
 
             return true;
+
+        public async Task CreateScheduleAsync(Schedule schedule)
+        {
+            await _scheduleRepository.CreateScheduleAsync(schedule);
+            await _scheduleRepository.SaveChangesAsync();
         }
     }
 }
