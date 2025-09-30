@@ -85,5 +85,45 @@ namespace ScheduleService.Application.Services
             await _scheduleParticipantRepository.AddScheduleParticipantAsync(participant);
             await _scheduleRepository.SaveChangesAsync();
         }
+
+        public async Task<Schedule> UpdateScheduleByIdAsync(Schedule newSchedule, Guid id)
+        {
+            var schedule = await _scheduleRepository.GetScheduleByIdAsync(id);
+            if (schedule == null)
+            {
+                throw new KeyNotFoundException($"Schedule with Id {id} not found.");
+            }
+
+            // Update fields
+            schedule.Title = newSchedule.Title;
+            schedule.StartLocation = newSchedule.StartLocation;
+            schedule.Destination = newSchedule.Destination;
+            schedule.StartDate = newSchedule.StartDate;
+            schedule.EndDate = newSchedule.EndDate;
+            schedule.Notes = newSchedule.Notes;
+            schedule.IsShared = newSchedule.IsShared;
+
+            // Always update UpdatedAt
+            schedule.UpdatedAt = DateTime.UtcNow;
+
+            // Save changes
+            await _scheduleRepository.SaveChangesAsync();
+
+            return schedule;
+        }
+
+        public async Task<bool> CancelScheduleAsync(Guid id)
+        {
+            var schedule = await _scheduleRepository.GetScheduleByIdAsync(id);
+            if (schedule == null)
+            {
+                throw new KeyNotFoundException($"Schedule with Id {id} not found.");
+            }
+            schedule.Status = "Canceled";
+            // Save changes
+            await _scheduleRepository.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

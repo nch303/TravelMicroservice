@@ -1,21 +1,24 @@
-﻿using ScheduleService.Application.IServices;
-using ScheduleService.Domain.Entities;
-using ScheduleService.Domain.IRepositories;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ScheduleService.Application.IServices;
+using ScheduleService.Domain.Entities;
+using ScheduleService.Domain.Enums;
+using ScheduleService.Domain.IRepositories;
 
 namespace ScheduleService.Application.Services
 {
     public class ScheduleParticipantService: IScheduleParticipantService
     {
         private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
+        private readonly IScheduleRepository _scheduleRepository; 
 
-        public ScheduleParticipantService(IScheduleParticipantRepository scheduleParticipantRepository)
+        public ScheduleParticipantService(IScheduleParticipantRepository scheduleParticipantRepository, IScheduleRepository scheduleRepository)
         {
             _scheduleParticipantRepository = scheduleParticipantRepository;
+            _scheduleRepository = scheduleRepository;
         }
 
         public async Task<ScheduleParticipant?> GetByUserIdAndScheduleIdAsync(Guid userId, Guid scheduleId)
@@ -36,6 +39,28 @@ namespace ScheduleService.Application.Services
                 throw new Exception("No schedules found for this participant");
             }
             return schedules;
+        }
+
+        public async Task LeaveScheduleAsync(Guid scheduleId, Guid userId)
+        {
+            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(userId, scheduleId);
+            if (participant == null || participant.Status != "Active")
+                throw new InvalidOperationException("User is not an active participant.");
+
+            participant.Status = "Left";
+            participant.JoineddAt = DateTime.UtcNow;
+
+            var schedule = await _scheduleRepository.GetScheduleByIdAsync(scheduleId);
+            if (schedule == null)
+                throw new KeyNotFoundException("Schedule not found.");
+
+            if (schedule.ParticipantsCount > 0)
+                schedule.ParticipantsCount--;
+
+            schedule.UpdatedAt = DateTime.UtcNow;
+
+            await _scheduleRepository.SaveChangesAsync();
+            await _scheduleParticipantRepository.SaveChangesAsync();
         }
     }
 }

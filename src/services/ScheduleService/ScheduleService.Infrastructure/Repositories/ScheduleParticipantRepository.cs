@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ScheduleService.Domain.Entities;
+using ScheduleService.Domain.Enums;
 using ScheduleService.Domain.IRepositories;
 using ScheduleService.Infrastructure.Configurations;
 using System;
