@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ScheduleService.Application.DTOs.Requests;
 using ScheduleService.Application.DTOs.Responses;
 using ScheduleService.Domain.Entities;
 using System;
@@ -15,7 +16,12 @@ namespace ScheduleService.Application.Mappings
         public MappingProfile()
         {
             CreateMap<Schedule, ScheduleResponse>();
-                
+            CreateMap<CreateScheduleRequest, Schedule>();
+            CreateMap<ScheduleActivity, ScheduleActivityResponse>();
+            CreateMap<CreateScheduleActivityRequest, ScheduleActivity>();
+            CreateMap<CreateCheckedItemRequest, CheckedItem>();
+            CreateMap<CheckedItem, CheckedItemResponse>();
+
         }
     }
 }

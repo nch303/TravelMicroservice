@@ -13,5 +13,6 @@ namespace ScheduleService.Application.IServices
         Task SaveChangesAsync();
         Task<string> ShareScheduleAsync(Guid id);
         Task JoinScheduleAsync(string sharedCode, Guid userId);
+        Task CreateScheduleAsync(Schedule schedule);
     }
 }

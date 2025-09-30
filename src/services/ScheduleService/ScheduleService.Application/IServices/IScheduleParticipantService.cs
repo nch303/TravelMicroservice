@@ -11,5 +11,6 @@ namespace ScheduleService.Application.IServices
     {
         Task<ScheduleParticipant> GetByUserIdAndScheduleIdAsync(Guid userId, Guid scheduleId);
         Task<List<ScheduleParticipant>> GetAllScheduleByParticipantIdAsync(Guid participantId);
+        Task<ScheduleParticipant> AddScheduleParticipantAsync(ScheduleParticipant participant);
     }
 }

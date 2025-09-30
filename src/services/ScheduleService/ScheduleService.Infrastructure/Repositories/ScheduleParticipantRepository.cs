@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ScheduleService.Domain.Entities;
+using ScheduleService.Domain.Enums;
 using ScheduleService.Domain.IRepositories;
 using ScheduleService.Infrastructure.Configurations;
 using System;
@@ -47,7 +48,7 @@ namespace ScheduleService.Infrastructure.Repositories
         public async Task<int> AmountParticipantsInScheduleAsync(Guid scheduleId)
         {
             return await _context.ScheduleParticipants
-                .CountAsync(sp => sp.ScheduleId == scheduleId && sp.Status == "Active");
+                .CountAsync(sp => sp.ScheduleId == scheduleId && sp.Status == ParticipantStatus.Active);
         }
     }
 }
