@@ -130,7 +130,6 @@ namespace ScheduleService.API.Controllers
                 {
                     return BadRequest(new { message = "Schedule cancel unsuccessfull" });
                 }
-                
             }
             catch (Exception ex)
             {
@@ -141,8 +140,15 @@ namespace ScheduleService.API.Controllers
         [HttpPost("schedule/{scheduleId}/leave/{userId}")]
         public async Task<IActionResult> LeaveSchedule(Guid scheduleId, Guid userId)
         {
-            await _scheduleParticipantService.LeaveScheduleAsync(scheduleId, userId);
-            return NoContent();
+            try
+            {
+                await _scheduleParticipantService.LeaveScheduleAsync(scheduleId, userId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpGet("schedule/{id}/activities")]
