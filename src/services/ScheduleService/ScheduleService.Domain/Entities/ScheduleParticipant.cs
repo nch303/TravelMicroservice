@@ -13,7 +13,7 @@ namespace ScheduleService.Domain.Entities
         public Guid UserId { get; set; }
         public ParticipantRole Role { get; set; } 
         public DateTime JoineddAt { get; set; }
-        public string Status { get; set; }
+        public ParticipantStatus Status { get; set; }
 
         // Foreign key to Schedule (1-N)
         public Guid ScheduleId { get; set; }

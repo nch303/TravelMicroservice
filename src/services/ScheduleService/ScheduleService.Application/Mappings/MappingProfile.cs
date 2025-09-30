@@ -17,7 +17,11 @@ namespace ScheduleService.Application.Mappings
         {
             CreateMap<Schedule, ScheduleResponse>();
             CreateMap<CreateScheduleRequest, Schedule>();
-                
+            CreateMap<ScheduleActivity, ScheduleActivityResponse>();
+            CreateMap<CreateScheduleActivityRequest, ScheduleActivity>();
+            CreateMap<CreateCheckedItemRequest, CheckedItem>();
+            CreateMap<CheckedItem, CheckedItemResponse>();
+
         }
     }
 }

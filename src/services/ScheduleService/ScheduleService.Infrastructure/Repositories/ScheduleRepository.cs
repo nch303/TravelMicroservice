@@ -21,7 +21,7 @@ namespace ScheduleService.Infrastructure.Repositories
 
         public async Task<Schedule?> GetScheduleByIdAsync(Guid id)
         {
-            return await _context.Schedules.FindAsync(id);
+            return await _context.Schedules.FirstOrDefaultAsync(s => s.Id == id);
         }
 
         public async Task SaveChangesAsync()

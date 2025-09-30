@@ -79,7 +79,7 @@ namespace ScheduleService.Application.Services
                 ScheduleId = schedule.Id,
                 Role = ParticipantRole.Viewer,
                 JoineddAt = DateTime.UtcNow,
-                Status = "Active"
+                Status = ParticipantStatus.Active
             };
 
             await _scheduleParticipantRepository.AddScheduleParticipantAsync(participant);
