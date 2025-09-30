@@ -16,12 +16,12 @@ namespace ScheduleService.Application.Mappings
         public MappingProfile()
         {
             CreateMap<Schedule, ScheduleResponse>();
+            CreateMap<UpdateScheduleRequest, Schedule>();
             CreateMap<CreateScheduleRequest, Schedule>();
             CreateMap<ScheduleActivity, ScheduleActivityResponse>();
             CreateMap<CreateScheduleActivityRequest, ScheduleActivity>();
             CreateMap<CreateCheckedItemRequest, CheckedItem>();
             CreateMap<CheckedItem, CheckedItemResponse>();
-
         }
     }
 }

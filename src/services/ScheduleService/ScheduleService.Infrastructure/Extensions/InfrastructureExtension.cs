@@ -22,8 +22,8 @@ namespace ScheduleService.Infrastructure.Extensions
             // Đăng ký các repository
             services.AddScoped<IScheduleRepository, ScheduleRepository>();
             services.AddScoped<IScheduleParticipantRepository, ScheduleParticipantRepository>();
-            services.AddScoped<IScheduleAcitvitiyRepository, ScheduleActivityRepository>();
-            services.AddScoped<ICheckedItemRepository, CheckedItemRepository>();
+            services.AddScoped<IScheduleActivityRepository, ScheduleActivityRepository>();
+            services.AddScoped<ICheckItemParticipantRepository, CheckItemParticipantRepository>();
 
             return services;
         }

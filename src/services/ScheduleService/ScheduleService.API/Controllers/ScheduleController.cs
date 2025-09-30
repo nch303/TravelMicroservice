@@ -9,6 +9,7 @@ using ScheduleService.Application.IServices;
 using ScheduleService.Application.Services;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ScheduleService.API.Controllers
 {
@@ -20,8 +21,10 @@ namespace ScheduleService.API.Controllers
         private readonly IMapper _mapper;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IScheduleParticipantService _scheduleParticipantService;
+        private readonly ICheckItemParticipantService _checkItemParticipantService;
         private readonly IScheduleActivityService _scheduleActivityService;
         private readonly ICheckedItemService _checkedItemService;
+
 
         public ScheduleController(IScheduleService scheduleService, IMapper mapper, IAuthServiceClient authServiceClient
             , IScheduleParticipantService scheduleParticipantService, IScheduleActivityService scheduleActivityService, 
@@ -103,6 +106,16 @@ namespace ScheduleService.API.Controllers
             }
         }
 
+
+        [HttpPut("schedule/{id}")]
+        public async Task<IActionResult> UpdateSchedule(Guid id, [FromBody] UpdateScheduleRequest newSchedule)
+        {
+            try
+            {
+                var updated = await _scheduleService.UpdateScheduleByIdAsync(_mapper.Map<Schedule>(newSchedule), id);
+                var result = _mapper.Map<ScheduleResponse>(updated);
+                return Ok(result);
+
         [HttpPost("create")]
         [Authorize]
         public async Task<IActionResult> CreateSchedule([FromBody] CreateScheduleRequest request)
@@ -135,6 +148,21 @@ namespace ScheduleService.API.Controllers
             }
         }
 
+        [HttpPatch("schedule/{id}/cancel")]
+        public async Task<IActionResult> CancelSchedule(Guid id)
+        {
+            try
+            {
+                var canceled = await _scheduleService.CancelScheduleAsync(id);
+                if(canceled == true)
+                {
+                    return Ok(new { message = "Schedule canceled" });
+                }
+                else
+                {
+                    return BadRequest(new { message = "Schedule cancel unsuccessfull" });
+                }
+
         [HttpPost("activity/add")]
         [Authorize]
         public async Task<IActionResult> AddActivityToSchedule([FromBody] CreateScheduleActivityRequest request)
@@ -152,6 +180,14 @@ namespace ScheduleService.API.Controllers
             }
         }
 
+        [HttpPost("schedule/{scheduleId}/leave/{userId}")]
+        public async Task<IActionResult> LeaveSchedule(Guid scheduleId, Guid userId)
+        {
+            try
+            {
+                await _scheduleParticipantService.LeaveScheduleAsync(scheduleId, userId);
+                return NoContent();
+
         [HttpGet("activities/getAll{scheduleId}")]
         [Authorize]
         public async Task<IActionResult> GetAllActivitiesByScheduleId(Guid scheduleId)
@@ -167,6 +203,14 @@ namespace ScheduleService.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("schedule/{id}/activities")]
+        public async Task<IActionResult> GetActivities(Guid id)
+        {
+            try
+            {
+                var activities = await _scheduleActivitiesService.GetActiviyListByScheduleId(id);
+                return Ok(activities);
 
         [HttpPost("checked-items/add")]
         [Authorize]
@@ -184,6 +228,40 @@ namespace ScheduleService.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPut("schedule/activities/{activityId}")]
+        public async Task<IActionResult> UpdateActivity(int activityId, [FromBody] ScheduleActivity newActivity)
+        {
+            var updated = await _scheduleActivitiesService.UpdateActivityById(newActivity, activityId);
+            return Ok(updated);
+        }
+
+        [HttpDelete("schedule/activities/{activityId}")]
+        public async Task<IActionResult> DeleteActivity(int activityId)
+        {
+            await _scheduleActivitiesService.DeleteActivityById(activityId);
+            return NoContent();
+        }
+
+        [HttpPut("schedule/checkitems")]
+        public async Task<IActionResult> UpdateCheckedItem([FromBody] CheckedItemParticipant entity)
+        {
+            var updated = await _checkItemParticipantService.UpdateAsync(entity);
+            return Ok(updated);
+        }
+
+        [HttpPatch("schedule/checkitems/{checkedItemId}/participants/{participantId}/toggle")]
+        public async Task<IActionResult> ToggleCheck(int checkedItemId, Guid participantId, [FromQuery] bool isChecked)
+        {
+            await _checkItemParticipantService.ToggleCheckAsync(checkedItemId, participantId, isChecked);
+            return NoContent();
+        }
+
+        [HttpDelete("schedule/checkitems/bulk")]
+        public async Task<IActionResult> DeleteManyCheckedItems([FromBody] List<(int checkedItemId, Guid scheduleParticipantId)> keys)
+        {
+            await _checkItemParticipantService.DeleteManyAsync(keys);
+            return NoContent();
 
         [HttpGet("checked-items/{scheduleId}")]
         [Authorize]

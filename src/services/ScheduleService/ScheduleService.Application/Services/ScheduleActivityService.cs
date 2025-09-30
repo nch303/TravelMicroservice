@@ -18,6 +18,7 @@ namespace ScheduleService.Application.Services
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
+
         public ScheduleActivityService(IScheduleAcitvitiyRepository scheduleActivityRepository,IScheduleParticipantRepository scheduleParticipantRepository,
             IScheduleRepository scheduleRepository, IAuthServiceClient authServiceClient)
         {
@@ -25,6 +26,25 @@ namespace ScheduleService.Application.Services
             _scheduleParticipantRepository = scheduleParticipantRepository;
             _scheduleRepository = scheduleRepository;
             _authServiceClient = authServiceClient;
+        }
+
+        public async Task<List<ScheduleActivity>> GetActiviyListByScheduleId(Guid scheduleId)
+        {
+            return await _scheduleActivitiesRepository.GetActiviyListByScheduleId(scheduleId);
+        }
+
+        public async Task<ScheduleActivity> UpdateActivityById(ScheduleActivity newActivity, int activityId)
+        {
+            var updated = await _scheduleActivitiesRepository.UpdateActivityById(newActivity, activityId);
+            if (updated == null)
+                throw new KeyNotFoundException("Activity not found");
+
+            return updated;
+        }
+
+        public async Task DeleteActivityById(int activityId)
+        {
+            await _scheduleActivitiesRepository.DeleteActivityById(activityId);
         }
 
         public async Task AddActivityAsync(ScheduleActivity activity)
