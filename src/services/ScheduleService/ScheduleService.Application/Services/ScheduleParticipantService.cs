@@ -37,5 +37,11 @@ namespace ScheduleService.Application.Services
             }
             return schedules;
         }
+        public async Task<ScheduleParticipant> AddScheduleParticipantAsync(ScheduleParticipant participant)
+        {
+            var newParticipant = await _scheduleParticipantRepository.AddScheduleParticipantAsync(participant);
+            await _scheduleParticipantRepository.SaveChangesAsync();
+            return newParticipant;
+        }
     }
 }

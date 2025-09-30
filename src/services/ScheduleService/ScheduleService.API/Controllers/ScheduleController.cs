@@ -97,5 +97,36 @@ namespace ScheduleService.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("create")]
+        [Authorize]
+        public async Task<IActionResult> CreateSchedule([FromBody] CreateScheduleRequest request)
+        {
+            try
+            {
+                var user = await _authServiceClient.GetCurrentAccountAsync();
+                var schedule = _mapper.Map<Schedule>(request);
+                schedule.OwnerId = user!.Id;
+                schedule.Status = ScheduleStatus.Active;
+                schedule.CreatedAt = DateTime.UtcNow;
+                await _scheduleService.CreateScheduleAsync(schedule);
+                // Add owner as a participant
+                var participant = new ScheduleParticipant
+                {
+                    Id = Guid.NewGuid(),
+                    ScheduleId = schedule.Id,
+                    UserId = user.Id,
+                    Role = ParticipantRole.Owner
+                };
+                await _scheduleParticipantService.AddScheduleParticipantAsync(participant);
+                await _scheduleService.SaveChangesAsync();
+                var scheduleResponse = _mapper.Map<ScheduleResponse>(schedule);
+                return Ok(scheduleResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

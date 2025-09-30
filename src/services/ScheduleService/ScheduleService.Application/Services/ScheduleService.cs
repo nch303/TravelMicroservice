@@ -85,5 +85,11 @@ namespace ScheduleService.Application.Services
             await _scheduleParticipantRepository.AddScheduleParticipantAsync(participant);
             await _scheduleRepository.SaveChangesAsync();
         }
+
+        public async Task CreateScheduleAsync(Schedule schedule)
+        {
+            await _scheduleRepository.CreateScheduleAsync(schedule);
+            await _scheduleRepository.SaveChangesAsync();
+        }
     }
 }

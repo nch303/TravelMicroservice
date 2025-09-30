@@ -12,5 +12,6 @@ namespace ScheduleService.Domain.IRepositories
         Task<Schedule?> GetScheduleByIdAsync(Guid id);
         Task SaveChangesAsync();
         Task<Schedule?> GetScheduleByShareCodeAsync(string shareCode);
+        Task CreateScheduleAsync(Schedule schedule);
     }
 }
