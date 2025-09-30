@@ -154,8 +154,15 @@ namespace ScheduleService.API.Controllers
         [HttpGet("schedule/{id}/activities")]
         public async Task<IActionResult> GetActivities(Guid id)
         {
-            var activities = await _scheduleActivitiesService.GetActiviyListByScheduleId(id);
-            return Ok(activities);
+            try
+            {
+                var activities = await _scheduleActivitiesService.GetActiviyListByScheduleId(id);
+                return Ok(activities);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPut("schedule/activities/{activityId}")]
