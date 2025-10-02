@@ -45,6 +45,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Domain", "src\services\UserService\UserService.Domain\UserService.Domain.csproj", "{1898F87E-410A-4B68-BCD5-B2EC7E652EE5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MessageService", "MessageService", "{3522A76A-05BA-44C5-86E2-6872DD6DF25A}"
+	ProjectSection(SolutionItems) = preProject
+		src\services\MessageService\Dockerfile = src\services\MessageService\Dockerfile
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageService.Application", "src\services\MessageService\MessageService.Application\MessageService.Application.csproj", "{5F3495CF-957A-49CE-AE38-4F552CCD95DD}"
 EndProject
