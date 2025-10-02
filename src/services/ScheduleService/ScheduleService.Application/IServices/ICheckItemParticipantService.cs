@@ -9,8 +9,6 @@ namespace ScheduleService.Application.IServices
 {
     public interface ICheckItemParticipantService
     {
-        Task<CheckedItemParticipant> UpdateAsync(CheckedItemParticipant entity);
-        Task ToggleCheckAsync(int checkedItemId, Guid scheduleParticipantId, bool isChecked);
-        Task DeleteManyAsync(List<(int checkedItemId, Guid scheduleParticipantId)> keys);
+        Task ToggleCheckAsync(int checkedItemId, bool isChecked);
     }
 }

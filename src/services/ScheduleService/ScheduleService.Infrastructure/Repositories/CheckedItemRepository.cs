@@ -34,5 +34,19 @@ namespace ScheduleService.Infrastructure.Repositories
                 .Where(ci => ci.ScheduleId == scheduleId)
                 .ToListAsync();
         }
+
+        public async Task DeleteManyAsync(List<int> checkedItemIds)
+        {
+            var items = await _context.CheckedItemParticipants
+                .Where(c => checkedItemIds.Contains(c.CheckedItemId))
+                .ToListAsync();
+
+            foreach (var item in items)
+            {
+                item.IsDeleted = true;
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -36,6 +36,14 @@ namespace ScheduleService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(s => s.SharedCode == shareCode);
         }
 
+        public async Task<Schedule?> GetScheduleWithParticipantsByIdAsync(Guid scheduleId)
+        {
+            return await _context.Schedules
+                .Include(s => s.ScheduleParticipants)
+                .FirstOrDefaultAsync(s => s.Id == scheduleId);
+        }
+
+
         public async Task CreateScheduleAsync(Schedule schedule)
         {
             await _context.Schedules.AddAsync(schedule);

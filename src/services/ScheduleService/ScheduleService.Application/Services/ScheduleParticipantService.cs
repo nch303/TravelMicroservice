@@ -41,13 +41,13 @@ namespace ScheduleService.Application.Services
             return schedules;
         }
 
-        public async Task LeaveScheduleAsync(Guid scheduleId, Guid userId)
+        public async Task<Schedule?> LeaveScheduleAsync(Guid scheduleId, Guid userId)
         {
             var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(userId, scheduleId);
-            if (participant == null || participant.Status != "Active")
+            if (participant == null || participant.Status != ParticipantStatus.Active)
                 throw new InvalidOperationException("User is not an active participant.");
 
-            participant.Status = "Left";
+            participant.Status = ParticipantStatus.Left;
             participant.JoineddAt = DateTime.UtcNow;
 
             var schedule = await _scheduleRepository.GetScheduleByIdAsync(scheduleId);
@@ -61,6 +61,13 @@ namespace ScheduleService.Application.Services
 
             await _scheduleRepository.SaveChangesAsync();
             await _scheduleParticipantRepository.SaveChangesAsync();
+
+            // Reload the schedule with participants included
+            var updatedSchedule = await _scheduleRepository.GetScheduleWithParticipantsByIdAsync(scheduleId);
+
+            return updatedSchedule;
+        }
+
 
         public async Task<ScheduleParticipant> AddScheduleParticipantAsync(ScheduleParticipant participant)
         {

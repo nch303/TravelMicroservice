@@ -10,6 +10,7 @@ namespace ScheduleService.Domain.Entities
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public bool IsDelete {  get; set; }
 
         // Foreign key to Schedule (1-N)
         public Guid ScheduleId { get; set; }

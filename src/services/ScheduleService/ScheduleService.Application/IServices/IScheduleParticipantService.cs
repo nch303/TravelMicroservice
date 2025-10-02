@@ -12,7 +12,7 @@ namespace ScheduleService.Application.IServices
     {
         Task<ScheduleParticipant> GetByUserIdAndScheduleIdAsync(Guid userId, Guid scheduleId);
         Task<List<ScheduleParticipant>> GetAllScheduleByParticipantIdAsync(Guid participantId);
-        Task LeaveScheduleAsync(Guid scheduleId, Guid userId);
+        Task<Schedule?> LeaveScheduleAsync(Guid scheduleId, Guid userId);
         Task<ScheduleParticipant> AddScheduleParticipantAsync(ScheduleParticipant participant);
     }
 }

@@ -43,4 +43,9 @@ public class CheckedItemService : ICheckedItemService
 
         return await _checkedItemRepository.GetByScheduleIdAsync(scheduleId);
     }
+
+    public async Task DeleteManyById(List<int> itemIds)
+    {
+        await _checkedItemRepository.DeleteManyAsync(itemIds);
+    }
 }

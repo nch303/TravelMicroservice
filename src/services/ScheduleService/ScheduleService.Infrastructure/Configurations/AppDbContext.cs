@@ -77,6 +77,7 @@ namespace ScheduleService.Infrastructure.Configurations
             {
                 entity.HasKey(cl => cl.Id);
                 entity.Property(cl => cl.Name).IsRequired().HasMaxLength(255);
+                entity.Property(cl => cl.IsDelete).HasDefaultValue(false);
 
                 // Thiết lập quan hệ 1-N với Schedule
                 entity.HasOne(cl => cl.Schedule)
@@ -90,6 +91,7 @@ namespace ScheduleService.Infrastructure.Configurations
                 entity.HasKey(cip => new { cip.CheckedItemId, cip.ScheduleParticipantId });
 
                 entity.Property(cip => cip.IsChecked).HasDefaultValue(false);
+                entity.Property(cip => cip.IsDeleted).HasDefaultValue(false);
                 entity.Property(cip => cip.CheckedAt);
 
                 entity.HasOne(cip => cip.CheckedItem)

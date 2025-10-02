@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ScheduleService.Infrastructure.Repositories
 {
-    public class ScheduleActivityRepository : IScheduleAcitvitiyRepository
+    public class ScheduleActivityRepository : IScheduleActivityRepository
     {
         private readonly AppDbContext _context;
         public ScheduleActivityRepository(AppDbContext context)
@@ -18,15 +18,7 @@ namespace ScheduleService.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<List<ScheduleActivity>> GetActiviyListByScheduleId(Guid scheduleId)
-        {
-            return await _context.ScheduleActivities
-                .Where(a => a.ScheduleId == scheduleId && !a.IsDeleted)
-                .OrderBy(a => a.OrderIndex)
-                .ToListAsync();
-        }
-
-        public async Task<ScheduleActivity> UpdateActivityById(ScheduleActivity newActivity, int activityId)
+        public async Task<ScheduleActivity> UpdateActivityByIdAsync(ScheduleActivity newActivity, int activityId)
         {
             var existing = await _context.ScheduleActivities
                .FirstOrDefaultAsync(a => a.Id == activityId && !a.IsDeleted);
@@ -45,16 +37,18 @@ namespace ScheduleService.Infrastructure.Repositories
             return existing;
         }
 
-        public async Task DeleteActivityById(int activityId)
+        public async Task<bool> DeleteActivityByIdAsync(int activityId)
         {
             var activity = await _context.ScheduleActivities
                 .FirstOrDefaultAsync(a => a.Id == activityId && !a.IsDeleted);
 
             if (activity == null)
-                throw new KeyNotFoundException("Activity not found");
+                return false; // activity not found
 
-            activity.IsDeleted = true; 
-            await _context.SaveChangesAsync();
+            activity.IsDeleted = true;
+
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
         }
 
         public async Task AddActivityAsync(ScheduleActivity activity)
@@ -62,7 +56,6 @@ namespace ScheduleService.Infrastructure.Repositories
             await _context.ScheduleActivities.AddAsync(activity);
             await _context.SaveChangesAsync();
         }
-
 
         public async Task<List<ScheduleActivity>> GetActivitiesByScheduleIdAsync(Guid scheduleId)
         {

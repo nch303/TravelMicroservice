@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -115,6 +116,12 @@ namespace ScheduleService.API.Controllers
                 var updated = await _scheduleService.UpdateScheduleByIdAsync(_mapper.Map<Schedule>(newSchedule), id);
                 var result = _mapper.Map<ScheduleResponse>(updated);
                 return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
         [HttpPost("create")]
         [Authorize]
@@ -154,7 +161,7 @@ namespace ScheduleService.API.Controllers
             try
             {
                 var canceled = await _scheduleService.CancelScheduleAsync(id);
-                if(canceled == true)
+                if (canceled == true)
                 {
                     return Ok(new { message = "Schedule canceled" });
                 }
@@ -162,6 +169,12 @@ namespace ScheduleService.API.Controllers
                 {
                     return BadRequest(new { message = "Schedule cancel unsuccessfull" });
                 }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
         [HttpPost("activity/add")]
         [Authorize]
@@ -185,8 +198,15 @@ namespace ScheduleService.API.Controllers
         {
             try
             {
-                await _scheduleParticipantService.LeaveScheduleAsync(scheduleId, userId);
-                return NoContent();
+                var result = await _scheduleParticipantService.LeaveScheduleAsync(scheduleId, userId);
+                var response = _mapper.Map<LeaveScheduleResponse>(result);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
         [HttpGet("activities/getAll{scheduleId}")]
         [Authorize]
@@ -209,8 +229,14 @@ namespace ScheduleService.API.Controllers
         {
             try
             {
-                var activities = await _scheduleActivitiesService.GetActiviyListByScheduleId(id);
+                var activities = await _scheduleActivityService.GetActivitiesByScheduleIdAsync(id);
                 return Ok(activities);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
         [HttpPost("checked-items/add")]
         [Authorize]
@@ -230,38 +256,62 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpPut("schedule/activities/{activityId}")]
-        public async Task<IActionResult> UpdateActivity(int activityId, [FromBody] ScheduleActivity newActivity)
+        public async Task<IActionResult> UpdateActivity(int activityId, [FromBody] UpdateActivityRequest newActivity)
         {
-            var updated = await _scheduleActivitiesService.UpdateActivityById(newActivity, activityId);
-            return Ok(updated);
+            try
+            {
+                var updated = await _scheduleActivityService.UpdateActivityById(_mapper.Map<ScheduleActivity>(newActivity), activityId);
+                var response = _mapper.Map<ScheduleActivityResponse>(updated);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpDelete("schedule/activities/{activityId}")]
         public async Task<IActionResult> DeleteActivity(int activityId)
         {
-            await _scheduleActivitiesService.DeleteActivityById(activityId);
-            return NoContent();
-        }
-
-        [HttpPut("schedule/checkitems")]
-        public async Task<IActionResult> UpdateCheckedItem([FromBody] CheckedItemParticipant entity)
-        {
-            var updated = await _checkItemParticipantService.UpdateAsync(entity);
-            return Ok(updated);
+            try
+            {
+                await _scheduleActivityService.DeleteActivityById(activityId);
+                return Ok(new { message = "Activity deleteds" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPatch("schedule/checkitems/{checkedItemId}/participants/{participantId}/toggle")]
-        public async Task<IActionResult> ToggleCheck(int checkedItemId, Guid participantId, [FromQuery] bool isChecked)
+        [Authorize]
+        public async Task<IActionResult> ToggleCheck(int checkedItemId, [FromQuery] bool isChecked)
         {
-            await _checkItemParticipantService.ToggleCheckAsync(checkedItemId, participantId, isChecked);
-            return NoContent();
+            try
+            {
+                await _checkItemParticipantService.ToggleCheckAsync(checkedItemId, isChecked);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpDelete("schedule/checkitems/bulk")]
-        public async Task<IActionResult> DeleteManyCheckedItems([FromBody] List<(int checkedItemId, Guid scheduleParticipantId)> keys)
+        public async Task<IActionResult> DeleteManyCheckedItems([FromBody] List<int> checkItemIds)
         {
-            await _checkItemParticipantService.DeleteManyAsync(keys);
-            return NoContent();
+            try
+            {
+                await _checkedItemService.DeleteManyById(checkItemIds);
+                return Ok(new { message = "Delete chosen items successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
         [HttpGet("checked-items/{scheduleId}")]
         [Authorize]
