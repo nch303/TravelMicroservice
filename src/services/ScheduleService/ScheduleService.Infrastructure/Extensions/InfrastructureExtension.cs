@@ -24,6 +24,7 @@ namespace ScheduleService.Infrastructure.Extensions
             services.AddScoped<IScheduleParticipantRepository, ScheduleParticipantRepository>();
             services.AddScoped<IScheduleActivityRepository, ScheduleActivityRepository>();
             services.AddScoped<ICheckItemParticipantRepository, CheckItemParticipantRepository>();
+            services.AddScoped<ICheckedItemRepository, CheckedItemRepository>();
 
             return services;
         }

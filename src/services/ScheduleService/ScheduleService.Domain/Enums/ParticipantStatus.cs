@@ -11,6 +11,6 @@ namespace ScheduleService.Domain.Enums
         Active,
         Inactive,
         Banned,
-        IsDeleted
+        Left
     }
 }

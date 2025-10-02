@@ -119,11 +119,12 @@ namespace ScheduleService.Application.Services
             {
                 throw new KeyNotFoundException($"Schedule with Id {id} not found.");
             }
-            schedule.Status = "Canceled";
+            schedule.Status = ScheduleStatus.Cancelled;
             // Save changes
             await _scheduleRepository.SaveChangesAsync();
 
             return true;
+        }
 
         public async Task CreateScheduleAsync(Schedule schedule)
         {

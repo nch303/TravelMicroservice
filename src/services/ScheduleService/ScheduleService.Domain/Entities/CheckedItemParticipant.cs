@@ -10,6 +10,7 @@ namespace ScheduleService.Domain.Entities
     {  
         public bool IsChecked { get; set; } = false;
         public DateTime CheckedAt { get; set; }
+        public bool IsDeleted { get; set; }
 
         // Foreign key to CheckedItem (N-1)
         public int CheckedItemId { get; set; }

@@ -14,12 +14,12 @@ namespace ScheduleService.Application.Services
 {
     public class ScheduleActivityService : IScheduleActivityService
     {
-        private readonly IScheduleAcitvitiyRepository _scheduleActivityRepository;
+        private readonly IScheduleActivityRepository _scheduleActivityRepository;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
 
-        public ScheduleActivityService(IScheduleAcitvitiyRepository scheduleActivityRepository,IScheduleParticipantRepository scheduleParticipantRepository,
+        public ScheduleActivityService(IScheduleActivityRepository scheduleActivityRepository,IScheduleParticipantRepository scheduleParticipantRepository,
             IScheduleRepository scheduleRepository, IAuthServiceClient authServiceClient)
         {
             _scheduleActivityRepository = scheduleActivityRepository;
@@ -28,14 +28,9 @@ namespace ScheduleService.Application.Services
             _authServiceClient = authServiceClient;
         }
 
-        public async Task<List<ScheduleActivity>> GetActiviyListByScheduleId(Guid scheduleId)
-        {
-            return await _scheduleActivitiesRepository.GetActiviyListByScheduleId(scheduleId);
-        }
-
         public async Task<ScheduleActivity> UpdateActivityById(ScheduleActivity newActivity, int activityId)
         {
-            var updated = await _scheduleActivitiesRepository.UpdateActivityById(newActivity, activityId);
+            var updated = await _scheduleActivityRepository.UpdateActivityByIdAsync(newActivity, activityId);
             if (updated == null)
                 throw new KeyNotFoundException("Activity not found");
 
@@ -44,7 +39,9 @@ namespace ScheduleService.Application.Services
 
         public async Task DeleteActivityById(int activityId)
         {
-            await _scheduleActivitiesRepository.DeleteActivityById(activityId);
+            var result = await _scheduleActivityRepository.DeleteActivityByIdAsync(activityId);
+            if (!result)
+                throw new KeyNotFoundException($"Activity with that Id not found or already deleted.");
         }
 
         public async Task AddActivityAsync(ScheduleActivity activity)

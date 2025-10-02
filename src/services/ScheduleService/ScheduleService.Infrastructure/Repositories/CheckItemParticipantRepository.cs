@@ -26,18 +26,6 @@ namespace ScheduleService.Infrastructure.Repositories
                                        && c.ScheduleParticipantId == scheduleParticipantId);
         }
 
-        public async Task<CheckedItemParticipant?> UpdateAsync(CheckedItemParticipant entity)
-        {
-            var existing = await GetByIdAsync(entity.CheckedItemId, entity.ScheduleParticipantId);
-            if (existing == null) return null;
-
-            // update values (including ability to change CheckedItemId!)
-            existing.CheckedItemId = entity.CheckedItemId;
-
-            await _context.SaveChangesAsync();
-            return existing;
-        }
-
         public async Task<bool> ToggleCheckAsync(int checkedItemId, Guid scheduleParticipantId, bool isChecked)
         {
             var existing = await GetByIdAsync(checkedItemId, scheduleParticipantId);
@@ -50,14 +38,18 @@ namespace ScheduleService.Infrastructure.Repositories
             return true;
         }
 
-        public async Task DeleteManyAsync(List<(int checkedItemId, Guid scheduleParticipantId)> keys)
-        {
-            var items = await _context.CheckedItemParticipants
-                .Where(c => keys.Contains(new ValueTuple<int, Guid>(c.CheckedItemId, c.ScheduleParticipantId)))
-                .ToListAsync();
+        //public async Task DeleteManyAsync(List<int> checkedItemIds)
+        //{
+        //    var items = await _context.CheckedItemParticipants
+        //        .Where(c => checkedItemIds.Contains(c.CheckedItemId))
+        //        .ToListAsync();
 
-            _context.CheckedItemParticipants.RemoveRange(items);
-            await _context.SaveChangesAsync();
-        }
+        //    foreach(var item in items)
+        //    {
+        //        item.IsDeleted = true;
+        //    }
+           
+        //    await _context.SaveChangesAsync();
+        //}
     }
 }
