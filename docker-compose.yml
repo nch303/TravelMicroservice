@@ -56,6 +56,18 @@ services:
      networks:
        - travelnet  
 
+  messageservice:
+     build:
+       context: ./src/services/MessageService
+       dockerfile: Dockerfile
+     container_name: messageservice
+     ports:
+       - "5004:80"
+     environment:
+       - ASPNETCORE_URLS=http://+:80
+     networks:
+       - travelnet  
+
 networks:
   travelnet:
     driver: bridge
