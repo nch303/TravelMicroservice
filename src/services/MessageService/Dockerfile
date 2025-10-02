@@ -11,7 +11,7 @@ COPY . ./
 RUN dotnet publish MessageService.API/MessageService.API.csproj -c Release -o /app/publish
 
 # runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final 
 WORKDIR /app
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "MessageService.API.dll"]
