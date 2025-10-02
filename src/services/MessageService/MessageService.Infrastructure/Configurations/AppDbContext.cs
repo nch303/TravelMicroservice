@@ -25,6 +25,10 @@ namespace MessageService.Infrastructure.Configurations
             {
                 entity.HasKey(cg => cg.Id);
 
+                entity.Property(cg => cg.Name)
+                      .IsRequired()
+                      .HasMaxLength(500);
+
                 entity.Property(cg => cg.GroupType)
                       .HasConversion<string>() // Lưu enum dạng string
                       .HasMaxLength(50);

@@ -4,10 +4,12 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using MessageService.Infrastructure.Extensions;
+using MessageService.Application.Extensions;
+using MessageService.Application.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.AddApplicationServices();
+builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
@@ -16,7 +18,7 @@ builder.Services.AddHttpContextAccessor();
 Env.Load();
 
 // Add AutoMapper
-//builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Cấu hình JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

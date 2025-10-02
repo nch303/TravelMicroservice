@@ -10,6 +10,7 @@ namespace MessageService.Domain.Entities
     public class ChatGroup
     {
         public Guid Id { get; set; }
+        public string Name { get; set; }
         public Guid? ScheduleId { get; set; }   // có thể null
         public Guid UserId { get; set; }        // người tạo group
         public ChatGroupType GroupType { get; set; }
