@@ -24,10 +24,10 @@ namespace ScheduleService.Application.Extensions
             // Cấu hình gọi API từ các service khác
 
             //Local
-            var link = "https://localhost:5120";
+            //var link = "https://localhost:5120";
 
             //Docker
-            //var link = "http://apigateway:80";
+            var link = "http://apigateway:80";
 
             services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(client =>
             {
