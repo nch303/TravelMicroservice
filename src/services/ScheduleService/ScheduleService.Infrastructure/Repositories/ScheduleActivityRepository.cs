@@ -64,5 +64,10 @@ namespace ScheduleService.Infrastructure.Repositories
                 .OrderBy(sa => sa.OrderIndex)
                 .ToListAsync();
         }
+
+        public async Task<ScheduleActivity?> GetActivytyByIdAsync(int id)
+        {
+            return await _context.ScheduleActivities.FirstOrDefaultAsync(a => a.Id == id);
+        }
     }
 }

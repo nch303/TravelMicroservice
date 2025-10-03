@@ -13,5 +13,6 @@ namespace ScheduleService.Domain.IRepositories
         Task<bool> DeleteActivityByIdAsync(int activityId);
         Task AddActivityAsync(ScheduleActivity activity);
         Task<List<ScheduleActivity>> GetActivitiesByScheduleIdAsync(Guid scheduleId);
+        Task<ScheduleActivity?> GetActivytyByIdAsync(int id);
     }
 }

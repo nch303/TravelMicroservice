@@ -22,6 +22,26 @@ namespace ScheduleService.Application.Services
             _scheduleParticipantRepository = scheduleParticipantRepository;
         }
 
+        private static void ValidateSchedule(Schedule validateSchedule)
+        {
+            if (string.IsNullOrWhiteSpace(validateSchedule.Title))
+                throw new ArgumentException("Title is required");
+            if (validateSchedule.Title.Length > 50)
+                throw new ArgumentException("Title must be at most 255 characters");
+
+            if (!string.IsNullOrEmpty(validateSchedule.StartLocation) && validateSchedule.StartLocation.Length > 255)
+                throw new ArgumentException("StartLocation must be at most 255 characters");
+
+            if (!string.IsNullOrEmpty(validateSchedule.Destination) && validateSchedule.Destination.Length > 255)
+                throw new ArgumentException("Destination must be at most 255 characters");
+
+            if (validateSchedule.EndDate != default && validateSchedule.StartDate != default && validateSchedule.EndDate < validateSchedule.StartDate)
+                throw new ArgumentException("EndDate must be greater than or equal to StartDate");
+
+            if (validateSchedule.ParticipantsCount < 0)
+                throw new ArgumentException("ParticipantsCount must be non-negative");
+        }
+
         public async Task<Schedule> GetScheduleByIdAsync(Guid id)
         {
             var schedule = await _scheduleRepository.GetScheduleByIdAsync(id);
@@ -103,6 +123,7 @@ namespace ScheduleService.Application.Services
             schedule.Notes = newSchedule.Notes;
             schedule.IsShared = newSchedule.IsShared;
 
+            ValidateSchedule(schedule);
             // Always update UpdatedAt
             schedule.UpdatedAt = DateTime.UtcNow;
 
@@ -128,6 +149,7 @@ namespace ScheduleService.Application.Services
 
         public async Task CreateScheduleAsync(Schedule schedule)
         {
+            ValidateSchedule(schedule);
             await _scheduleRepository.CreateScheduleAsync(schedule);
             await _scheduleRepository.SaveChangesAsync();
         }

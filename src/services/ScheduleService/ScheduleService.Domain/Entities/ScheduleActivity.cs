@@ -20,5 +20,8 @@ namespace ScheduleService.Domain.Entities
         // Foreign key to Schedule (1-N)
         public Guid ScheduleId { get; set; }
         public Schedule Schedule { get; set; }
+        // Quan hệ 1-N với ScheduleMedia
+        public ICollection<ScheduleMedia> ScheduleMedias { get; set; }
+
     }
 }

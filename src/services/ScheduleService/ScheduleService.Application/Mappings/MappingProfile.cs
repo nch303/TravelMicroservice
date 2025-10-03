@@ -22,6 +22,7 @@ namespace ScheduleService.Application.Mappings
             CreateMap<CreateScheduleActivityRequest, ScheduleActivity>();
             CreateMap<CreateCheckedItemRequest, CheckedItem>();
             CreateMap<CheckedItem, CheckedItemResponse>();
+            CreateMap<ScheduleMedia, ScheduleMediaResponse>();
 
             CreateMap<Schedule, LeaveScheduleResponse>()
                 .ForMember(dest => dest.ParticipantCounts, opt => opt.MapFrom(src => src.ParticipantsCount))
