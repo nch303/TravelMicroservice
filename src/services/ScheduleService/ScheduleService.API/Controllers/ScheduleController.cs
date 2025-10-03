@@ -25,11 +25,11 @@ namespace ScheduleService.API.Controllers
         private readonly ICheckItemParticipantService _checkItemParticipantService;
         private readonly IScheduleActivityService _scheduleActivityService;
         private readonly ICheckedItemService _checkedItemService;
-
+        private readonly IScheduleMediaService _scheduleMediaService;
 
         public ScheduleController(IScheduleService scheduleService, IMapper mapper, IAuthServiceClient authServiceClient
             , IScheduleParticipantService scheduleParticipantService, IScheduleActivityService scheduleActivityService, 
-            ICheckedItemService checkedItemService)
+            ICheckedItemService checkedItemService, IScheduleMediaService scheduleMediaService)
         {
             _scheduleService = scheduleService;
             _mapper = mapper;
@@ -37,6 +37,7 @@ namespace ScheduleService.API.Controllers
             _scheduleParticipantService = scheduleParticipantService;
             _scheduleActivityService = scheduleActivityService;
             _checkedItemService = checkedItemService;
+            _scheduleMediaService = scheduleMediaService;
         }
 
         [HttpGet("{id}")]
@@ -321,6 +322,24 @@ namespace ScheduleService.API.Controllers
             {
                 var items = await _checkedItemService.GetByScheduleIdAsync(scheduleId);
                 var response = _mapper.Map<List<CheckedItemResponse>>(items);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("media/upload")]
+        [Authorize]
+        [RequestFormLimits(MultipartBodyLengthLimit = 104857600)] 
+        [RequestSizeLimit(104857600)]
+        public async Task<IActionResult> UploadMedia([FromForm] UploadScheduleMediaRequest request)
+        {
+            try
+            {
+                var media = await _scheduleMediaService.UploadAsync(request);
+                var response = _mapper.Map<ScheduleMediaResponse>(media);
                 return Ok(response);
             }
             catch (Exception ex)

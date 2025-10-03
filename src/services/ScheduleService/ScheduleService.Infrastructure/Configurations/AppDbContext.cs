@@ -125,7 +125,13 @@ namespace ScheduleService.Infrastructure.Configurations
                 entity.HasOne(sm => sm.Schedule)
                     .WithMany(s => s.ScheduleMedias)
                     .HasForeignKey(sm => sm.ScheduleId)
-                    .OnDelete(DeleteBehavior.Cascade); // Xoá cascade nếu Schedule bị xoá
+                    .OnDelete(DeleteBehavior.Restrict); // Xoá cascade nếu Schedule bị xoá
+
+                // Thiết lập quan hệ N-1 với ScheduleActivity
+                entity.HasOne(sm => sm.Activity)
+                    .WithMany(sa => sa.ScheduleMedias)
+                    .HasForeignKey(sm => sm.ActivityId)
+                    .OnDelete(DeleteBehavior.Restrict); // Nếu ScheduleActivity bị xoá, giữ lại ScheduleMedia
             });
 
 

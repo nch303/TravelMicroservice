@@ -1,27 +1,22 @@
-﻿using ScheduleService.Domain.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ScheduleService.Domain.Enums;
 
-namespace ScheduleService.Domain.Entities
+namespace ScheduleService.Application.DTOs.Responses
 {
-    public class ScheduleMedia
+    public class ScheduleMediaResponse
     {
         public int Id { get; set; }
         public MediaType MediaType { get; set; }
         public string Url { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public DateTime UploadedAt { get; set; }
         public Guid UploadedUserId { get; set; }
-        public MediaMethod UploadMethod { get; set; } 
-
-
-        // Foreign key to Schedule (1-N)
+        public MediaMethod UploadMethod { get; set; }
         public Guid? ScheduleId { get; set; }
-        public Schedule? Schedule { get; set; }
         public int? ActivityId { get; set; }
-        public ScheduleActivity? Activity { get; set; }
     }
 }
