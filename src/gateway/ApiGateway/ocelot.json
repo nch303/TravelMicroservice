@@ -10,7 +10,6 @@
 //        }
 //      ],
 //      "UpstreamPathTemplate": "/api/user/{everything}",
-//      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
 //      "SwaggerKey": "user"
 //    },
 //    {
@@ -23,7 +22,6 @@
 //        }
 //      ],
 //      "UpstreamPathTemplate": "/api/auth/{everything}",
-//      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
 //      "SwaggerKey": "auth"
 //    },
 //    {
@@ -36,7 +34,6 @@
 //        }
 //      ],
 //      "UpstreamPathTemplate": "/api/schedule/{everything}",
-//      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
 //      "SwaggerKey": "schedule"
 //    },
 //    {
@@ -49,7 +46,6 @@
 //        }
 //      ],
 //      "UpstreamPathTemplate": "/api/message/{everything}",
-//      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
 //      "SwaggerKey": "message"
 //    }
 //  ],
@@ -113,7 +109,6 @@
         }
       ],
       "UpstreamPathTemplate": "/api/auth/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "auth"
     },
     {
@@ -126,7 +121,6 @@
         }
       ],
       "UpstreamPathTemplate": "/api/user/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "user"
     },
     {
@@ -139,7 +133,6 @@
         }
       ],
       "UpstreamPathTemplate": "/api/schedule/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "schedule"
     },
     {
@@ -152,7 +145,6 @@
         }
       ],
       "UpstreamPathTemplate": "/api/message/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "message"
     }
   ],
