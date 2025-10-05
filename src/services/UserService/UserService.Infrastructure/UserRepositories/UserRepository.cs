@@ -42,5 +42,12 @@ namespace UserService.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return user;
         }
+
+        public async Task<List<User>> GetByIdsAsync(List<Guid> ids)
+        {
+            return await _context.Users
+            .Where(u => ids.Contains(u.Id))
+            .ToListAsync();
+        }
     }
 }

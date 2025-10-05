@@ -13,5 +13,6 @@ namespace UserService.Domain.IRepositories
         Task<List<User>> GetAllAsync();
         Task<User> UpdateProfileAsync(User user);
         Task<User> CreateProfileAsync(User user);
+        Task<List<User>> GetByIdsAsync(List<Guid> ids);
     }
 }

@@ -37,13 +37,13 @@ namespace ScheduleService.Infrastructure.Repositories
 
         public async Task DeleteManyAsync(List<int> checkedItemIds)
         {
-            var items = await _context.CheckedItemParticipants
-                .Where(c => checkedItemIds.Contains(c.CheckedItemId))
+            var items = await _context.CheckedItems
+                .Where(c => checkedItemIds.Contains(c.Id))
                 .ToListAsync();
 
             foreach (var item in items)
             {
-                item.IsDeleted = true;
+                item.IsDelete = true;
             }
 
             await _context.SaveChangesAsync();

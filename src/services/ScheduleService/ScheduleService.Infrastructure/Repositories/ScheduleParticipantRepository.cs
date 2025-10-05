@@ -50,5 +50,18 @@ namespace ScheduleService.Infrastructure.Repositories
             return await _context.ScheduleParticipants
                 .CountAsync(sp => sp.ScheduleId == scheduleId && sp.Status == ParticipantStatus.Active);
         }
+
+        public async Task<List<ScheduleParticipant>> GetAllParticipantByScheduleIdAsync(Guid scheduleId)
+        {
+            return await _context.ScheduleParticipants
+                .Where(sp => sp.ScheduleId == scheduleId)
+                .ToListAsync();
+        }
+
+        public async Task<ScheduleParticipant?> GetParticipantByUserIdAsync(Guid userId)
+        {
+            return await _context.ScheduleParticipants
+                .Where(sp => sp.UserId == userId).FirstOrDefaultAsync();
+        }
     }
 }

@@ -68,5 +68,18 @@ namespace UserService.Application.Services
             }
             return await _userRepository.CreateProfileAsync(user);
         }
+
+        public async Task<List<User>> GetByIdsAsync(List<Guid> ids)
+        {
+            if (ids == null || !ids.Any())
+                throw new ArgumentException("Ids list cannot be null or empty");
+
+            var users = await _userRepository.GetByIdsAsync(ids);
+
+            if (users == null || !users.Any())
+                throw new KeyNotFoundException("No users found for the provided Ids");
+
+            return users;
+        }
     }
 }

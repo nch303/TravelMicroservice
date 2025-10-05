@@ -29,7 +29,7 @@ namespace ScheduleService.API.Controllers
 
         public ScheduleController(IScheduleService scheduleService, IMapper mapper, IAuthServiceClient authServiceClient
             , IScheduleParticipantService scheduleParticipantService, IScheduleActivityService scheduleActivityService, 
-            ICheckedItemService checkedItemService, IScheduleMediaService scheduleMediaService)
+            ICheckedItemService checkedItemService, IScheduleMediaService scheduleMediaService, ICheckItemParticipantService checkItemParticipantService)
         {
             _scheduleService = scheduleService;
             _mapper = mapper;
@@ -38,6 +38,7 @@ namespace ScheduleService.API.Controllers
             _scheduleActivityService = scheduleActivityService;
             _checkedItemService = checkedItemService;
             _scheduleMediaService = scheduleMediaService;
+            _checkItemParticipantService = checkItemParticipantService;
         }
 
         [HttpGet("{id}")]
@@ -285,7 +286,7 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpPatch("schedule/checkitems/{checkedItemId}/participants/{participantId}/toggle")]
+        [HttpPatch("schedule/checkitems/{checkedItemId}/participants/toggle")]
         [Authorize]
         public async Task<IActionResult> ToggleCheck(int checkedItemId, [FromQuery] bool isChecked)
         {
@@ -340,6 +341,30 @@ namespace ScheduleService.API.Controllers
             {
                 var media = await _scheduleMediaService.UploadAsync(request);
                 var response = _mapper.Map<ScheduleMediaResponse>(media);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("schedule/participants/{scheduleId}")]
+        [Authorize]
+        public async Task<IActionResult> GetParticipantsByScheduleId(Guid scheduleId)
+        {
+            try
+            {
+                var (participants, users) = await _scheduleParticipantService.GetAllParticipantByScheduleIdAsync(scheduleId);
+
+                var response = participants.Select(p =>
+                {
+                    var user = users.FirstOrDefault(u => u.Id == p.UserId)
+                               ?? new UserServiceClientResponse { Id = p.UserId, Name = "Unknown" };
+
+                    return _mapper.Map<GetAllParticipantsResponse>((p, user));
+                }).ToList();
+
                 return Ok(response);
             }
             catch (Exception ex)
