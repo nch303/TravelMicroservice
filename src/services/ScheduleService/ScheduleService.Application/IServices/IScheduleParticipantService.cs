@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ScheduleService.Application.DTOs.Responses;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
 
@@ -14,5 +15,7 @@ namespace ScheduleService.Application.IServices
         Task<List<ScheduleParticipant>> GetAllScheduleByParticipantIdAsync(Guid participantId);
         Task<Schedule?> LeaveScheduleAsync(Guid scheduleId, Guid userId);
         Task<ScheduleParticipant> AddScheduleParticipantAsync(ScheduleParticipant participant);
+        Task<(List<ScheduleParticipant> Participants, List<UserServiceClientResponse> Users)>
+    GetAllParticipantByScheduleIdAsync(Guid scheduleId);
     }
 }

@@ -14,17 +14,20 @@ namespace ScheduleService.Application.Services
     {
         private readonly ICheckItemParticipantRepository _checkItemParticipantRepository;
         private readonly IAuthServiceClient _authServiceClient;
+        private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
 
-        public CheckItemParticipantService(ICheckItemParticipantRepository checkItemParticipantRepository, IAuthServiceClient authServiceClient)
+        public CheckItemParticipantService(ICheckItemParticipantRepository checkItemParticipantRepository, IAuthServiceClient authServiceClient, IScheduleParticipantRepository scheduleParticipantRepository)
         {
             _checkItemParticipantRepository = checkItemParticipantRepository;
             _authServiceClient = authServiceClient;
+            _scheduleParticipantRepository = scheduleParticipantRepository;
         }
 
         public async Task ToggleCheckAsync(int checkedItemId, bool isChecked)
         {
             var user = await _authServiceClient.GetCurrentAccountAsync();
-            var success = await _checkItemParticipantRepository.ToggleCheckAsync(checkedItemId, user!.Id, isChecked);
+            var participant = await _scheduleParticipantRepository.GetParticipantByUserIdAsync(user!.Id);
+            var success = await _checkItemParticipantRepository.ToggleCheckAsync(checkedItemId, participant!.Id, isChecked);
             if (!success)
                 throw new KeyNotFoundException("CheckedItemParticipant not found");
         }

@@ -28,8 +28,15 @@ namespace ScheduleService.Application.Services
             _authServiceClient = authServiceClient;
         }
 
+        private static void ValidateActivity(ScheduleActivity validate)
+        {
+            if (validate.CheckOutTime != default && validate.CheckInTime != default && validate.CheckOutTime < validate.CheckInTime)
+                throw new ArgumentException("EndDate must be greater than or equal to StartDate");
+        }
+
         public async Task<ScheduleActivity> UpdateActivityById(ScheduleActivity newActivity, int activityId)
         {
+            ValidateActivity(newActivity);
             var updated = await _scheduleActivityRepository.UpdateActivityByIdAsync(newActivity, activityId);
             if (updated == null)
                 throw new KeyNotFoundException("Activity not found");

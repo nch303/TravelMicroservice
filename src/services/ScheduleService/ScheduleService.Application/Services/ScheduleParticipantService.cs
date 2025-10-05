@@ -3,22 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CloudinaryDotNet.Actions;
+using ScheduleService.Application.DTOs.Responses;
+using ScheduleService.Application.IServiceClients;
 using ScheduleService.Application.IServices;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
 using ScheduleService.Domain.IRepositories;
+using Sprache;
 
 namespace ScheduleService.Application.Services
 {
     public class ScheduleParticipantService: IScheduleParticipantService
     {
         private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
-        private readonly IScheduleRepository _scheduleRepository; 
+        private readonly IScheduleRepository _scheduleRepository;
+        private readonly IUserServiceClient _userServiceClient;
 
-        public ScheduleParticipantService(IScheduleParticipantRepository scheduleParticipantRepository, IScheduleRepository scheduleRepository)
+        public ScheduleParticipantService(IScheduleParticipantRepository scheduleParticipantRepository, IScheduleRepository scheduleRepository, IUserServiceClient userServiceClient)
         {
             _scheduleParticipantRepository = scheduleParticipantRepository;
             _scheduleRepository = scheduleRepository;
+            _userServiceClient = userServiceClient;
         }
 
         public async Task<ScheduleParticipant?> GetByUserIdAndScheduleIdAsync(Guid userId, Guid scheduleId)
@@ -68,12 +74,27 @@ namespace ScheduleService.Application.Services
             return updatedSchedule;
         }
 
-
         public async Task<ScheduleParticipant> AddScheduleParticipantAsync(ScheduleParticipant participant)
         {
             var newParticipant = await _scheduleParticipantRepository.AddScheduleParticipantAsync(participant);
             await _scheduleParticipantRepository.SaveChangesAsync();
             return newParticipant;
+        }
+
+        public async Task<(List<ScheduleParticipant> Participants, List<UserServiceClientResponse> Users)>
+    GetAllParticipantByScheduleIdAsync(Guid scheduleId)
+        {
+            var participants = await _scheduleParticipantRepository.GetAllParticipantByScheduleIdAsync(scheduleId);
+
+            if (participants == null || !participants.Any())
+            {
+                throw new KeyNotFoundException($"No participants found for ScheduleId: {scheduleId}");
+            }
+
+            var userIds = participants.Select(p => p.UserId).Distinct().ToList();
+            var users = await _userServiceClient.GetUsersByIdsAsync(userIds);
+
+            return (participants, users);
         }
     }
 }

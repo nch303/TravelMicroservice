@@ -13,5 +13,6 @@ namespace UserService.Application.IServices
         Task<List<User>> GetAll();
         Task<User> UpdateProfile(User user);
         Task<User> CreateProfile(User user);
+        Task<List<User>> GetByIdsAsync(List<Guid> ids);
     }
 }

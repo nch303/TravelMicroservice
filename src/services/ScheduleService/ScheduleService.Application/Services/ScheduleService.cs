@@ -22,7 +22,7 @@ namespace ScheduleService.Application.Services
             _scheduleParticipantRepository = scheduleParticipantRepository;
         }
 
-        private static void ValidateSchedule(Schedule validateSchedule)
+        private static void ValidateSchedule(Schedule validateSchedule, bool isUpdate = false)
         {
             if (string.IsNullOrWhiteSpace(validateSchedule.Title))
                 throw new ArgumentException("Title is required");
@@ -38,8 +38,12 @@ namespace ScheduleService.Application.Services
             if (validateSchedule.EndDate != default && validateSchedule.StartDate != default && validateSchedule.EndDate < validateSchedule.StartDate)
                 throw new ArgumentException("EndDate must be greater than or equal to StartDate");
 
-            if (validateSchedule.ParticipantsCount < 0)
-                throw new ArgumentException("ParticipantsCount must be non-negative");
+            // Only validate ParticipantsCount if it's explicitly provided or we're creating
+            if (!isUpdate || validateSchedule.ParticipantsCount != default)
+            {
+                if (validateSchedule.ParticipantsCount < 0)
+                    throw new ArgumentException("ParticipantsCount must be non-negative");
+            }
         }
 
         public async Task<Schedule> GetScheduleByIdAsync(Guid id)
@@ -114,6 +118,9 @@ namespace ScheduleService.Application.Services
                 throw new KeyNotFoundException($"Schedule with Id {id} not found.");
             }
 
+            // Validate the new data first
+            ValidateSchedule(newSchedule, isUpdate: true);
+
             // Update fields
             schedule.Title = newSchedule.Title;
             schedule.StartLocation = newSchedule.StartLocation;
@@ -123,7 +130,6 @@ namespace ScheduleService.Application.Services
             schedule.Notes = newSchedule.Notes;
             schedule.IsShared = newSchedule.IsShared;
 
-            ValidateSchedule(schedule);
             // Always update UpdatedAt
             schedule.UpdatedAt = DateTime.UtcNow;
 
@@ -149,7 +155,7 @@ namespace ScheduleService.Application.Services
 
         public async Task CreateScheduleAsync(Schedule schedule)
         {
-            ValidateSchedule(schedule);
+            ValidateSchedule(schedule, isUpdate: false);
             await _scheduleRepository.CreateScheduleAsync(schedule);
             await _scheduleRepository.SaveChangesAsync();
         }

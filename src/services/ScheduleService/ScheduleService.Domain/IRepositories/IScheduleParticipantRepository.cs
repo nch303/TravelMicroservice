@@ -14,6 +14,7 @@ namespace ScheduleService.Domain.IRepositories
         Task<ScheduleParticipant> AddScheduleParticipantAsync(ScheduleParticipant participant);
         Task<List<ScheduleParticipant>> GetAllScheduleByParticipantIdAsync(Guid participantId);
         Task<int> AmountParticipantsInScheduleAsync(Guid scheduleId);
-
+        Task<List<ScheduleParticipant>> GetAllParticipantByScheduleIdAsync(Guid scheduleId);
+        Task<ScheduleParticipant?> GetParticipantByUserIdAsync(Guid userId);
     }
 }

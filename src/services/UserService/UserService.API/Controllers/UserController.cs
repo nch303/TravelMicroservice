@@ -39,6 +39,24 @@ namespace UserService.API.Controllers
             }
         }
 
+        [HttpPost("batch")]
+        public async Task<IActionResult> GetByIds([FromBody] List<Guid> ids)
+        {
+            try
+            {
+                var users = await _userService.GetByIdsAsync(ids);
+
+                var userResponses = _mapper.Map<List<UserResponse>>(users);
+
+                return Ok(userResponses);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
         [HttpGet("all")]
         public async Task<IActionResult> GetAll()
         {
