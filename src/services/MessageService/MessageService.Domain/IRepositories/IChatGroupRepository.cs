@@ -13,5 +13,7 @@ namespace MessageService.Domain.IRepositories
         Task<List<ChatGroup>> GetUserGroupsAsync(Guid userId);
         Task<ChatGroup?> GetGroupByIdAsync(Guid groupId);
         Task<ChatGroup?> GetGroupByScheduleIdAsync(Guid? scheduleId);
+        Task SaveChangesAsync();
+        Task<ChatGroup?> GetGroupBySharedCodeAsync(string accessCode);
     }
 }

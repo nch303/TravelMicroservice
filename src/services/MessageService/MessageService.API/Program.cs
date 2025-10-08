@@ -1,11 +1,12 @@
 ﻿using DotNetEnv;
+using MessageService.Application.Extensions;
+using MessageService.Application.Hubs;
+using MessageService.Application.Mappings;
+using MessageService.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using MessageService.Infrastructure.Extensions;
-using MessageService.Application.Extensions;
-using MessageService.Application.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +15,25 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
 
+// Nếu cần truy cập từ React hoặc Postman → bật CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .SetIsOriginAllowed(_ => true) // thay vì AllowAnyOrigin()
+                .AllowCredentials();
+
+    });
+});
+
 //ENV
 Env.Load();
+
+// Thêm SignalR
+builder.Services.AddSignalR();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -87,18 +105,24 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Bật Swagger trước
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "MessageService API V1");
 });
 
+// Đảm bảo pipeline đúng thứ tự
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();

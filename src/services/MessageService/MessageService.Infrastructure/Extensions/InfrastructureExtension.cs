@@ -23,6 +23,9 @@ namespace MessageService.Infrastructure.Extensions
             services.AddScoped<IChatGroupRepository, ChatGroupRepository>();
             services.AddScoped<IChatParticipantRepository, ChatParticipantRepository>();
             services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+            services.AddScoped<IReactionRepository, ReactionRepository>();
+            services.AddScoped<IReaderRepository, ReaderRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
 
             return services;
         }

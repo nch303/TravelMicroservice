@@ -2,6 +2,7 @@
 using MessageService.Domain.Enums;
 using MessageService.Domain.IRepositories;
 using MessageService.Infrastructure.Configurations;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace MessageService.Infrastructure.Repositories
         public async Task<List<ChatGroup>> GetUserGroupsAsync(Guid userId)
         {
             return await Task.FromResult(_context.ChatGroups
-                .Where(g => g.Participants.Any(p => p.ParticipantId == userId))
+                .Where(g => g.Participants.Any(p => p.UserId == userId && p.Status != ParticipantStatus.Left))
                 .ToList());
         }
 
@@ -41,6 +42,18 @@ namespace MessageService.Infrastructure.Repositories
         {
             return await Task.FromResult(_context.ChatGroups
                 .FirstOrDefault(g => g.ScheduleId == scheduleId));
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<ChatGroup?> GetGroupBySharedCodeAsync(string shareCode)
+        {
+            return await Task.FromResult(_context.ChatGroups
+                .Include(c => c.Participants)
+                .FirstOrDefault(g => g.SharedCode == shareCode && g.SharedExpired > DateTime.UtcNow));
         }
     }
 }

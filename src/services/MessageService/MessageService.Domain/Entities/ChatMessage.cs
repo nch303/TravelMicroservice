@@ -29,5 +29,6 @@ namespace MessageService.Domain.Entities
         public ICollection<ChatMessage> Replies { get; set; }
         public ICollection<MessageReaction> Reactions { get; set; }
         public ICollection<MessageRead> Reads { get; set; }
+        public ICollection<Notification> Notifications { get; set; }
     }
 }

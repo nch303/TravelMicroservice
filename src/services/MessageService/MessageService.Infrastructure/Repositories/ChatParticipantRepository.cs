@@ -1,4 +1,5 @@
 ﻿using MessageService.Domain.Entities;
+using MessageService.Domain.Enums;
 using MessageService.Domain.IRepositories;
 using MessageService.Infrastructure.Configurations;
 using System;
@@ -24,10 +25,27 @@ namespace MessageService.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<ChatParticipant?> GetParticipantAsync(Guid chatGroupId, Guid participantId)
+        public async Task<ChatParticipant?> GetParticipantAsync(Guid chatGroupId, Guid userId)
         {
             return await Task.FromResult(_context.ChatParticipants
-                .FirstOrDefault(p => p.ChatGroupId == chatGroupId && p.ParticipantId == participantId));
+                .FirstOrDefault(p => p.ChatGroupId == chatGroupId && p.UserId == userId));
+        }
+
+        public async Task<ChatParticipant?> GetParticipantByIdAsync(Guid participantId)
+        {
+            return await _context.ChatParticipants.FindAsync(participantId);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<ChatParticipant>> GetActiveParticipantsByGroupIdAsync(Guid chatGroupId)
+        {
+            return await Task.FromResult(_context.ChatParticipants
+                                                    .Where(p => p.ChatGroupId == chatGroupId && p.Status == ParticipantStatus.Active)
+                                                    .ToList());
         }
     }
 }

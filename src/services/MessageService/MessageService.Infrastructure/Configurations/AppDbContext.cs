@@ -17,6 +17,7 @@ namespace MessageService.Infrastructure.Configurations
         public DbSet<MessageRead> MessageReads { get; set; }
         public DbSet<ChatGroup> ChatGroups { get; set; }
         public DbSet<ChatParticipant> ChatParticipants { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +25,13 @@ namespace MessageService.Infrastructure.Configurations
             modelBuilder.Entity<ChatGroup>(entity =>
             {
                 entity.HasKey(cg => cg.Id);
+
+                entity.HasIndex(cg => cg.SharedCode)
+                      .IsUnique(false)
+                      .IsUnique();
+
+                entity.Property(cg => cg.SharedExpired)
+                      .IsRequired(false);
 
                 entity.Property(cg => cg.Name)
                       .IsRequired()
@@ -48,7 +56,7 @@ namespace MessageService.Infrastructure.Configurations
             {
                 entity.HasKey(cp => cp.Id);
 
-                entity.Property(cp => cp.ParticipantId)
+                entity.Property(cp => cp.UserId)
                       .IsRequired();
 
                 entity.Property(cp => cp.Role)
@@ -123,9 +131,12 @@ namespace MessageService.Infrastructure.Configurations
                 entity.Property(mr => mr.CreatedAt)
                       .HasDefaultValueSql("GETUTCDATE()");
 
-                entity.HasOne(mr => mr.User)
+                entity.Property(mr => mr.IsDeleted)
+                      .HasDefaultValue(false);
+
+                entity.HasOne(mr => mr.Participant)
                       .WithMany(u => u.Reactions)
-                      .HasForeignKey(mr => mr.UserId)
+                      .HasForeignKey(mr => mr.ParticipantId)
                       .OnDelete(DeleteBehavior.Restrict); // tránh multiple cascade
 
                 entity.HasOne(mr => mr.Message)
@@ -134,7 +145,7 @@ namespace MessageService.Infrastructure.Configurations
                       .OnDelete(DeleteBehavior.Cascade);
 
                 // Unique: 1 user chỉ có 1 reaction cho 1 message
-                entity.HasIndex(mr => new { mr.UserId, mr.MessageId })
+                entity.HasIndex(mr => new { mr.ParticipantId, mr.MessageId })
                       .IsUnique();
             });
 
@@ -155,6 +166,45 @@ namespace MessageService.Infrastructure.Configurations
                       .WithMany(cm => cm.Reads)
                       .HasForeignKey(mr => mr.MessageId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Notification
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(n => n.Id);
+
+                entity.Property(n => n.UserId)
+                        .IsRequired();
+
+                entity.Property(n => n.ChatGroupId)
+                    .IsRequired(false);
+
+                entity.Property(n => n.ChatMessageId)
+                    .IsRequired(false);
+
+                entity.Property(n => n.Title)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(n => n.Content)
+                    .IsRequired()
+                    .HasMaxLength(2000);
+
+                entity.Property(n => n.IsRead)
+                    .HasDefaultValue(false);
+
+                entity.Property(n => n.CreatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(n => n.ChatGroup)
+                    .WithMany(cg => cg.Notifications)
+                    .HasForeignKey(n => n.ChatGroupId)
+                    .OnDelete(DeleteBehavior.Restrict); // nếu group bị xóa, giữ lại thông báo
+
+                entity.HasOne(n => n.ChatMessage)
+                    .WithMany(cm => cm.Notifications)
+                    .HasForeignKey(n => n.ChatMessageId)
+                    .OnDelete(DeleteBehavior.Restrict); // nếu message bị xóa, giữ lại thông báo
             });
 
             base.OnModelCreating(modelBuilder);

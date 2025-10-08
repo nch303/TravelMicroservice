@@ -22,8 +22,24 @@ namespace MessageService.Application.DTOs.Responses
 
         public Guid GroupId { get; set; }
         public Guid SenderId { get; set; }
+        public string SenderName { get; set; }
+        public string SenderAvatar { get; set; }
         public Guid? ParentMessageId { get; set; }   // reply
-        //public ICollection<MessageReaction> Reactions { get; set; }
-        //public ICollection<MessageRead> Reads { get; set; }
+        public int ReactionCount { get; set; }
+        public List<ReactionSummaryResponse> ReactionSummary { get; set; }
+        public List<ReaderSummaryResponse> ReaderSummary { get; set; }
+    }
+
+    public class ReactionSummaryResponse
+    {
+        public string Type { get; set; }
+        public int Count { get; set; }
+    }
+
+    public class ReaderSummaryResponse
+    {
+        public Guid UserId { get; set; }
+        public string ReaderName { get; set; }
+        public DateTime ReadAt { get; set; }
     }
 }
