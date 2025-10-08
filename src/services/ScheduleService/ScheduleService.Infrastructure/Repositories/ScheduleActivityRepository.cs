@@ -32,25 +32,12 @@ namespace ScheduleService.Infrastructure.Repositories
             existing.Description = newActivity.Description;
             existing.CheckInTime = newActivity.CheckInTime;
             existing.CheckOutTime = newActivity.CheckOutTime;
+            existing.OrderIndex = newActivity.OrderIndex;
 
             await _context.SaveChangesAsync();
             return existing;
         }
-
-        public async Task<bool> DeleteActivityByIdAsync(int activityId)
-        {
-            var activity = await _context.ScheduleActivities
-                .FirstOrDefaultAsync(a => a.Id == activityId && !a.IsDeleted);
-
-            if (activity == null)
-                return false; // activity not found
-
-            activity.IsDeleted = true;
-
-            var result = await _context.SaveChangesAsync();
-            return result > 0;
-        }
-
+        
         public async Task AddActivityAsync(ScheduleActivity activity)
         {
             await _context.ScheduleActivities.AddAsync(activity);
@@ -65,9 +52,14 @@ namespace ScheduleService.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<ScheduleActivity?> GetActivytyByIdAsync(int id)
+        public async Task<int> SaveChangesAsync()
         {
-            return await _context.ScheduleActivities.FirstOrDefaultAsync(a => a.Id == id);
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<ScheduleActivity?> GetActivityByIdAsync(int id)
+        {
+            return await _context.ScheduleActivities.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
         }
     }
 }
