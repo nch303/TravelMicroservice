@@ -20,7 +20,7 @@ namespace MessageService.Application.Services
 
         public async Task AddParticipantAsync(ChatParticipant chatParticipant)
         {
-            var existingParticipant = await _chatParticipantRepository.GetParticipantAsync(chatParticipant.ChatGroupId, chatParticipant.ParticipantId);
+            var existingParticipant = await _chatParticipantRepository.GetParticipantAsync(chatParticipant.ChatGroupId, chatParticipant.UserId);
             if (existingParticipant != null)
             {
                 throw new InvalidOperationException("The participant is already in the group.");
@@ -29,9 +29,14 @@ namespace MessageService.Application.Services
             await _chatParticipantRepository.AddParticipantAsync(chatParticipant);
         }
 
-        public async Task<ChatParticipant?> GetParticipantAsync(Guid chatGroupId, Guid participantId)
+        public async Task<ChatParticipant?> GetParticipantAsync(Guid chatGroupId, Guid userId)
         {
-            return await _chatParticipantRepository.GetParticipantAsync(chatGroupId, participantId);
+            return await _chatParticipantRepository.GetParticipantAsync(chatGroupId, userId);
+        }
+
+        public async Task<ChatParticipant?> GetParticipantByIdAsync(Guid participantId)
+        {
+            return await _chatParticipantRepository.GetParticipantByIdAsync(participantId);
         }
     }
 }

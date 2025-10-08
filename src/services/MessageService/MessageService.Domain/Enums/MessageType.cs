@@ -10,6 +10,7 @@ namespace MessageService.Domain.Enums
     {
         Text,
         Image,
-        Video
+        Video,
+        Notification
     }
 }

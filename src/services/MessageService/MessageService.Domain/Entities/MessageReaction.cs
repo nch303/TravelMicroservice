@@ -12,10 +12,11 @@ namespace MessageService.Domain.Entities
    
         public string ReactionType { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool IsDeleted { get; set; }
 
         // Navigation
-        public Guid UserId { get; set; }
-        public ChatParticipant User { get; set; }
+        public Guid ParticipantId { get; set; }
+        public ChatParticipant Participant { get; set; }
 
         public Guid MessageId { get; set; }
         public ChatMessage Message { get; set; }

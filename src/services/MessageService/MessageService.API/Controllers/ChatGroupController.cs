@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Azure.Core;
+using Azure.Identity;
 using MessageService.Application.DTOs.Requests;
 using MessageService.Application.DTOs.Responses;
 using MessageService.Application.IServiceClients;
@@ -7,6 +9,7 @@ using MessageService.Domain.Entities;
 using MessageService.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MessageService.API.Controllers
 {
@@ -20,10 +23,16 @@ namespace MessageService.API.Controllers
         private readonly IChatMessageService _chatMessageService;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IChatParticipantService _chatParticipantService;
+        private readonly IReactionService _reactionService;
+        private readonly IUserServiceClient _userServiceClient;
+        private readonly IReaderService _readerService;
+        private readonly IRealtimeNotifier _realtimeNotifier;
+        private readonly INotificationService _notificationService;
 
         public ChatGroupController(IChatGroupService chatGroupService, IMapper mapper, IAuthServiceClient authServiceClient
             , IChatMessageService chatMessageService, ICloudinaryService cloudinaryService
-            , IChatParticipantService chatParticipantService)
+            , IChatParticipantService chatParticipantService, IReactionService reactionService, IUserServiceClient userServiceClient
+            , IReaderService readerService, IRealtimeNotifier realtimeNotifier, INotificationService notificationService)
         {
             _chatGroupService = chatGroupService;
             _mapper = mapper;
@@ -31,6 +40,19 @@ namespace MessageService.API.Controllers
             _chatMessageService = chatMessageService;
             _cloudinaryService = cloudinaryService;
             _chatParticipantService = chatParticipantService;
+            _reactionService = reactionService;
+            _userServiceClient = userServiceClient;
+            _readerService = readerService;
+            _realtimeNotifier = realtimeNotifier;
+            _notificationService = notificationService;
+        }
+
+        private DateTime ConvertToUtc7(DateTime localDateTime)
+        {
+            // Convert sang giờ VN (UTC+7)
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(localDateTime, vnTimeZone);
+            return localTime;
         }
 
         [HttpPost("group/add")]
@@ -87,6 +109,137 @@ namespace MessageService.API.Controllers
             return Ok(groupResponse);
         }
 
+        [HttpPost("group/share-group/{groupId:guid}")]
+        [Authorize]
+        public async Task<IActionResult> ShareGroupCode(Guid groupId)
+        {
+            var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+            if (currentAccount == null)
+            {
+                return new UnauthorizedResult();
+            }
+
+            var sharedCodeObject = await _chatGroupService.ShareGroupCode(groupId, currentAccount.Id);
+            sharedCodeObject.SharedExpired = ConvertToUtc7(sharedCodeObject.SharedExpired);
+            return Ok(sharedCodeObject);
+        }
+
+        [HttpPost("group/join/{sharedCode}")]
+        [Authorize]
+        public async Task<IActionResult> JoinGroup([FromRoute] string sharedCode)
+        {
+            try
+            {
+                // Get UserId By Current Account
+                var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+                if (currentAccount == null)
+                {
+                    return new UnauthorizedResult();
+                }
+                var chatMessage = await _chatGroupService.JoinGroup(sharedCode, currentAccount.Id);
+
+                var profile = await _userServiceClient.GetUserProfileAsync(currentAccount.Id);
+
+                // Notify to clients in group via realtime service (e.g., SignalR, WebSocket)
+                await _realtimeNotifier.SendMessageAsync(chatMessage.GroupId, new
+                {
+                    chatMessage.Content,
+                    MessageType = chatMessage.MessageType.ToString(),
+                    chatMessage.CreatedAt,
+                    SenderName = profile!.Name
+                });
+
+                return Ok(new { Message = "Joined group successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("group/leave/{groupId:guid}")]
+        [Authorize]
+        public async Task<IActionResult> LeaveGroup([FromRoute] Guid groupId)
+        {
+            try
+            {
+                // Get UserId By Current Account
+                var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+                if (currentAccount == null)
+                {
+                    return new UnauthorizedResult();
+                }
+                var chatMessage = await _chatGroupService.LeaveGroup(groupId, currentAccount.Id);
+
+                var profile = await _userServiceClient.GetUserProfileAsync(currentAccount.Id);
+
+                // Notify to clients in group via realtime service (e.g., SignalR, WebSocket)
+                await _realtimeNotifier.SendMessageAsync(chatMessage.GroupId, new
+                {
+                    chatMessage.Content,
+                    MessageType = chatMessage.MessageType.ToString(),
+                    chatMessage.CreatedAt,
+                    SenderName = profile!.Name
+                });
+
+                return Ok(new { Message = "Left group successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
+        [HttpGet("chat/messages/all/by-groupId/{groupId:guid}")]
+        [Authorize]
+        public async Task<IActionResult> GetMessagesByGroupId([FromRoute] Guid groupId, [FromQuery] DateTime? beforeCreatedAt, [FromQuery] int pageSize = 10)
+        {
+            var group = await _chatGroupService.GetGroupByIdAsync(groupId);
+
+            var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+            var participant = await _chatParticipantService.GetParticipantAsync(groupId, currentAccount!.Id);
+            if (group == null || participant == null || participant.Status == ParticipantStatus.Left)
+            {
+                return NotFound(new { Message = "Group not found or you are not a participant of this group" });
+            }
+
+            var messages = await _chatMessageService.GetMessagesByGroupIdAsync(groupId, beforeCreatedAt, pageSize);
+
+            var messageResponses = _mapper.Map<List<ChatMessageResponse>>(messages);
+
+            // Get Sender Info 
+            var userProfile = new ProfileResponse();
+
+            foreach (var message in messageResponses)
+            {
+                // Map name and avatar for sender
+                participant = await _chatParticipantService.GetParticipantByIdAsync(message.SenderId);
+                userProfile = await _userServiceClient.GetUserProfileAsync(participant!.UserId);
+                message.SenderId = participant!.UserId; // Map back to UserId
+                message.SenderName = userProfile!.Name;
+                message.SenderAvatar = userProfile.AvatarUrl;
+
+                // Convert time to UTC+7
+                message.CreatedAt = ConvertToUtc7(message.CreatedAt);
+                if (message.EditAt.HasValue)
+                {
+                    message.EditAt = ConvertToUtc7(message.EditAt.Value);
+                }
+
+                foreach (var reader in message.ReaderSummary)
+                {
+                    userProfile = await _userServiceClient.GetUserProfileAsync(reader.UserId);
+                    reader.ReaderName = userProfile!.Name;
+
+                    // Convert time to UTC+7
+                    reader.ReadAt = ConvertToUtc7(reader.ReadAt);
+                }
+            }
+
+            return Ok(messageResponses);
+        }
+
         [HttpPost("chat/send-message")]
         [Authorize]
         public async Task<IActionResult> SendMessage([FromForm] SendMessageRequest request)
@@ -99,6 +252,8 @@ namespace MessageService.API.Controllers
                 {
                     return new UnauthorizedResult();
                 }
+
+                var profile = await _userServiceClient.GetUserProfileAsync(currentAccount.Id);
 
                 string? file = null;
 
@@ -127,21 +282,25 @@ namespace MessageService.API.Controllers
                 }
 
                 await _chatMessageService.SendMessageAsync(chatMessage);
+
+                // Notify to clients in group via realtime service (e.g., SignalR, WebSocket)
+                await _realtimeNotifier.SendMessageAsync(request.GroupId, new
+                {
+                    chatMessage.Id,
+                    chatMessage.Content,
+                    MessageType = chatMessage.MessageType.ToString(),
+                    chatMessage.CreatedAt,
+                    SenderId = chatMessage.SenderId,
+                    SenderName = profile!.Name,
+                    SenderAvatar = profile.AvatarUrl
+                });
+
                 return Ok(new { Message = "Message sent successfully", MessageId = chatMessage.Id });
             }
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
-        }
-
-        [HttpGet("chat/messages/group/{groupId:guid}")]
-        [Authorize]
-        public async Task<IActionResult> GetMessagesByGroupId([FromRoute] Guid groupId, [FromQuery] DateTime? beforeCreatedAt, [FromQuery] int pageSize = 10)
-        {
-            var messages = await _chatMessageService.GetMessagesByGroupIdAsync(groupId, beforeCreatedAt, pageSize);
-            var messageResponses = _mapper.Map<List<ChatMessageResponse>>(messages);
-            return Ok(messageResponses);
         }
 
         [HttpPut("chat/message/edit/{messageId:guid}")]
@@ -183,7 +342,7 @@ namespace MessageService.API.Controllers
                 {
                     message.Content = request.NewContent;
                 }
-                    
+
                 message.MessageType = request.MessageType;
                 message.ParentMessageId = request.ParentMessageId;
                 await _chatMessageService.EditMessageAsync(message);
@@ -193,6 +352,181 @@ namespace MessageService.API.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        [HttpPost("chat/react/add")]
+        [Authorize]
+        public async Task<IActionResult> ReactToMessage([FromBody] CreateReactionRequest request)
+        {
+            try
+            {
+                // Get ReactorId By Current Account
+                var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+                if (currentAccount == null)
+                    return Unauthorized();
+
+                var reaction = _mapper.Map<MessageReaction>(request);
+                reaction.Id = Guid.NewGuid();
+                reaction.CreatedAt = DateTime.UtcNow;
+
+                await _reactionService.AddReactionAsync(currentAccount.Id, reaction);
+                return Ok(new { Message = "Reaction added successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("chat/react/all/by-messageId/{messageId:guid}")]
+        [Authorize]
+        public async Task<IActionResult> GetReactionsByMessageId([FromRoute] Guid messageId)
+        {
+            var reactions = await _reactionService.GetReactionsByMessageIdAsync(messageId);
+
+            var reactionResponses = _mapper.Map<List<ReactionResponse>>(reactions);
+
+            // Get Sender Info 
+            var userProfile = new ProfileResponse();
+            var participant = new ChatParticipant();
+            foreach (var reaction in reactionResponses)
+            {
+                participant = await _chatParticipantService.GetParticipantByIdAsync(reaction.ParticipantId);
+                userProfile = await _userServiceClient.GetUserProfileAsync(participant!.UserId);
+                reaction.ParticipantId = participant!.UserId; // Map back to UserId
+                reaction.ParticipantName = userProfile!.Name;
+                reaction.ParticipantAvatar = userProfile.AvatarUrl;
+            }
+
+            return Ok(reactionResponses);
+        }
+
+        [HttpDelete("chat/react/remove/{reactionId:guid}")]
+        [Authorize]
+        public async Task<IActionResult> RemoveReactionFromMessage([FromRoute] Guid reactionId)
+        {
+            try
+            {
+                // Get ReactorId By Current Account
+                var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+                if (currentAccount == null)
+                    return Unauthorized();
+
+                await _reactionService.RemoveReactionAsync(reactionId, currentAccount.Id);
+                return Ok(new { Message = "Reaction removed successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("chat/reader/add")]
+        [Authorize]
+        public async Task<IActionResult> AddReader([FromBody] CreateReaderRequest request)
+        {
+            try
+            {
+                // Get ReaderId By Current Account
+                var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+                if (currentAccount == null)
+                    return Unauthorized();
+
+                await _readerService.MarkAsReadAsync(request.GroupId, currentAccount.Id);
+                return Ok(new { Message = "Reader added successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
+
+        [HttpGet("chat/reader/all/by-messageId/{messageId:guid}")]
+        [Authorize]
+        public async Task<IActionResult> GetReadersByMessageId([FromRoute] Guid messageId)
+        {
+            var readers = await _readerService.GetMessageReadsByMessageIdAsync(messageId);
+            var readerResponses = _mapper.Map<List<ReaderResponse>>(readers);
+
+            // Get Reader Info 
+            var userProfile = new ProfileResponse();
+            var participant = new ChatParticipant();
+            foreach (var reader in readerResponses)
+            {
+                participant = await _chatParticipantService.GetParticipantByIdAsync(reader.ReaderId);
+                userProfile = await _userServiceClient.GetUserProfileAsync(participant!.UserId);
+                reader.ReaderId = participant!.UserId; // Map back to UserId
+                reader.ReaderName = userProfile!.Name;
+                reader.ReaderAvatar = userProfile.AvatarUrl;
+                // Convert time to UTC+7
+                reader.ReadAt = ConvertToUtc7(reader.ReadAt);
+            }
+            return Ok(readerResponses);
+        }
+
+        [HttpPost("chat/notify/add")]
+        [Authorize]
+        public async Task<IActionResult> AddNotification([FromBody] CreateNotificationRequest request)
+        {
+            try
+            {
+                // Get NotifierId By Current Account
+                var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+                if (currentAccount == null)
+                    return Unauthorized();
+                var notification = _mapper.Map<Notification>(request);
+                notification.Id = Guid.NewGuid();
+                notification.UserId = currentAccount.Id;
+                notification.CreatedAt = DateTime.UtcNow;
+                await _notificationService.CreateNotificationAsync(notification);
+                return Ok(new { Message = "Notification added successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("chat/notify/all/me")]
+        [Authorize]
+        public async Task<IActionResult> GetMyNotifications(int amountOfNoti)
+        {
+            // Get UserId By Current Account
+            var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+            if (currentAccount == null)
+            {
+                return new UnauthorizedResult();
+            }
+            var notifications = await _notificationService.GetMyNotificationAsync(currentAccount.Id, amountOfNoti);
+            var notificationResponses = _mapper.Map<List<NotificationResponse>>(notifications);
+
+            var message = new ChatMessage();
+            var participant = new ChatParticipant();
+            var senderProfile = new ProfileResponse();
+            // Convert time to UTC+7
+            foreach (var notification in notificationResponses)
+            {
+                message = await _chatMessageService.GetMessageByIdAsync(notification.ChatMessageId);
+                participant = await _chatParticipantService.GetParticipantByIdAsync(message.SenderId);
+                senderProfile = await _userServiceClient.GetUserProfileAsync(participant!.UserId);
+
+                notification.SenderName = senderProfile!.Name;
+                notification.MessageContent = message.Content;
+                notification.CreatedAt = ConvertToUtc7(notification.CreatedAt);
+            }
+            return Ok(notificationResponses);
+        }
+
+        [HttpPut("chat/notify/read/{notificationId:guid}")]
+        [Authorize]
+        public async Task<IActionResult> ReadNotification(Guid notificationId)
+        {
+            var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+            if (currentAccount == null) { return new UnauthorizedResult(); }
+
+            await _notificationService.ReadNotificationAsync(notificationId, currentAccount.Id);
+            return Ok(new { Message = "Read notification successfully." });
         }
     }
 }

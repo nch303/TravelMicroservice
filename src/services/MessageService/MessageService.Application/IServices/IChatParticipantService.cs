@@ -10,6 +10,7 @@ namespace MessageService.Application.IServices
     public interface IChatParticipantService
     {
         Task AddParticipantAsync(ChatParticipant chatParticipant);
-        Task<ChatParticipant?> GetParticipantAsync(Guid chatGroupId, Guid participantId);
+        Task<ChatParticipant?> GetParticipantAsync(Guid chatGroupId, Guid userId);
+        Task<ChatParticipant?> GetParticipantByIdAsync(Guid participantId);
     }
 }

@@ -17,7 +17,7 @@ namespace MessageService.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -46,10 +46,20 @@ namespace MessageService.Infrastructure.Migrations
                     b.Property<Guid?>("ScheduleId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("SharedCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("SharedExpired")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SharedCode")
+                        .IsUnique()
+                        .HasFilter("[SharedCode] IS NOT NULL");
 
                     b.ToTable("ChatGroups");
                 });
@@ -120,9 +130,6 @@ namespace MessageService.Infrastructure.Migrations
                     b.Property<DateTime?>("LastSeenAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("ParticipantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -132,6 +139,9 @@ namespace MessageService.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -151,7 +161,15 @@ namespace MessageService.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<Guid>("MessageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ParticipantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ReactionType")
@@ -159,14 +177,11 @@ namespace MessageService.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("MessageId");
 
-                    b.HasIndex("UserId", "MessageId")
+                    b.HasIndex("ParticipantId", "MessageId")
                         .IsUnique();
 
                     b.ToTable("MessageReactions");
@@ -196,6 +211,50 @@ namespace MessageService.Infrastructure.Migrations
                     b.HasIndex("ReaderId");
 
                     b.ToTable("MessageReads");
+                });
+
+            modelBuilder.Entity("MessageService.Domain.Entities.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ChatGroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ChatMessageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatGroupId");
+
+                    b.HasIndex("ChatMessageId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("MessageService.Domain.Entities.ChatMessage", b =>
@@ -243,15 +302,15 @@ namespace MessageService.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MessageService.Domain.Entities.ChatParticipant", "User")
+                    b.HasOne("MessageService.Domain.Entities.ChatParticipant", "Participant")
                         .WithMany("Reactions")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("ParticipantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Message");
 
-                    b.Navigation("User");
+                    b.Navigation("Participant");
                 });
 
             modelBuilder.Entity("MessageService.Domain.Entities.MessageRead", b =>
@@ -273,15 +332,36 @@ namespace MessageService.Infrastructure.Migrations
                     b.Navigation("Reader");
                 });
 
+            modelBuilder.Entity("MessageService.Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("MessageService.Domain.Entities.ChatGroup", "ChatGroup")
+                        .WithMany("Notifications")
+                        .HasForeignKey("ChatGroupId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MessageService.Domain.Entities.ChatMessage", "ChatMessage")
+                        .WithMany("Notifications")
+                        .HasForeignKey("ChatMessageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ChatGroup");
+
+                    b.Navigation("ChatMessage");
+                });
+
             modelBuilder.Entity("MessageService.Domain.Entities.ChatGroup", b =>
                 {
                     b.Navigation("Messages");
+
+                    b.Navigation("Notifications");
 
                     b.Navigation("Participants");
                 });
 
             modelBuilder.Entity("MessageService.Domain.Entities.ChatMessage", b =>
                 {
+                    b.Navigation("Notifications");
+
                     b.Navigation("Reactions");
 
                     b.Navigation("Reads");

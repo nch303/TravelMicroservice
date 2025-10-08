@@ -19,6 +19,10 @@ namespace MessageService.Application.Extensions
             services.AddScoped<IChatParticipantService, ChatParticipantService>();
             services.AddScoped<IChatMessageService, ChatMessageService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
+            services.AddScoped<IReactionService, ReactionService>();
+            services.AddScoped<IReaderService, ReaderService>();
+            services.AddScoped<IRealtimeNotifier, SignalRRealtimeNotifier>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             // Cấu hình gọi API từ các service khác
 
@@ -29,6 +33,11 @@ namespace MessageService.Application.Extensions
             var link = "http://apigateway:80";
 
             services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri(link);
+            });
+
+            services.AddHttpClient<IUserServiceClient, UserServiceClient>(client =>
             {
                 client.BaseAddress = new Uri(link);
             });

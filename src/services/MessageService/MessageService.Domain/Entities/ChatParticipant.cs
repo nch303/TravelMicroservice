@@ -10,7 +10,7 @@ namespace MessageService.Domain.Entities
     public class ChatParticipant
     {
         public Guid Id { get; set; }
-        public Guid ParticipantId { get; set; }
+        public Guid UserId { get; set; }
         public ParticipantRole Role { get; set; }
         public ParticipantStatus Status { get; set; } = ParticipantStatus.Active;
         public DateTime JoinedAt { get; set; } = DateTime.UtcNow;

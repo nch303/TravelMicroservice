@@ -37,6 +37,10 @@ namespace MessageService.Infrastructure.Repositories
         public async Task<List<ChatMessage>> GetMessagesByGroupIdAsync(Guid groupId, DateTime? beforeCreatedAt, int pageSize)
         {
             IOrderedQueryable<ChatMessage> query = _context.ChatMessages
+                .Include(m => m.Sender)
+                .Include(m => m.ParentMessage) // Include parent message for replies
+                .Include(m => m.Reactions) // Include sender of the parent message
+                .Include(m => m.Reads)
                 .Where(m => m.GroupId == groupId)
                 .OrderByDescending(m => m.CreatedAt);
 

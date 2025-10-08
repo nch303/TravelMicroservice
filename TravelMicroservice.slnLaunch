@@ -22,6 +22,10 @@
         "Path": "src\\gateway\\ApiGateway\\ApiGateway.csproj",
         "Action": "Start",
         "DebugTarget": "https"
+      },
+      {
+        "Path": "SignalRTestClient\\SignalRTestClient.csproj",
+        "Action": "Start"
       }
     ]
   }
