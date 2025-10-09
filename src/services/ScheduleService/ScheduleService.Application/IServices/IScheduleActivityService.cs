@@ -15,6 +15,7 @@ namespace ScheduleService.Application.IServices
         Task DeleteActivityById(int activityId);
         Task AddActivityAsync(ScheduleActivity activity);
         Task<List<ScheduleActivity>> GetActivitiesByScheduleIdAsync(Guid scheduleId);
+        Task UpdateOrderIndexById(int newIndex, int activityId);
     }
 }
 

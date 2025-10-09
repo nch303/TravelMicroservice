@@ -7,6 +7,7 @@ using CloudinaryDotNet.Actions;
 using ScheduleService.Application.DTOs.Responses;
 using ScheduleService.Application.IServiceClients;
 using ScheduleService.Application.IServices;
+using ScheduleService.Application.ServiceClients;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
 using ScheduleService.Domain.IRepositories;
@@ -19,12 +20,14 @@ namespace ScheduleService.Application.Services
         private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IUserServiceClient _userServiceClient;
+        private readonly IAuthServiceClient _authServiceClient;
 
-        public ScheduleParticipantService(IScheduleParticipantRepository scheduleParticipantRepository, IScheduleRepository scheduleRepository, IUserServiceClient userServiceClient)
+        public ScheduleParticipantService(IScheduleParticipantRepository scheduleParticipantRepository, IScheduleRepository scheduleRepository, IUserServiceClient userServiceClient, IAuthServiceClient authServiceClient)
         {
             _scheduleParticipantRepository = scheduleParticipantRepository;
             _scheduleRepository = scheduleRepository;
             _userServiceClient = userServiceClient;
+            _authServiceClient = authServiceClient;
         }
 
         public async Task<ScheduleParticipant?> GetByUserIdAndScheduleIdAsync(Guid userId, Guid scheduleId)
@@ -47,9 +50,10 @@ namespace ScheduleService.Application.Services
             return schedules;
         }
 
-        public async Task<Schedule?> LeaveScheduleAsync(Guid scheduleId, Guid userId)
+        public async Task<Schedule?> LeaveScheduleAsync(Guid scheduleId)
         {
-            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(userId, scheduleId);
+            var user = await _authServiceClient.GetCurrentAccountAsync();
+            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user!.Id, scheduleId);
             if (participant == null || participant.Status != ParticipantStatus.Active)
                 throw new InvalidOperationException("User is not an active participant.");
 

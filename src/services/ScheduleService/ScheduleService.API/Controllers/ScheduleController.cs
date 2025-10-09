@@ -195,12 +195,13 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpPost("schedule/{scheduleId}/leave/{userId}")]
-        public async Task<IActionResult> LeaveSchedule(Guid scheduleId, Guid userId)
+        [HttpPost("{scheduleId}/leave/{userId}")]
+        [Authorize]
+        public async Task<IActionResult> LeaveSchedule(Guid scheduleId)
         {
             try
             {
-                var result = await _scheduleParticipantService.LeaveScheduleAsync(scheduleId, userId);
+                var result = await _scheduleParticipantService.LeaveScheduleAsync(scheduleId);
                 var response = _mapper.Map<LeaveScheduleResponse>(result);
                 return Ok(response);
             }
@@ -226,7 +227,7 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpGet("schedule/{id}/activities")]
+        [HttpGet("{id}/activities")]
         public async Task<IActionResult> GetActivities(Guid id)
         {
             try
@@ -257,7 +258,7 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpPut("schedule/activities/{activityId}")]
+        [HttpPut("activities/{activityId}")]
         public async Task<IActionResult> UpdateActivity(int activityId, [FromBody] UpdateActivityRequest newActivity)
         {
             try
@@ -272,7 +273,21 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpDelete("schedule/activities/{activityId}")]
+        [HttpPut("activities/{newIndex}/{activityId}")]
+        public async Task<IActionResult> UpdateActivity(int activityId, int newIndex)
+        {
+            try
+            {
+                await _scheduleActivityService.UpdateOrderIndexById(newIndex, activityId);
+                return Ok("Update order successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("activities/{activityId}")]
         public async Task<IActionResult> DeleteActivity(int activityId)
         {
             try
@@ -286,7 +301,7 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpPatch("schedule/checkitems/{checkedItemId}/participants/toggle")]
+        [HttpPatch("checkitems/{checkedItemId}/participants/toggle")]
         [Authorize]
         public async Task<IActionResult> ToggleCheck(int checkedItemId, [FromQuery] bool isChecked)
         {
@@ -301,7 +316,7 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpDelete("schedule/checkitems/bulk")]
+        [HttpDelete("checkitems/bulk")]
         public async Task<IActionResult> DeleteManyCheckedItems([FromBody] List<int> checkItemIds)
         {
             try
@@ -349,7 +364,7 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpGet("schedule/participants/{scheduleId}")]
+        [HttpGet("participants/{scheduleId}")]
         [Authorize]
         public async Task<IActionResult> GetParticipantsByScheduleId(Guid scheduleId)
         {

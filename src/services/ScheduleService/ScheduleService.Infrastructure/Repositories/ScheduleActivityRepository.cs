@@ -17,26 +17,6 @@ namespace ScheduleService.Infrastructure.Repositories
         {
             _context = context;
         }
-
-        public async Task<ScheduleActivity> UpdateActivityByIdAsync(ScheduleActivity newActivity, int activityId)
-        {
-            var existing = await _context.ScheduleActivities
-               .FirstOrDefaultAsync(a => a.Id == activityId && !a.IsDeleted);
-
-            if (existing == null)
-                throw new KeyNotFoundException("Activity not found");
-
-            // update fields
-            existing.PlaceName = newActivity.PlaceName;
-            existing.Location = newActivity.Location;
-            existing.Description = newActivity.Description;
-            existing.CheckInTime = newActivity.CheckInTime;
-            existing.CheckOutTime = newActivity.CheckOutTime;
-            existing.OrderIndex = newActivity.OrderIndex;
-
-            await _context.SaveChangesAsync();
-            return existing;
-        }
         
         public async Task AddActivityAsync(ScheduleActivity activity)
         {
