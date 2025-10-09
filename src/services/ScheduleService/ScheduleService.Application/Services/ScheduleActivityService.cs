@@ -94,6 +94,16 @@ namespace ScheduleService.Application.Services
             return await _scheduleActivityRepository.GetAllActivitiesByScheduleIdAsync(scheduleId);
         }
 
+        public async Task<List<ScheduleActivity>> GetActivitiesByDateAsync(Guid scheduleId, DateTime date)
+        {
+            var activities = await _scheduleActivityRepository.GetActivitiesByDateAsync(scheduleId, date);
+
+            if (activities == null || !activities.Any())
+                throw new KeyNotFoundException($"No activities found on {date:dd/MM/yyyy} for schedule {scheduleId}");
+
+            return activities;
+        }
+
         public async Task<ScheduleActivity> UpdateActivityById(ScheduleActivity newActivity, int activityId)
         {
             // Find the existing activity

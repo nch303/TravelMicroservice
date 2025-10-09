@@ -56,6 +56,33 @@ namespace ScheduleService.API.Controllers
             }
         }
 
+        [HttpGet("{scheduleId}/activities/date(dd-MM-yyyy)/{dateStr}")]
+        public async Task<IActionResult> GetActivitiesByDate(Guid scheduleId, string dateStr)
+        {
+            try
+            {
+                // ✅ Parse input manually in "dd/MM/yyyy" format
+                if (!DateTime.TryParseExact(
+                        dateStr,
+                        "dd-MM-yyyy",
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        System.Globalization.DateTimeStyles.None,
+                        out DateTime date))
+                {
+                    return BadRequest(new { message = "Invalid date format. Please use dd-MM-yyyy." });
+                }
+
+                // ✅ Call service
+                var activities = await _scheduleActivityService.GetActivitiesByDateAsync(scheduleId, date);
+                return Ok(activities);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
         [HttpPost("share/{id}")]
         public async Task<IActionResult> ShareSchedule(Guid id)
         {

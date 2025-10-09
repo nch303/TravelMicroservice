@@ -15,5 +15,5 @@ namespace ScheduleService.Domain.IRepositories
         Task<ScheduleActivity?> GetActivityByIdAsync(int id);
         Task<int> SaveChangesAsync();
         Task<ScheduleActivity?> GetDeletedActivityByIdAsync(int id);
-    }
+        Task<List<ScheduleActivity>> GetActivitiesByDateAsync(Guid scheduleId, DateTime date);
 }

@@ -32,6 +32,17 @@ namespace ScheduleService.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<ScheduleActivity>> GetActivitiesByDateAsync(Guid scheduleId, DateTime date)
+        {
+            return await _context.ScheduleActivities
+                .Where(a => a.ScheduleId == scheduleId
+                    && !a.IsDeleted
+                    && a.CheckInTime.Date == date.Date)
+                .OrderBy(a => a.OrderIndex)
+                .ToListAsync();
+        }
+
+
         public async Task<List<ScheduleActivity>> GetAllActivitiesByScheduleIdAsync(Guid scheduleId)
         {
             return await _context.ScheduleActivities
