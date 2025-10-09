@@ -17,5 +17,6 @@ namespace ScheduleService.Application.IServices
         Task<ScheduleParticipant> AddScheduleParticipantAsync(ScheduleParticipant participant);
         Task<(List<ScheduleParticipant> Participants, List<UserServiceClientResponse> Users)>
     GetAllParticipantByScheduleIdAsync(Guid scheduleId);
+        Task<Schedule?> KickParticipantAsync(Guid scheduleId, Guid participantId);
     }
 }

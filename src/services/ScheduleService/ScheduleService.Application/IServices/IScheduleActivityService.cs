@@ -11,8 +11,10 @@ namespace ScheduleService.Application.IServices
 {
     public interface IScheduleActivityService
     {
+        Task<List<ScheduleActivity>> GetAllActivitiesByScheduleIdAsync(Guid scheduleId);
         Task<ScheduleActivity> UpdateActivityById(ScheduleActivity newActivity, int activityId);
         Task DeleteActivityById(int activityId);
+        Task RestoreActivityById(int activityId);
         Task AddActivityAsync(ScheduleActivity activity);
         Task<List<ScheduleActivity>> GetActivitiesByScheduleIdAsync(Guid scheduleId);
         Task UpdateOrderIndexById(int newIndex, int activityId);

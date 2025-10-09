@@ -13,5 +13,6 @@ namespace ScheduleService.Application.IServices
         Task SaveChangesAsync();
         Task<List<CheckedItem>> GetByScheduleIdAsync(Guid scheduleId);
         Task DeleteManyById(List<int> itemIds);
+        Task<List<CheckedItem>> GetAvailableByScheduleIdAsync(Guid scheduleId);
     }
 }

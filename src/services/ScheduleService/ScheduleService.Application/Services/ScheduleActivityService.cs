@@ -89,19 +89,30 @@ namespace ScheduleService.Application.Services
         //    }
         //}
 
+        public async Task<List<ScheduleActivity>> GetAllActivitiesByScheduleIdAsync(Guid scheduleId)
+        {
+            return await _scheduleActivityRepository.GetAllActivitiesByScheduleIdAsync(scheduleId);
+        }
 
         public async Task<ScheduleActivity> UpdateActivityById(ScheduleActivity newActivity, int activityId)
         {
-            // 1️⃣ Find the existing activity
+            // Find the existing activity
             var existing = await _scheduleActivityRepository.GetActivityByIdAsync(activityId);
             if (existing == null)
                 throw new KeyNotFoundException($"Activity with Id {activityId} not found.");
 
-            // 2️⃣ Validate basic time logic
+            var user = await _authServiceClient.GetCurrentAccountAsync();
+            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user!.Id, existing.ScheduleId);
+            if (participant!.Role != ParticipantRole.Owner || participant.Role != ParticipantRole.Editor || participant == null)
+            {
+                throw new Exception("You do not have permission to update this schedule");
+            }
+
+            // Validate basic time logic
             if (newActivity.CheckInTime >= newActivity.CheckOutTime)
                 throw new ArgumentException("Check-in time must be earlier than check-out time.");
 
-            // 3️⃣ Fetch all activities in the same schedule
+            // Fetch all activities in the same schedule
             //var allActivities = await _scheduleActivityRepository.GetActivitiesByScheduleIdAsync(existing.ScheduleId);
 
             // Include existing (to validate against all others)
@@ -109,7 +120,7 @@ namespace ScheduleService.Application.Services
             //    .Where(a => !a.IsDeleted)
             //    .ToList();
 
-            // 4️⃣ Temporarily apply new times to existing (for validation only)
+            // Temporarily apply new times to existing (for validation only)
             //var tempActivity = new ScheduleActivity
             //{
             //    Id = existing.Id,
@@ -126,17 +137,17 @@ namespace ScheduleService.Application.Services
             //if (index != -1)
             //    updatedList[index] = tempActivity;
 
-            // 5️⃣ Validate time overlap consistency
+            // Validate time overlap consistency
             //ValidateActivityOrder(updatedList, tempActivity);
 
-            // 6️⃣ Update fields (only after successful validation)
+            // Update fields (only after successful validation)
             existing.PlaceName = newActivity.PlaceName;
             existing.Location = newActivity.Location;
             existing.Description = newActivity.Description;
             existing.CheckInTime = newActivity.CheckInTime;
             existing.CheckOutTime = newActivity.CheckOutTime;
 
-            // 8️⃣ Save changes
+            //  Save changes
             var result = await _scheduleActivityRepository.SaveChangesAsync();
             if (result <= 0)
                 throw new InvalidOperationException("Failed to update activity and reorder schedule.");
@@ -169,7 +180,7 @@ namespace ScheduleService.Application.Services
             activity.IsDeleted = true;
 
             // 3️⃣ Get other remaining activities in the same schedule
-            var remainingActivities = await _scheduleActivityRepository.GetActivitiesByScheduleIdAsync(activity.ScheduleId);
+            var remainingActivities = await _scheduleActivityRepository.GetAvailableActivitiesByScheduleIdAsync(activity.ScheduleId);
 
             // 4️⃣ Reorder: shift up any activities after the deleted one
             foreach (var a in remainingActivities)
@@ -183,6 +194,26 @@ namespace ScheduleService.Application.Services
 
             if (result <= 0)
                 throw new InvalidOperationException("Failed to delete activity and update order indexes.");
+        }
+
+        public async Task RestoreActivityById(int activityId)
+        {
+            var activity = await _scheduleActivityRepository.GetDeletedActivityByIdAsync(activityId);
+            if (activity == null)
+                throw new KeyNotFoundException($"Activity with that Id not found or is active.");
+
+            var activeActivities = await _scheduleActivityRepository.GetAvailableActivitiesByScheduleIdAsync(activity.ScheduleId);
+            var nextOrderIndex = activeActivities.Any()
+                    ? activeActivities.Max(a => a.OrderIndex) + 1
+                    : 1;
+
+            activity.OrderIndex = nextOrderIndex;
+            activity.IsDeleted = false;
+
+            var result = await _scheduleActivityRepository.SaveChangesAsync();
+
+            if (result <= 0)
+                throw new InvalidOperationException("Failed to restore activity and update order indexes.");
         }
 
         public async Task AddActivityAsync(ScheduleActivity activity)
@@ -216,7 +247,7 @@ namespace ScheduleService.Application.Services
                 throw new Exception("You do not have permission to view activities of this schedule");
             }
 
-            var activities = await _scheduleActivityRepository.GetActivitiesByScheduleIdAsync(scheduleId);
+            var activities = await _scheduleActivityRepository.GetAvailableActivitiesByScheduleIdAsync(scheduleId);
             var sorted = activities.OrderBy(a => a.OrderIndex).ToList();
             return sorted;
         }

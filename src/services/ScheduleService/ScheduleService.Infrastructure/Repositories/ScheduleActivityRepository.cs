@@ -24,10 +24,18 @@ namespace ScheduleService.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<ScheduleActivity>> GetActivitiesByScheduleIdAsync(Guid scheduleId)
+        public async Task<List<ScheduleActivity>> GetAvailableActivitiesByScheduleIdAsync(Guid scheduleId)
         {
             return await _context.ScheduleActivities
                 .Where(sa => sa.ScheduleId == scheduleId && !sa.IsDeleted)
+                .OrderBy(sa => sa.OrderIndex)
+                .ToListAsync();
+        }
+
+        public async Task<List<ScheduleActivity>> GetAllActivitiesByScheduleIdAsync(Guid scheduleId)
+        {
+            return await _context.ScheduleActivities
+                .Where(sa => sa.ScheduleId == scheduleId)
                 .OrderBy(sa => sa.OrderIndex)
                 .ToListAsync();
         }
@@ -40,6 +48,11 @@ namespace ScheduleService.Infrastructure.Repositories
         public async Task<ScheduleActivity?> GetActivityByIdAsync(int id)
         {
             return await _context.ScheduleActivities.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
+        }
+
+        public async Task<ScheduleActivity?> GetDeletedActivityByIdAsync(int id)
+        {
+            return await _context.ScheduleActivities.FirstOrDefaultAsync(a => a.Id == id && a.IsDeleted == true);
         }
     }
 }

@@ -10,8 +10,10 @@ namespace ScheduleService.Domain.IRepositories
     public interface IScheduleActivityRepository
     {
         Task AddActivityAsync(ScheduleActivity activity);
-        Task<List<ScheduleActivity>> GetActivitiesByScheduleIdAsync(Guid scheduleId);
+        Task<List<ScheduleActivity>> GetAllActivitiesByScheduleIdAsync(Guid scheduleId);
+        Task<List<ScheduleActivity>> GetAvailableActivitiesByScheduleIdAsync(Guid scheduleId);
         Task<ScheduleActivity?> GetActivityByIdAsync(int id);
         Task<int> SaveChangesAsync();
+        Task<ScheduleActivity?> GetDeletedActivityByIdAsync(int id);
     }
 }

@@ -178,6 +178,27 @@ namespace ScheduleService.API.Controllers
             }
         }
 
+        [HttpPatch("schedule/{id}/restore")]
+        public async Task<IActionResult> RestoreSchedule(Guid id)
+        {
+            try
+            {
+                var restored = await _scheduleService.RestoreScheduleAsync(id);
+                if (restored == true)
+                {
+                    return Ok(new { message = "Schedule restored" });
+                }
+                else
+                {
+                    return BadRequest(new { message = "Schedule restore unsuccessfull" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPost("activity/add")]
         [Authorize]
         public async Task<IActionResult> AddActivityToSchedule([FromBody] CreateScheduleActivityRequest request)
@@ -211,13 +232,60 @@ namespace ScheduleService.API.Controllers
             }
         }
 
+        [HttpPatch("{scheduleId}/kick/{participantId}")]
+        [Authorize]
+        public async Task<IActionResult> KickParticipantOutOfSchedule(Guid scheduleId, Guid participantId)
+        {
+            try
+            {
+                var result = await _scheduleParticipantService.KickParticipantAsync(scheduleId, participantId);
+                var response = _mapper.Map<LeaveScheduleResponse>(result);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPatch("{scheduleId}/change-role/{participantId}")]
+        [Authorize]
+        public async Task<IActionResult> ChangeParticipantRole(Guid scheduleId, Guid participantId)
+        {
+            try
+            {
+                var result = await _scheduleParticipantService.KickParticipantAsync(participantId, scheduleId);
+                return Ok(new { message = "Participant's role changed" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("activities/getAvailable{scheduleId}")]
+        [Authorize]
+        public async Task<IActionResult> GetAvailableActivitiesByScheduleId(Guid scheduleId)
+        {
+            try
+            {
+                var activities = await _scheduleActivityService.GetActivitiesByScheduleIdAsync(scheduleId);
+                var activitiesResponse = _mapper.Map<List<ScheduleActivityResponse>>(activities);
+                return Ok(activitiesResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpGet("activities/getAll{scheduleId}")]
         [Authorize]
         public async Task<IActionResult> GetAllActivitiesByScheduleId(Guid scheduleId)
         {
             try
             {
-                var activities = await _scheduleActivityService.GetActivitiesByScheduleIdAsync(scheduleId);
+                var activities = await _scheduleActivityService.GetAllActivitiesByScheduleIdAsync(scheduleId);
                 var activitiesResponse = _mapper.Map<List<ScheduleActivityResponse>>(activities);
                 return Ok(activitiesResponse);
             }
@@ -274,12 +342,12 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpPut("activities/{newIndex}/{activityId}")]
-        public async Task<IActionResult> UpdateActivity(int activityId, int newIndex)
+        public async Task<IActionResult> UpdateActivityIndexActivity(int activityId, int newIndex)
         {
             try
             {
                 await _scheduleActivityService.UpdateOrderIndexById(newIndex, activityId);
-                return Ok("Update order successfully");
+                return Ok(new { message = "Update order successfully" });
             }
             catch (Exception ex)
             {
@@ -293,7 +361,21 @@ namespace ScheduleService.API.Controllers
             try
             {
                 await _scheduleActivityService.DeleteActivityById(activityId);
-                return Ok(new { message = "Activity deleteds" });
+                return Ok(new { message = "Activity deleted" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPatch("activities/restore/{activityId}")]
+        public async Task<IActionResult> RestoreActivity(int activityId)
+        {
+            try
+            {
+                await _scheduleActivityService.RestoreActivityById(activityId);
+                return Ok(new { message = "Activity restored" });
             }
             catch (Exception ex)
             {
@@ -337,6 +419,22 @@ namespace ScheduleService.API.Controllers
             try
             {
                 var items = await _checkedItemService.GetByScheduleIdAsync(scheduleId);
+                var response = _mapper.Map<List<CheckedItemResponse>>(items);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("available-checked-items/{scheduleId}")]
+        [Authorize]
+        public async Task<IActionResult> GetAvailableCheckedItemsByScheduleId(Guid scheduleId)
+        {
+            try
+            {
+                var items = await _checkedItemService.GetAvailableByScheduleIdAsync(scheduleId);
                 var response = _mapper.Map<List<CheckedItemResponse>>(items);
                 return Ok(response);
             }

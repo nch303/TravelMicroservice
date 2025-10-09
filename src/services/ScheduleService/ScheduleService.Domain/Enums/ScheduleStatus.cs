@@ -9,8 +9,6 @@ namespace ScheduleService.Domain.Enums
     public enum ScheduleStatus
     {
         Active,
-        Inactive,
-        Completed,
-        Cancelled
+        Inactive
     }
 }
