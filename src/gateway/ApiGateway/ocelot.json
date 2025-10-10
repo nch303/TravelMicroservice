@@ -47,6 +47,18 @@
       ],
       "UpstreamPathTemplate": "/api/message/{everything}",
       "SwaggerKey": "message"
+    },
+    {
+      "DownstreamPathTemplate": "/api/advertisement/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7023
+        }
+      ],
+      "UpstreamPathTemplate": "/api/advertisement/{everything}",
+      "SwaggerKey": "advertisement"
     }
   ],
   "SwaggerEndPoints": [
@@ -87,6 +99,16 @@
           "Name": "Message Service",
           "Version": "v1",
           "Url": "https://localhost:7022/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "advertisement",
+      "Config": [
+        {
+          "Name": "Advertisement Service",
+          "Version": "v1",
+          "Url": "https://localhost:7023/swagger/v1/swagger.json"
         }
       ]
     }
@@ -146,6 +168,18 @@
 //      ],
 //      "UpstreamPathTemplate": "/api/message/{everything}",
 //      "SwaggerKey": "message"
+//    },
+//    {
+//      "DownstreamPathTemplate": "/api/advertisement/{everything}",
+//      "DownstreamScheme": "http",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "advertisementservice",
+//          "Port": 80
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/api/advertisement/{everything}",
+//      "SwaggerKey": "advertisement"
 //    }
 //  ],
 //  "SwaggerEndPoints": [
@@ -186,6 +220,16 @@
 //          "Name": "Message Service",
 //          "Version": "v1",
 //          "Url": "http://messageservice/swagger/v1/swagger.json"
+//        }
+//      ]
+//    },
+//    {
+//      "Key": "advertisement",
+//      "Config": [
+//        {
+//          "Name": "Advertisement Service",
+//          "Version": "v1",
+//          "Url": "http://advertisementservice/swagger/v1/swagger.json"
 //        }
 //      ]
 //    }

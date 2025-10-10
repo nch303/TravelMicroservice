@@ -67,6 +67,18 @@ services:
        - ASPNETCORE_URLS=http://+:80
      networks:
        - travelnet  
+    
+  advertisementservice:
+     build:
+       context: ./src/services/AdvertisementService
+       dockerfile: Dockerfile
+     container_name: advertisementService
+     ports:
+       - "5005:80"
+     environment:
+       - ASPNETCORE_URLS=http://+:80
+     networks:
+       - travelnet  
 
 networks:
   travelnet:

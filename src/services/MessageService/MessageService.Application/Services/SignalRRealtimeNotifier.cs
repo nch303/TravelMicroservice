@@ -24,24 +24,24 @@ namespace MessageService.Application.Services
                                      .SendAsync("ReceiveMessage", message);
         }
 
-        public async Task NotifyReactionUpdatedAsync(Guid groupId, object reaction)
+        public async Task EditMessageAsync(Guid groupId, object message)
         {
-            await _hubContext.Clients.Group(groupId.ToString()).SendAsync("ReactionUpdated", reaction);
+            await _hubContext.Clients.Group(groupId.ToString()).SendAsync("EditMessage", message);
         }
 
-        public async Task NotifyMessageEditedAsync(Guid groupId, object message)
+        public async Task AddReactionAsync(Guid groupId, object reactionInfo)
         {
-            await _hubContext.Clients.Group(groupId.ToString()).SendAsync("MessageEdited", message);
+            await _hubContext.Clients.Group(groupId.ToString()).SendAsync("AddReaction", reactionInfo);
         }
 
-        public async Task NotifyMessageDeletedAsync(Guid groupId, Guid messageId)
+        public async Task RemoveReactionAsync(Guid groupId, object reactionInfo)
         {
-            await _hubContext.Clients.Group(groupId.ToString()).SendAsync("MessageDeleted", messageId);
+            await _hubContext.Clients.Group(groupId.ToString()).SendAsync("RemoveReaction", reactionInfo);
         }
 
-        public async Task NotifyMessageReadAsync(Guid groupId, Guid messageId, Guid userId)
+        public async Task ReadMessageAsync(Guid groupId, object readInfo)
         {
-            await _hubContext.Clients.Group(groupId.ToString()).SendAsync("MessageRead", messageId, userId);
+            await _hubContext.Clients.Group(groupId.ToString()).SendAsync("ReadMessage", readInfo);
         }
     }
 }

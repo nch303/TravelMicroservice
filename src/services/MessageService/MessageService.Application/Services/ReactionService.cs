@@ -53,7 +53,7 @@ namespace MessageService.Application.Services
             }
         }
 
-        public async Task RemoveReactionAsync(Guid reactionId, Guid userId)
+        public async Task<MessageReaction> RemoveReactionAsync(Guid reactionId, Guid userId)
         {
             // Check if the user has already reacted to the message, update type of the existing reaction
             var existingReaction = await _reactionRepository.GetReactionsByIdAsync(reactionId);
@@ -66,6 +66,7 @@ namespace MessageService.Application.Services
             {
                 throw new Exception("Reaction not found or you are not authorized to remove this reaction.");
             }
+            return existingReaction;
         }
 
         public async Task<List<MessageReaction>?> GetReactionsByMessageIdAsync(Guid messageId)

@@ -39,12 +39,11 @@ namespace MessageService.Application.Services
                 return;
             }
 
-            
-
+            var messageRead = new MessageRead();
             // Mark each unread message as read
             foreach (var message in unreadMessages)
             {
-                var messageRead = new MessageRead
+                messageRead = new MessageRead
                 {
                     Id = Guid.NewGuid(),
                     MessageId = message.Id,
