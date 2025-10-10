@@ -17,47 +17,14 @@ namespace ScheduleService.Infrastructure.Repositories
         {
             _context = context;
         }
-
-        public async Task<ScheduleActivity> UpdateActivityByIdAsync(ScheduleActivity newActivity, int activityId)
-        {
-            var existing = await _context.ScheduleActivities
-               .FirstOrDefaultAsync(a => a.Id == activityId && !a.IsDeleted);
-
-            if (existing == null)
-                throw new KeyNotFoundException("Activity not found");
-
-            // update fields
-            existing.PlaceName = newActivity.PlaceName;
-            existing.Location = newActivity.Location;
-            existing.Description = newActivity.Description;
-            existing.CheckInTime = newActivity.CheckInTime;
-            existing.CheckOutTime = newActivity.CheckOutTime;
-
-            await _context.SaveChangesAsync();
-            return existing;
-        }
-
-        public async Task<bool> DeleteActivityByIdAsync(int activityId)
-        {
-            var activity = await _context.ScheduleActivities
-                .FirstOrDefaultAsync(a => a.Id == activityId && !a.IsDeleted);
-
-            if (activity == null)
-                return false; // activity not found
-
-            activity.IsDeleted = true;
-
-            var result = await _context.SaveChangesAsync();
-            return result > 0;
-        }
-
+        
         public async Task AddActivityAsync(ScheduleActivity activity)
         {
             await _context.ScheduleActivities.AddAsync(activity);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<ScheduleActivity>> GetActivitiesByScheduleIdAsync(Guid scheduleId)
+        public async Task<List<ScheduleActivity>> GetAvailableActivitiesByScheduleIdAsync(Guid scheduleId)
         {
             return await _context.ScheduleActivities
                 .Where(sa => sa.ScheduleId == scheduleId && !sa.IsDeleted)
@@ -65,9 +32,38 @@ namespace ScheduleService.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<ScheduleActivity?> GetActivytyByIdAsync(int id)
+        public async Task<List<ScheduleActivity>> GetActivitiesByDateAsync(Guid scheduleId, DateTime date)
         {
-            return await _context.ScheduleActivities.FirstOrDefaultAsync(a => a.Id == id);
+            return await _context.ScheduleActivities
+                .Where(a => a.ScheduleId == scheduleId
+                    && !a.IsDeleted
+                    && a.CheckInTime.Date == date.Date)
+                .OrderBy(a => a.OrderIndex)
+                .ToListAsync();
+        }
+
+
+        public async Task<List<ScheduleActivity>> GetAllActivitiesByScheduleIdAsync(Guid scheduleId)
+        {
+            return await _context.ScheduleActivities
+                .Where(sa => sa.ScheduleId == scheduleId)
+                .OrderBy(sa => sa.OrderIndex)
+                .ToListAsync();
+        }
+
+        public async Task<int> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<ScheduleActivity?> GetActivityByIdAsync(int id)
+        {
+            return await _context.ScheduleActivities.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
+        }
+
+        public async Task<ScheduleActivity?> GetDeletedActivityByIdAsync(int id)
+        {
+            return await _context.ScheduleActivities.FirstOrDefaultAsync(a => a.Id == id && a.IsDeleted == true);
         }
     }
 }

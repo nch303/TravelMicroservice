@@ -63,5 +63,11 @@ namespace ScheduleService.Infrastructure.Repositories
             return await _context.ScheduleParticipants
                 .Where(sp => sp.UserId == userId).FirstOrDefaultAsync();
         }
+
+        public async Task<ScheduleParticipant?> GetParticipantByIdAsync(Guid participantId)
+        {
+            return await _context.ScheduleParticipants
+                .Where(sp => sp.Id == participantId).FirstOrDefaultAsync();
+        }
     }
 }

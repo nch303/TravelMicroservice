@@ -7,6 +7,7 @@ using CloudinaryDotNet.Actions;
 using ScheduleService.Application.DTOs.Responses;
 using ScheduleService.Application.IServiceClients;
 using ScheduleService.Application.IServices;
+using ScheduleService.Application.ServiceClients;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
 using ScheduleService.Domain.IRepositories;
@@ -19,12 +20,14 @@ namespace ScheduleService.Application.Services
         private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IUserServiceClient _userServiceClient;
+        private readonly IAuthServiceClient _authServiceClient;
 
-        public ScheduleParticipantService(IScheduleParticipantRepository scheduleParticipantRepository, IScheduleRepository scheduleRepository, IUserServiceClient userServiceClient)
+        public ScheduleParticipantService(IScheduleParticipantRepository scheduleParticipantRepository, IScheduleRepository scheduleRepository, IUserServiceClient userServiceClient, IAuthServiceClient authServiceClient)
         {
             _scheduleParticipantRepository = scheduleParticipantRepository;
             _scheduleRepository = scheduleRepository;
             _userServiceClient = userServiceClient;
+            _authServiceClient = authServiceClient;
         }
 
         public async Task<ScheduleParticipant?> GetByUserIdAndScheduleIdAsync(Guid userId, Guid scheduleId)
@@ -47,9 +50,10 @@ namespace ScheduleService.Application.Services
             return schedules;
         }
 
-        public async Task<Schedule?> LeaveScheduleAsync(Guid scheduleId, Guid userId)
+        public async Task<Schedule?> LeaveScheduleAsync(Guid scheduleId)
         {
-            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(userId, scheduleId);
+            var user = await _authServiceClient.GetCurrentAccountAsync();
+            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user!.Id, scheduleId);
             if (participant == null || participant.Status != ParticipantStatus.Active)
                 throw new InvalidOperationException("User is not an active participant.");
 
@@ -69,6 +73,83 @@ namespace ScheduleService.Application.Services
             await _scheduleParticipantRepository.SaveChangesAsync();
 
             // Reload the schedule with participants included
+            var updatedSchedule = await _scheduleRepository.GetScheduleWithParticipantsByIdAsync(scheduleId);
+
+            return updatedSchedule;
+        }
+
+        public async Task ChangeParticipantRoleAsync(Guid participantId, Guid scheduleId)
+        {
+            // Get current user (the one making the request)
+            var currentUser = await _authServiceClient.GetCurrentAccountAsync();
+            if (currentUser == null)
+                throw new UnauthorizedAccessException("User not authenticated.");
+
+            // Get the schedule
+            var schedule = await _scheduleRepository.GetScheduleByIdAsync(scheduleId);
+            if (schedule == null)
+                throw new KeyNotFoundException("Schedule not found.");
+
+            // Ensure current user is the owner
+            if (schedule.OwnerId != currentUser.Id)
+                throw new UnauthorizedAccessException("Only the schedule owner can change participant's role.");
+
+            // Get the participant to change role
+            var participant = await _scheduleParticipantRepository.GetParticipantByIdAsync(participantId);
+            if (participant == null)
+                throw new KeyNotFoundException("Participant not found.");
+            if (participant.Status != ParticipantStatus.Active)
+                throw new InvalidOperationException("Participant is not currently active.");
+
+            // Mark participant as 'Left'
+            participant.Role = ParticipantRole.Editor;
+            schedule.UpdatedAt = DateTime.UtcNow;
+
+            // Save changes
+            await _scheduleParticipantRepository.SaveChangesAsync();
+        }
+
+        public async Task<Schedule?> KickParticipantAsync(Guid scheduleId, Guid participantId)
+        {
+            // Get current user (the one making the request)
+            var currentUser = await _authServiceClient.GetCurrentAccountAsync();
+            if (currentUser == null)
+                throw new UnauthorizedAccessException("User not authenticated.");
+
+            // Get the schedule
+            var schedule = await _scheduleRepository.GetScheduleByIdAsync(scheduleId);
+            if (schedule == null)
+                throw new KeyNotFoundException("Schedule not found.");
+
+            // Ensure current user is the owner
+            if (schedule.OwnerId != currentUser.Id)
+                throw new UnauthorizedAccessException("Only the schedule owner can kick participants.");
+
+            // Get the participant to remove
+            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(participantId, scheduleId);
+            if (participant == null)
+                throw new KeyNotFoundException("Participant not found.");
+            if (participant.Status != ParticipantStatus.Active)
+                throw new InvalidOperationException("Participant is not currently active.");
+
+            // Owner cannot kick themselves
+            if (participant.UserId == currentUser.Id)
+                throw new InvalidOperationException("Owner cannot kick themselves from the schedule.");
+
+            // Mark participant as 'Left'
+            participant.Status = ParticipantStatus.Banned;
+
+            // Decrease participant count safely
+            if (schedule.ParticipantsCount > 0)
+                schedule.ParticipantsCount--;
+
+            schedule.UpdatedAt = DateTime.UtcNow;
+
+            // Save changes
+            await _scheduleParticipantRepository.SaveChangesAsync();
+            await _scheduleRepository.SaveChangesAsync();
+
+            // Reload the updated schedule with participants
             var updatedSchedule = await _scheduleRepository.GetScheduleWithParticipantsByIdAsync(scheduleId);
 
             return updatedSchedule;

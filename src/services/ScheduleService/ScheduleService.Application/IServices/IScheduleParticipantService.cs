@@ -13,9 +13,10 @@ namespace ScheduleService.Application.IServices
     {
         Task<ScheduleParticipant> GetByUserIdAndScheduleIdAsync(Guid userId, Guid scheduleId);
         Task<List<ScheduleParticipant>> GetAllScheduleByParticipantIdAsync(Guid participantId);
-        Task<Schedule?> LeaveScheduleAsync(Guid scheduleId, Guid userId);
+        Task<Schedule?> LeaveScheduleAsync(Guid scheduleId);
         Task<ScheduleParticipant> AddScheduleParticipantAsync(ScheduleParticipant participant);
         Task<(List<ScheduleParticipant> Participants, List<UserServiceClientResponse> Users)>
     GetAllParticipantByScheduleIdAsync(Guid scheduleId);
+        Task<Schedule?> KickParticipantAsync(Guid scheduleId, Guid participantId);
     }
 }

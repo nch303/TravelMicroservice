@@ -28,10 +28,18 @@ namespace ScheduleService.Infrastructure.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
         public async Task<List<CheckedItem>> GetByScheduleIdAsync(Guid scheduleId)
         {
             return await _context.CheckedItems
                 .Where(ci => ci.ScheduleId == scheduleId)
+                .ToListAsync();
+        }
+
+        public async Task<List<CheckedItem>> GetAvailableByScheduleIdAsync(Guid scheduleId)
+        {
+            return await _context.CheckedItems
+                .Where(ci => ci.ScheduleId == scheduleId && ci.IsDelete == false)
                 .ToListAsync();
         }
 

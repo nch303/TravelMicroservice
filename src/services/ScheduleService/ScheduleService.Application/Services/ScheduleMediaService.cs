@@ -55,7 +55,7 @@ namespace ScheduleService.Application.Services
             if (request.ActivityId.HasValue)
             {
                 // Lấy activity, suy ra scheduleId để kiểm tra quyền
-                var activity = await _scheduleActivityRepository.GetActivytyByIdAsync(request.ActivityId.Value);
+                var activity = await _scheduleActivityRepository.GetActivityByIdAsync(request.ActivityId.Value);
                 if (activity == null) throw new Exception("Activity không tồn tại");
                 scheduleId = activity.ScheduleId;
             }

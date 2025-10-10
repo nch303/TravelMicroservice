@@ -9,6 +9,7 @@ namespace ScheduleService.Application.DTOs.Responses
 {
     public class ScheduleParticipantResponse
     {
+        public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public ParticipantRole Role { get; set; }
         public DateTime JoineddAt { get; set; }

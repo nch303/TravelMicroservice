@@ -1,4 +1,5 @@
-﻿using ScheduleService.Application.IServices;
+﻿using ScheduleService.Application.IServiceClients;
+using ScheduleService.Application.IServices;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
 using ScheduleService.Domain.IRepositories;
@@ -14,12 +15,15 @@ namespace ScheduleService.Application.Services
     {
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
+        private readonly IAuthServiceClient _authServiceClient;
 
         public SchedulesService(IScheduleRepository scheduleRepository
-            , IScheduleParticipantRepository scheduleParticipantRepository)
+            , IScheduleParticipantRepository scheduleParticipantRepository
+            , IAuthServiceClient authServiceClient)
         {
             _scheduleRepository = scheduleRepository;
             _scheduleParticipantRepository = scheduleParticipantRepository;
+            _authServiceClient = authServiceClient;
         }
 
         private static void ValidateSchedule(Schedule validateSchedule, bool isUpdate = false)
@@ -112,6 +116,13 @@ namespace ScheduleService.Application.Services
 
         public async Task<Schedule> UpdateScheduleByIdAsync(Schedule newSchedule, Guid id)
         {
+            var user = await _authServiceClient.GetCurrentAccountAsync();
+            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user!.Id, id);
+            if (participant!.Role != ParticipantRole.Owner || participant.Role != ParticipantRole.Editor)
+            {
+                throw new Exception("You do not have permission to update this schedule");
+            }
+
             var schedule = await _scheduleRepository.GetScheduleByIdAsync(id);
             if (schedule == null)
             {
@@ -146,7 +157,21 @@ namespace ScheduleService.Application.Services
             {
                 throw new KeyNotFoundException($"Schedule with Id {id} not found.");
             }
-            schedule.Status = ScheduleStatus.Cancelled;
+            schedule.Status = ScheduleStatus.Inactive;
+            // Save changes
+            await _scheduleRepository.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> RestoreScheduleAsync(Guid id)
+        {
+            var schedule = await _scheduleRepository.GetScheduleByIdAsync(id);
+            if (schedule == null)
+            {
+                throw new KeyNotFoundException($"Schedule with Id {id} not found.");
+            }
+            schedule.Status = ScheduleStatus.Active;
             // Save changes
             await _scheduleRepository.SaveChangesAsync();
 
