@@ -31,7 +31,9 @@ namespace MessageService.Infrastructure.Repositories
 
         public async Task<ChatMessage?> GetMessageByIdAsync(Guid messageId)
         {
-            return await _context.ChatMessages.FindAsync(messageId);
+            return await _context.ChatMessages
+                .Include(m => m.Sender)
+                .FirstOrDefaultAsync(m => m.Id == messageId);
         }
 
         public async Task<List<ChatMessage>> GetMessagesByGroupIdAsync(Guid groupId, DateTime? beforeCreatedAt, int pageSize)

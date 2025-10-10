@@ -143,6 +143,7 @@ namespace MessageService.API.Controllers
                 // Notify to clients in group via realtime service (e.g., SignalR, WebSocket)
                 await _realtimeNotifier.SendMessageAsync(chatMessage.GroupId, new
                 {
+                    Type = "JoinGroup",
                     chatMessage.Content,
                     MessageType = chatMessage.MessageType.ToString(),
                     chatMessage.CreatedAt,
@@ -176,6 +177,7 @@ namespace MessageService.API.Controllers
                 // Notify to clients in group via realtime service (e.g., SignalR, WebSocket)
                 await _realtimeNotifier.SendMessageAsync(chatMessage.GroupId, new
                 {
+                    Type = "LeaveGroup",
                     chatMessage.Content,
                     MessageType = chatMessage.MessageType.ToString(),
                     chatMessage.CreatedAt,
@@ -286,6 +288,7 @@ namespace MessageService.API.Controllers
                 // Notify to clients in group via realtime service (e.g., SignalR, WebSocket)
                 await _realtimeNotifier.SendMessageAsync(request.GroupId, new
                 {
+                    Type = "NewMessage",
                     chatMessage.Id,
                     chatMessage.Content,
                     MessageType = chatMessage.MessageType.ToString(),
@@ -346,6 +349,22 @@ namespace MessageService.API.Controllers
                 message.MessageType = request.MessageType;
                 message.ParentMessageId = request.ParentMessageId;
                 await _chatMessageService.EditMessageAsync(message);
+
+                var profile = await _userServiceClient.GetUserProfileAsync(message.Sender.UserId);
+
+                // Notify to clients in group via realtime service (e.g., SignalR, WebSocket)
+                await _realtimeNotifier.EditMessageAsync(message.GroupId, new
+                {
+                    Type = "EditMessage",
+                    MessageId = messageId,
+                    EditedContent = request.NewContent,
+                    MessageType = request.MessageType.ToString(),
+                    EditedAt = DateTime.Now,
+                    EditorId = message.Sender.UserId,
+                    EditorName = profile!.Name,
+                    EditorAvatar = profile.AvatarUrl
+                });
+
                 return Ok(new { Message = "Message edited successfully" });
             }
             catch (Exception ex)
@@ -370,6 +389,18 @@ namespace MessageService.API.Controllers
                 reaction.CreatedAt = DateTime.UtcNow;
 
                 await _reactionService.AddReactionAsync(currentAccount.Id, reaction);
+
+                var message = await _chatMessageService.GetMessageByIdAsync(request.MessageId);
+
+                // Notify to clients in group via realtime service (e.g., SignalR, WebSocket)
+                await _realtimeNotifier.AddReactionAsync(message.GroupId, new
+                {
+                    Type = "AddReaction",
+                    MessageId = request.MessageId,
+                    SenderId = currentAccount.Id,
+                    ReactionType = request.ReactionType.ToString(),
+                    CreatedAt = ConvertToUtc7(reaction.CreatedAt)
+                });
                 return Ok(new { Message = "Reaction added successfully" });
             }
             catch (Exception ex)
@@ -412,7 +443,20 @@ namespace MessageService.API.Controllers
                 if (currentAccount == null)
                     return Unauthorized();
 
-                await _reactionService.RemoveReactionAsync(reactionId, currentAccount.Id);
+                var reaction = await _reactionService.RemoveReactionAsync(reactionId, currentAccount.Id);
+
+                var message = await _chatMessageService.GetMessageByIdAsync(reaction.MessageId);
+
+                // Notify to clients in group via realtime service (e.g., SignalR, WebSocket)
+                await _realtimeNotifier.AddReactionAsync(message.GroupId, new
+                {
+                    Type = "RemoveReaction",
+                    MessageId = reaction.MessageId,
+                    ReactionId = reaction.Id,
+                    Reactiontype = reaction.ReactionType.ToString(),
+                    SenderId = currentAccount.Id,
+                    RemovedAt = ConvertToUtc7(DateTime.UtcNow)
+                });
                 return Ok(new { Message = "Reaction removed successfully" });
             }
             catch (Exception ex)
@@ -433,6 +477,18 @@ namespace MessageService.API.Controllers
                     return Unauthorized();
 
                 await _readerService.MarkAsReadAsync(request.GroupId, currentAccount.Id);
+
+                var profile = await _userServiceClient.GetUserProfileAsync(currentAccount.Id);
+
+                // Notify to clients in group via realtime service (e.g., SignalR, WebSocket)
+                await _realtimeNotifier.ReadMessageAsync(request.GroupId, new
+                {
+                    Type = "ReadMessage",
+                    ReaderId = currentAccount.Id,
+                    ReaderName = profile!.Name,
+                    ReaderAvatar = profile.AvatarUrl,
+                    ReadAt = ConvertToUtc7(DateTime.UtcNow)
+                });
                 return Ok(new { Message = "Reader added successfully" });
             }
             catch (Exception ex)
@@ -465,28 +521,28 @@ namespace MessageService.API.Controllers
             return Ok(readerResponses);
         }
 
-        [HttpPost("chat/notify/add")]
-        [Authorize]
-        public async Task<IActionResult> AddNotification([FromBody] CreateNotificationRequest request)
-        {
-            try
-            {
-                // Get NotifierId By Current Account
-                var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
-                if (currentAccount == null)
-                    return Unauthorized();
-                var notification = _mapper.Map<Notification>(request);
-                notification.Id = Guid.NewGuid();
-                notification.UserId = currentAccount.Id;
-                notification.CreatedAt = DateTime.UtcNow;
-                await _notificationService.CreateNotificationAsync(notification);
-                return Ok(new { Message = "Notification added successfully" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
+        //[HttpPost("chat/notify/add")]
+        //[Authorize]
+        //public async Task<IActionResult> AddNotification([FromBody] CreateNotificationRequest request)
+        //{
+        //    try
+        //    {
+        //        // Get NotifierId By Current Account
+        //        var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+        //        if (currentAccount == null)
+        //            return Unauthorized();
+        //        var notification = _mapper.Map<Notification>(request);
+        //        notification.Id = Guid.NewGuid();
+        //        notification.UserId = currentAccount.Id;
+        //        notification.CreatedAt = DateTime.UtcNow;
+        //        await _notificationService.CreateNotificationAsync(notification);
+        //        return Ok(new { Message = "Notification added successfully" });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { message = ex.Message });
+        //    }
+        //}
 
         [HttpGet("chat/notify/all/me")]
         [Authorize]

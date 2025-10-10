@@ -24,14 +24,32 @@ class Program
         // 👇 Đăng ký event TRƯỚC khi kết nối
         connection.On<JsonElement>("ReceiveMessage", (message) =>
         {
-            Console.WriteLine("📩 Raw message JSON:");
+            Console.WriteLine("📩 A message was sent");
             Console.WriteLine(message.ToString());
         });
 
-        connection.On<JsonElement>("ReceiveJoinGroupEvent", (joinerInfo) =>
+        connection.On<JsonElement>("EditMessage", (message) =>
         {
-            Console.WriteLine("👥 New participant joined the group:");
-            Console.WriteLine(joinerInfo.ToString());
+            Console.WriteLine("📩 A message was edited");
+            Console.WriteLine(message.ToString());
+        });
+
+        connection.On<JsonElement>("AddReaction", (reactionInfo) =>
+        {
+            Console.WriteLine("📩 A reaction was added");
+            Console.WriteLine(reactionInfo.ToString());
+        });
+
+        connection.On<JsonElement>("RemoveReaction", (reactionInfo) =>
+        {
+            Console.WriteLine("📩 A reaction was removed.");
+            Console.WriteLine(reactionInfo.ToString());
+        });
+
+        connection.On<JsonElement>("ReadMessage", (readInfo) =>
+        {
+            Console.WriteLine("📩 A message was read.");
+            Console.WriteLine(readInfo.ToString());
         });
 
         await connection.StartAsync();

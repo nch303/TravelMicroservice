@@ -10,7 +10,7 @@ namespace MessageService.Application.IServices
     public interface IReactionService
     {
         Task AddReactionAsync(Guid userId, MessageReaction messageReaction);
-        Task RemoveReactionAsync(Guid reactionId, Guid userId);
+        Task<MessageReaction> RemoveReactionAsync(Guid reactionId, Guid userId);
         Task<List<MessageReaction>?> GetReactionsByMessageIdAsync(Guid messageId);
     }
 }
