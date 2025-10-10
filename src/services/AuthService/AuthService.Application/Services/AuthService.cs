@@ -112,7 +112,8 @@ namespace AuthService.Application.Services
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
-                new Claim(ClaimTypes.Email, email)
+                new Claim(ClaimTypes.Email, email),
+                new Claim(ClaimTypes.Role, account.Role.Name.ToString())
             };
 
             int expiryMinutes = int.Parse(_configuration["JwtSettings:ExpiryInMinutes"]!);

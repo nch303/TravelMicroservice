@@ -45,7 +45,7 @@ namespace AdvertisementService.API.Controllers
 
 
         [HttpGet("package/get-all")]
-        [Authorize]
+        [Authorize(Roles = "Partner")]
         public async Task<IActionResult> GetAll()
         {
             var packages = await _packageService.GetAllAsync();
@@ -112,7 +112,7 @@ namespace AdvertisementService.API.Controllers
         {
             var purchase = await _purchaseService.GetByIdAsync(id);
             if (purchase == null) return NotFound();
-            
+
             var purchaseResponse = _mapper.Map<PurchaseResponse>(purchase);
             return Ok(purchaseResponse);
         }

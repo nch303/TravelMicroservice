@@ -21,7 +21,7 @@ namespace AuthService.Infrastructure.Repositories
 
         public async Task<Account?> GetByEmailAsync(string email)
         {
-            return await _context.Accounts.FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Accounts.Include(a => a.Role).FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<Account?> GetByIdAsync(Guid id)
