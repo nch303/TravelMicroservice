@@ -43,11 +43,7 @@ namespace ScheduleService.Application.Services
         public async Task<List<ScheduleParticipant>> GetAllScheduleByParticipantIdAsync(Guid participantId)
         {
             var schedules = await _scheduleParticipantRepository.GetAllScheduleByParticipantIdAsync(participantId);
-            if (schedules == null || !schedules.Any())
-            {
-                throw new Exception("No schedules found for this participant");
-            }
-            return schedules;
+            return schedules ?? new List<ScheduleParticipant>();
         }
 
         public async Task<Schedule?> LeaveScheduleAsync(Guid scheduleId)
@@ -160,6 +156,59 @@ namespace ScheduleService.Application.Services
             var newParticipant = await _scheduleParticipantRepository.AddScheduleParticipantAsync(participant);
             await _scheduleParticipantRepository.SaveChangesAsync();
             return newParticipant;
+        }
+
+        public async Task<ScheduleParticipant> AddParticipantByEmailAsync(Guid scheduleId, string email)
+        {
+            // 1) Ensure current user is owner of the schedule
+            var currentUser = await _authServiceClient.GetCurrentAccountAsync();
+            if (currentUser == null)
+                throw new UnauthorizedAccessException("User not authenticated.");
+
+            var schedule = await _scheduleRepository.GetScheduleByIdAsync(scheduleId);
+            if (schedule == null)
+                throw new KeyNotFoundException("Schedule not found.");
+
+            if (schedule.OwnerId != currentUser.Id)
+                throw new UnauthorizedAccessException("User has no permission");
+
+            // 2) Validate email exists and is active via AuthService
+            var account = await _authServiceClient.GetAccountByEmailAsync(email);
+            if (account == null || !account.IsActive)
+                throw new Exception("email is invalid");
+
+            // 3) Check duplication
+            var existing = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(account.Id, scheduleId);
+            if (existing != null && existing.Status == ParticipantStatus.Active)
+                throw new Exception("This user is already in the schedule");
+
+            // 4) Create or reactivate participant
+            if (existing != null && existing.Status != ParticipantStatus.Active)
+            {
+                existing.Status = ParticipantStatus.Active;
+                existing.JoineddAt = DateTime.UtcNow;
+                await _scheduleParticipantRepository.SaveChangesAsync();
+                return existing;
+            }
+
+            var participant = new ScheduleParticipant
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = scheduleId,
+                UserId = account.Id,
+                Role = ParticipantRole.Viewer,
+                Status = ParticipantStatus.Active,
+                JoineddAt = DateTime.UtcNow
+            };
+
+            var created = await _scheduleParticipantRepository.AddScheduleParticipantAsync(participant);
+
+            // Update schedule participant count
+            schedule.ParticipantsCount++;
+            schedule.UpdatedAt = DateTime.UtcNow;
+            await _scheduleRepository.SaveChangesAsync();
+
+            return created;
         }
 
         public async Task<(List<ScheduleParticipant> Participants, List<UserServiceClientResponse> Users)>

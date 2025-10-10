@@ -43,5 +43,15 @@ namespace ScheduleService.Application.ServiceClients
 
             return await response.Content.ReadFromJsonAsync<AccountResponse>();
         }
+
+        public async Task<AccountResponse?> GetAccountByEmailAsync(string email)
+        {
+            var response = await _httpClient.GetAsync($"api/auth/account-by-email?email={Uri.EscapeDataString(email)}");
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+            return await response.Content.ReadFromJsonAsync<AccountResponse>();
+        }
     }
 }

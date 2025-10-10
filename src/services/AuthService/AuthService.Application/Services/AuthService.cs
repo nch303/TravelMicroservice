@@ -262,6 +262,12 @@ namespace AuthService.Application.Services
             return user;
         }
 
+        public async Task<Account?> GetByEmailAsync(string email)
+        {
+            var user = await _authRepository.GetByEmailAsync(email);
+            return user;
+        }
+
         public async Task ChangePasswordAsync(Account user)
         {
             var existingUser = await _authRepository.GetByIdAsync(user.Id);

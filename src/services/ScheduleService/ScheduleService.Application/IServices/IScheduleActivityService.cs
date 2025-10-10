@@ -17,8 +17,9 @@ namespace ScheduleService.Application.IServices
         Task RestoreActivityById(int activityId);
         Task AddActivityAsync(ScheduleActivity activity);
         Task<List<ScheduleActivity>> GetActivitiesByScheduleIdAsync(Guid scheduleId);
+        Task<List<ScheduleActivity>> GetActivitiesByDateAsync(Guid scheduleId, DateTime date);
         Task UpdateOrderIndexById(int newIndex, int activityId);
-        Task<Dictionary<string, List<ScheduleActivity>>> GetActivitiesGroupedByDateAsync(Guid scheduleId, DateTime date);
+        //Task<Dictionary<string, List<ScheduleActivity>>> GetActivitiesGroupedByDateAsync(Guid scheduleId, DateTime date);
     }
 }
 
