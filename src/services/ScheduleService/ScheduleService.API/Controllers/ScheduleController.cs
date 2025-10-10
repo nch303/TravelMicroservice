@@ -56,21 +56,21 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpGet("{scheduleId}/activities/date(dd-MM-yyyy)/{dateStr}")]
-        public async Task<IActionResult> GetActivitiesByDate(Guid scheduleId, string dateStr)
+        [HttpGet("{scheduleId}/activities/date(dd-MM-yyyy)/{date}")]
+        public async Task<IActionResult> GetActivitiesByDate(Guid scheduleId, DateTime date)
         {
             try
             {
-                // ✅ Parse input manually in "dd/MM/yyyy" format
-                if (!DateTime.TryParseExact(
-                        dateStr,
-                        "dd-MM-yyyy",
-                        System.Globalization.CultureInfo.InvariantCulture,
-                        System.Globalization.DateTimeStyles.None,
-                        out DateTime date))
-                {
-                    return BadRequest(new { message = "Invalid date format. Please use dd-MM-yyyy." });
-                }
+                //// ✅ Parse input manually in "dd/MM/yyyy" format
+                //if (!DateTime.TryParseExact(
+                //        dateStr,
+                //        "dd-MM-yyyy",
+                //        System.Globalization.CultureInfo.InvariantCulture,
+                //        System.Globalization.DateTimeStyles.None,
+                //        out DateTime date))
+                //{
+                //    return BadRequest(new { message = "Invalid date format. Please use dd-MM-yyyy." });
+                //}
 
                 // ✅ Call service
                 var activities = await _scheduleActivityService.GetActivitiesByDateAsync(scheduleId, date);
@@ -290,7 +290,7 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpGet("activities/getAvailable{scheduleId}")]
+        [HttpGet("activities/getAvailable/{scheduleId}")]
         [Authorize]
         public async Task<IActionResult> GetAvailableActivitiesByScheduleId(Guid scheduleId)
         {
@@ -306,7 +306,7 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpGet("activities/getAll{scheduleId}")]
+        [HttpGet("activities/getAll/{scheduleId}")]
         [Authorize]
         public async Task<IActionResult> GetAllActivitiesByScheduleId(Guid scheduleId)
         {
