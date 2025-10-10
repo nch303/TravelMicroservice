@@ -10,5 +10,6 @@ namespace ScheduleService.Application.IServiceClients
     public interface IAuthServiceClient
     {
         Task<AccountResponse?> GetCurrentAccountAsync();
+        Task<AccountResponse?> GetAccountByEmailAsync(string email);
     }
 }

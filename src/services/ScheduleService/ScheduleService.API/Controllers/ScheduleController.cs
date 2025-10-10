@@ -512,5 +512,29 @@ namespace ScheduleService.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("{scheduleId}/add-participants-by-email")]
+        [Authorize]
+        public async Task<IActionResult> AddParticipantByEmail(Guid scheduleId, [FromQuery] string email)
+        {
+            try
+            {
+                var participant = await _scheduleParticipantService.AddParticipantByEmailAsync(scheduleId, email);
+                var response = _mapper.Map<ScheduleParticipantResponse>(participant);
+                return Ok(response);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

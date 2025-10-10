@@ -233,5 +233,23 @@ namespace AuthService.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("account-by-email")]
+        public async Task<IActionResult> GetAccountByEmail([FromQuery] string email)
+        {
+            try
+            {
+                var account = await _authService.GetByEmailAsync(email);
+                if (account == null)
+                    return NotFound(new { message = "Email không hợp lệ" });
+
+                var response = _mapper.Map<AccountResponse>(account);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }
