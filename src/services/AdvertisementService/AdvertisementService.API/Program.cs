@@ -1,4 +1,5 @@
-﻿using AdvertisementService.Application.Extensions;
+﻿using AdvertisementService.API.Extensions;
+using AdvertisementService.Application.Extensions;
 using AdvertisementService.Application.IServiceClients;
 using AdvertisementService.Application.Mappings;
 using AdvertisementService.Application.ServiceClients;
@@ -12,6 +13,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCorsPolicy();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
@@ -103,6 +105,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowSpecificOrigins");
 
 app.MapControllers();
 

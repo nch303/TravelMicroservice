@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using UserService.API.Extensions;
 using UserService.Application.Extensions;
 using UserService.Application.Mappings;
 using UserService.Infrastructure.Configurations;
@@ -11,6 +12,7 @@ using UserService.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCorsPolicy();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
@@ -96,6 +98,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowSpecificOrigins");
 
 app.MapControllers();
 

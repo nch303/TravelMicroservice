@@ -73,9 +73,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRTestClient", "SignalRTestClient\SignalRTestClient.csproj", "{B18B9600-0D06-4704-841D-25848EA544EF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AdvertisementService", "AdvertisementService", "{24149763-1766-4823-86B8-A26A7708E120}"
-	ProjectSection(SolutionItems) = preProject
-		src\services\AdvertisementService\Dockerfile = src\services\AdvertisementService\Dockerfile
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdvertisementService.API", "src\services\AdvertisementService\AdvertisementService.API\AdvertisementService.API.csproj", "{57741A49-C921-48C7-8CAB-9DF1642957B3}"
 EndProject
