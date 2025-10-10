@@ -1,4 +1,5 @@
-﻿using AuthService.Application.Extensions;
+﻿using AuthService.API.Extensions;
+using AuthService.Application.Extensions;
 using AuthService.Application.IServiceClients;
 using AuthService.Application.Mappings;
 using AuthService.Application.ServiceClients;

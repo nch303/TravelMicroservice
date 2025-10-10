@@ -6,6 +6,7 @@ using System.Text;
 using ScheduleService.Infrastructure.Extensions;
 using ScheduleService.Application.Mappings;
 using ScheduleService.Application.Extensions;
+using ScheduleService.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
