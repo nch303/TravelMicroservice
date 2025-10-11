@@ -61,7 +61,7 @@ namespace ScheduleService.API.Controllers
         {
             try
             {
-                //// ✅ Parse input manually in "dd/MM/yyyy" format
+                // ✅ Parse input manually in "dd/MM/yyyy" format
                 //if (!DateTime.TryParseExact(
                 //        dateStr,
                 //        "dd-MM-yyyy",
@@ -74,7 +74,8 @@ namespace ScheduleService.API.Controllers
 
                 // ✅ Call service
                 var activities = await _scheduleActivityService.GetActivitiesByDateAsync(scheduleId, date);
-                return Ok(activities);
+                var response = _mapper.Map<List<ScheduleActivityResponse>>(activities);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -328,7 +329,8 @@ namespace ScheduleService.API.Controllers
             try
             {
                 var activities = await _scheduleActivityService.GetActivitiesByScheduleIdAsync(id);
-                return Ok(activities);
+                var response = _mapper.Map<List<ScheduleActivityResponse>>(activities);
+                return Ok(response);
             }
             catch (Exception ex)
             {
