@@ -291,7 +291,7 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpGet("activities/getAvailable{scheduleId}")]
+        [HttpGet("activities/getAvailable/{scheduleId}")]
         [Authorize]
         public async Task<IActionResult> GetAvailableActivitiesByScheduleId(Guid scheduleId)
         {
@@ -307,7 +307,7 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpGet("activities/getAll{scheduleId}")]
+        [HttpGet("activities/getAll/{scheduleId}")]
         [Authorize]
         public async Task<IActionResult> GetAllActivitiesByScheduleId(Guid scheduleId)
         {
