@@ -38,10 +38,11 @@ public class CheckedItemService : ICheckedItemService
         var schedule = await _scheduleRepository.GetScheduleByIdAsync(scheduleId);
         if (schedule == null) throw new Exception("Schedule not found");
 
-        var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user!.Id, scheduleId);
-        if (participant == null) throw new Exception("You do not have permission to view checked items of this schedule");
-
-        return await _checkedItemRepository.GetByScheduleIdAsync(scheduleId);
+        //var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user!.Id, scheduleId);
+        //if (participant == null) throw new Exception("You do not have permission to view checked items of this schedule");
+        var checkItems = await _checkedItemRepository.GetByScheduleIdAsync(scheduleId);
+        if (!checkItems.Any()) return new List<CheckedItem>();
+        return checkItems;
     }
 
     public async Task<List<CheckedItem>> GetAvailableByScheduleIdAsync(Guid scheduleId)
@@ -50,10 +51,12 @@ public class CheckedItemService : ICheckedItemService
         var schedule = await _scheduleRepository.GetScheduleByIdAsync(scheduleId);
         if (schedule == null) throw new Exception("Schedule not found");
 
-        var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user!.Id, scheduleId);
-        if (participant == null) throw new Exception("You do not have permission to view checked items of this schedule");
+        //var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user!.Id, scheduleId);
+        //if (participant == null) throw new Exception("You do not have permission to view checked items of this schedule");
 
-        return await _checkedItemRepository.GetByScheduleIdAsync(scheduleId);
+        var checkItems = await _checkedItemRepository.GetAvailableByScheduleIdAsync(scheduleId);
+        if (!checkItems.Any()) return new List<CheckedItem>();
+        return checkItems;
     }
 
     public async Task DeleteManyById(List<int> itemIds)

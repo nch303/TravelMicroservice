@@ -215,14 +215,15 @@ namespace ScheduleService.Application.Services
     GetAllParticipantByScheduleIdAsync(Guid scheduleId)
         {
             var participants = await _scheduleParticipantRepository.GetAllParticipantByScheduleIdAsync(scheduleId);
-
-            if (participants == null || !participants.Any())
-            {
-                throw new KeyNotFoundException($"No participants found for ScheduleId: {scheduleId}");
-            }
-
             var userIds = participants.Select(p => p.UserId).Distinct().ToList();
             var users = await _userServiceClient.GetUsersByIdsAsync(userIds);
+
+            if (participants == null || !participants.Any() || users == null)
+            {
+                var emptyParticipant = new List<ScheduleParticipant>();
+                var emptyUser = new List<UserServiceClientResponse>();
+                return (emptyParticipant, emptyUser);
+            }
 
             return (participants, users);
         }

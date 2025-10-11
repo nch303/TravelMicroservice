@@ -9,6 +9,7 @@ using ScheduleService.Application.ServiceClients;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
 using ScheduleService.Domain.IRepositories;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ScheduleService.Application.Services
 {
@@ -91,7 +92,11 @@ namespace ScheduleService.Application.Services
 
         public async Task<List<ScheduleActivity>> GetAllActivitiesByScheduleIdAsync(Guid scheduleId)
         {
-            return await _scheduleActivityRepository.GetAllActivitiesByScheduleIdAsync(scheduleId);
+            var activities = await _scheduleActivityRepository.GetAllActivitiesByScheduleIdAsync(scheduleId);
+            if (activities == null || !activities.Any())
+                return new List<ScheduleActivity>();
+
+            return activities;
         }
 
         public async Task<List<ScheduleActivity>> GetActivitiesByDateAsync(Guid scheduleId, DateTime date)
@@ -99,7 +104,7 @@ namespace ScheduleService.Application.Services
             var activities = await _scheduleActivityRepository.GetActivitiesByDateAsync(scheduleId, date);
 
             if (activities == null || !activities.Any())
-                throw new KeyNotFoundException($"No activities found on {date:dd/MM/yyyy} for schedule {scheduleId}");
+                return new List<ScheduleActivity>();
 
             return activities;
         }
@@ -244,20 +249,22 @@ namespace ScheduleService.Application.Services
 
         public async Task<List<ScheduleActivity>> GetActivitiesByScheduleIdAsync(Guid scheduleId)
         {
-            var user = await _authServiceClient.GetCurrentAccountAsync();
+            //var user = await _authServiceClient.GetCurrentAccountAsync();
             var schedule = await _scheduleRepository.GetScheduleByIdAsync(scheduleId);
             if (schedule == null)
             {
                 throw new Exception("Schedule not found");
             }
 
-            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user!.Id, scheduleId);
-            if (participant == null)
-            {
-                throw new Exception("You do not have permission to view activities of this schedule");
-            }
+            //var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user!.Id, scheduleId);
+            //if (participant == null)
+            //{
+            //    throw new Exception("You do not have permission to view activities of this schedule");
+            //}
 
             var activities = await _scheduleActivityRepository.GetAvailableActivitiesByScheduleIdAsync(scheduleId);
+            if (activities == null || !activities.Any())
+                return new List<ScheduleActivity>();
             var sorted = activities.OrderBy(a => a.OrderIndex).ToList();
             return sorted;
         }

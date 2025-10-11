@@ -56,25 +56,26 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpGet("{scheduleId}/activities/date(dd-MM-yyyy)/{dateStr}")]
-        public async Task<IActionResult> GetActivitiesByDate(Guid scheduleId, string dateStr)
+        [HttpGet("{scheduleId}/activities/date(dd-MM-yyyy)/{date}")]
+        public async Task<IActionResult> GetActivitiesByDate(Guid scheduleId, DateTime date)
         {
             try
             {
                 // ✅ Parse input manually in "dd/MM/yyyy" format
-                if (!DateTime.TryParseExact(
-                        dateStr,
-                        "dd-MM-yyyy",
-                        System.Globalization.CultureInfo.InvariantCulture,
-                        System.Globalization.DateTimeStyles.None,
-                        out DateTime date))
-                {
-                    return BadRequest(new { message = "Invalid date format. Please use dd-MM-yyyy." });
-                }
+                //if (!DateTime.TryParseExact(
+                //        dateStr,
+                //        "dd-MM-yyyy",
+                //        System.Globalization.CultureInfo.InvariantCulture,
+                //        System.Globalization.DateTimeStyles.None,
+                //        out DateTime date))
+                //{
+                //    return BadRequest(new { message = "Invalid date format. Please use dd-MM-yyyy." });
+                //}
 
                 // ✅ Call service
                 var activities = await _scheduleActivityService.GetActivitiesByDateAsync(scheduleId, date);
-                return Ok(activities);
+                var response = _mapper.Map<List<ScheduleActivityResponse>>(activities);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -328,7 +329,8 @@ namespace ScheduleService.API.Controllers
             try
             {
                 var activities = await _scheduleActivityService.GetActivitiesByScheduleIdAsync(id);
-                return Ok(activities);
+                var response = _mapper.Map<List<ScheduleActivityResponse>>(activities);
+                return Ok(response);
             }
             catch (Exception ex)
             {
