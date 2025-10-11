@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ScheduleService.Application.Services
 {
-    public class SchedulesService: IScheduleService
+    public class SchedulesService : IScheduleService
     {
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
@@ -74,7 +74,7 @@ namespace ScheduleService.Application.Services
             }
 
             // Logic to generate a share code
-            var sharedCode = schedule.GenerateRandomCode(); 
+            var sharedCode = schedule.GenerateRandomCode();
             schedule.SharedCode = sharedCode;
             await SaveChangesAsync();
             return sharedCode;
@@ -87,17 +87,30 @@ namespace ScheduleService.Application.Services
             {
                 throw new Exception("Schedule not found");
             }
-            
+
             var existingParticipant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(userId, schedule.Id);
             if (existingParticipant != null)
             {
-                throw new Exception("User is already a participant in this schedule");
-            }
+                if (existingParticipant.Status == ParticipantStatus.Banned)
+                {
+                    throw new Exception("You have been banned from this schedule. To re-join, contact to the onwer to be restored.");
+                }
+                else if (existingParticipant.Status == ParticipantStatus.Active)
+                {
+                    throw new Exception("You are already a participant in this schedule");
+                }
+                else if (existingParticipant.Status == ParticipantStatus.Left)
+                {
+                    existingParticipant.Status = ParticipantStatus.Active;
+                    existingParticipant.JoineddAt = DateTime.UtcNow;
+                    await _scheduleParticipantRepository.SaveChangesAsync();
 
-            var amountOfParticipants = await _scheduleParticipantRepository.AmountParticipantsInScheduleAsync(schedule.Id);
-            if (amountOfParticipants >= schedule.ParticipantsCount)
-            {
-                throw new Exception("Schedule has reached the maximum number of participants");
+                    // Increase participant count
+                    schedule.ParticipantsCount += 1;
+                    await _scheduleRepository.SaveChangesAsync();
+
+                    return;
+                }
             }
 
             var participant = new ScheduleParticipant
@@ -109,6 +122,9 @@ namespace ScheduleService.Application.Services
                 JoineddAt = DateTime.UtcNow,
                 Status = ParticipantStatus.Active
             };
+
+            // Increase participant count
+            schedule.ParticipantsCount += 1;
 
             await _scheduleParticipantRepository.AddScheduleParticipantAsync(participant);
             await _scheduleRepository.SaveChangesAsync();

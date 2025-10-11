@@ -34,7 +34,9 @@ namespace ScheduleService.Application.Mappings
 
             CreateMap<(ScheduleParticipant participant, UserServiceClientResponse user), GetAllParticipantsResponse>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.participant.UserId))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.user.Name));
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.user.Name))
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.participant.Role.ToString()))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.participant.Status.ToString()));
         }
     }
 }

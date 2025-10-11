@@ -10,5 +10,7 @@ namespace ScheduleService.Application.DTOs.Responses
     {
         public Guid UserId { get; set; }
         public string? Name { get; set; } 
+        public string Role { get; set; }
+        public string Status { get; set; }
     }
 }

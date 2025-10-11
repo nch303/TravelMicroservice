@@ -132,7 +132,7 @@ namespace ScheduleService.Application.Services
             if (participant.UserId == currentUser.Id)
                 throw new InvalidOperationException("Owner cannot kick themselves from the schedule.");
 
-            // Mark participant as 'Left'
+            // Mark participant as 'Banned'
             participant.Status = ParticipantStatus.Banned;
 
             // Decrease participant count safely
