@@ -118,7 +118,7 @@ namespace ScheduleService.Application.Services
         {
             var user = await _authServiceClient.GetCurrentAccountAsync();
             var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user!.Id, id);
-            if (participant!.Role != ParticipantRole.Owner || participant.Role != ParticipantRole.Editor)
+            if (participant!.Role != ParticipantRole.Owner && participant.Role != ParticipantRole.Editor)
             {
                 throw new Exception("You do not have permission to update this schedule");
             }
