@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ScheduleService.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace ScheduleService.Application.DTOs.Responses
         public Guid Id { get; set; }
         public string SharedCode { get; set; }
         public Guid OwnerId { get; set; }
+        public string ParticipantRole { get; set; }
         public string Title { get; set; }
         public string StartLocation { get; set; }
         public string Destination { get; set; }

@@ -48,12 +48,16 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetScheduleById(Guid id)
         {
             try
             {
+                var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+                var currentParticipant = await _scheduleParticipantService.GetByUserIdAndScheduleIdAsync(currentAccount!.Id, id);
                 var schedule = await _scheduleService.GetScheduleByIdAsync(id);
                 var scheduleResponse = _mapper.Map<ScheduleResponse>(schedule);
+                scheduleResponse.ParticipantRole = currentParticipant.Role.ToString();
                 return Ok(scheduleResponse);
             }
             catch (Exception ex)
@@ -79,9 +83,16 @@ namespace ScheduleService.API.Controllers
                 //}
 
                 // ✅ Call service
+                var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+                var currentParticipant = await _scheduleParticipantService.GetByUserIdAndScheduleIdAsync(currentAccount!.Id, scheduleId);
                 var activities = await _scheduleActivityService.GetActivitiesByDateAsync(scheduleId, date);
-                var response = _mapper.Map<List<ScheduleActivityResponse>>(activities);
-                return Ok(response);
+                var responses = _mapper.Map<List<ScheduleActivityResponse>>(activities);
+                var result = new
+                {
+                    ParticipantRole = currentParticipant.Role.ToString(),
+                    responses
+                };
+                return Ok(result);
             }
             catch (Exception ex)
             {
