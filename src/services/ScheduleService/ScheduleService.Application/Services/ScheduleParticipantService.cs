@@ -161,6 +161,7 @@ namespace ScheduleService.Application.Services
 
         public async Task<ScheduleParticipant> AddParticipantByEmailAsync(Guid scheduleId, string email)
         {
+            var result = new ScheduleParticipant();
             // 1) Ensure current user is owner of the schedule
             var currentUser = await _authServiceClient.GetCurrentAccountAsync();
             if (currentUser == null)
@@ -189,27 +190,36 @@ namespace ScheduleService.Application.Services
                 existing.Status = ParticipantStatus.Active;
                 existing.JoineddAt = DateTime.UtcNow;
                 await _scheduleParticipantRepository.SaveChangesAsync();
-                return existing;
+
+                // Update schedule participant count
+                schedule.ParticipantsCount++;
+                schedule.UpdatedAt = DateTime.UtcNow;
+                await _scheduleRepository.SaveChangesAsync();
+
+                result = existing;
+            }
+            else
+            {
+                var participant = new ScheduleParticipant
+                {
+                    Id = Guid.NewGuid(),
+                    ScheduleId = scheduleId,
+                    UserId = account.Id,
+                    Role = ParticipantRole.Viewer,
+                    Status = ParticipantStatus.Active,
+                    JoineddAt = DateTime.UtcNow
+                };
+
+                var created = await _scheduleParticipantRepository.AddScheduleParticipantAsync(participant);
+
+                // Update schedule participant count
+                schedule.ParticipantsCount++;
+                schedule.UpdatedAt = DateTime.UtcNow;
+                await _scheduleRepository.SaveChangesAsync();
+                result = created;
             }
 
-            var participant = new ScheduleParticipant
-            {
-                Id = Guid.NewGuid(),
-                ScheduleId = scheduleId,
-                UserId = account.Id,
-                Role = ParticipantRole.Viewer,
-                Status = ParticipantStatus.Active,
-                JoineddAt = DateTime.UtcNow
-            };
-
-            var created = await _scheduleParticipantRepository.AddScheduleParticipantAsync(participant);
-
-            // Update schedule participant count
-            schedule.ParticipantsCount++;
-            schedule.UpdatedAt = DateTime.UtcNow;
-            await _scheduleRepository.SaveChangesAsync();
-
-            return created;
+            return result;
         }
 
         public async Task<(List<ScheduleParticipant> Participants, List<UserServiceClientResponse> Users)>
