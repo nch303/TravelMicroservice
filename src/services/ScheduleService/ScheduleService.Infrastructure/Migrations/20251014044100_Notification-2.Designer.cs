@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ScheduleService.Infrastructure.Configurations;
 
@@ -11,9 +12,11 @@ using ScheduleService.Infrastructure.Configurations;
 namespace ScheduleService.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251014044100_Notification-2")]
+    partial class Notification2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,7 +54,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ParticipantId");
 
-                    b.ToTable("ActivityAttendances", (string)null);
+                    b.ToTable("ActivityAttendances");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.CheckedItem", b =>
@@ -79,7 +82,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("CheckedItems", (string)null);
+                    b.ToTable("CheckedItems");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.CheckedItemParticipant", b =>
@@ -107,7 +110,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleParticipantId");
 
-                    b.ToTable("CheckedItemParticipants", (string)null);
+                    b.ToTable("CheckedItemParticipants");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.Notification", b =>
@@ -137,8 +140,8 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -149,7 +152,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.NotificationRecipient", b =>
@@ -176,7 +179,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("NotificationId");
 
-                    b.ToTable("NotificationRecipients", (string)null);
+                    b.ToTable("NotificationRecipients");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.Schedule", b =>
@@ -245,7 +248,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Schedules", (string)null);
+                    b.ToTable("Schedules");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.ScheduleActivity", b =>
@@ -292,7 +295,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("ScheduleActivities", (string)null);
+                    b.ToTable("ScheduleActivities");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.ScheduleMedia", b =>
@@ -343,7 +346,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("ScheduleMedias", (string)null);
+                    b.ToTable("ScheduleMedias");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.ScheduleParticipant", b =>
@@ -377,7 +380,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("ScheduleParticipants", (string)null);
+                    b.ToTable("ScheduleParticipants");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.ActivityAttendance", b =>

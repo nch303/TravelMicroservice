@@ -22,6 +22,9 @@ namespace ScheduleService.Application.Extensions
             services.AddScoped<ICheckedItemService, CheckedItemService>();
             services.AddScoped<IMediaStorageService, MediaStorageService>();
             services.AddScoped<IScheduleMediaService, ScheduleMediaService>();
+            services.AddScoped<IActivityAttendanceService, ActivityAttendanceService>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<INotificationRecipientService, NotificationRecipientService>();
 
             // Cấu hình gọi API từ các service khác
 

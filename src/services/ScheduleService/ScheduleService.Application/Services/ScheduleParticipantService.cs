@@ -15,7 +15,7 @@ using Sprache;
 
 namespace ScheduleService.Application.Services
 {
-    public class ScheduleParticipantService: IScheduleParticipantService
+    public class ScheduleParticipantService : IScheduleParticipantService
     {
         private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
         private readonly IScheduleRepository _scheduleRepository;
@@ -74,7 +74,7 @@ namespace ScheduleService.Application.Services
             return updatedSchedule;
         }
 
-        public async Task ChangeParticipantRoleAsync(Guid participantId, Guid scheduleId)
+        public async Task<ScheduleParticipant> ChangeParticipantRoleAsync(Guid participantId, Guid scheduleId)
         {
             // Get current user (the one making the request)
             var currentUser = await _authServiceClient.GetCurrentAccountAsync();
@@ -103,6 +103,7 @@ namespace ScheduleService.Application.Services
 
             // Save changes
             await _scheduleParticipantRepository.SaveChangesAsync();
+            return participant;
         }
 
         public async Task<Schedule?> KickParticipantAsync(Guid scheduleId, Guid participantId)

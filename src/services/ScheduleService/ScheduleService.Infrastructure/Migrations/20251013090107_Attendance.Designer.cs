@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ScheduleService.Infrastructure.Configurations;
 
@@ -11,9 +12,11 @@ using ScheduleService.Infrastructure.Configurations;
 namespace ScheduleService.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251013090107_Attendance")]
+    partial class Attendance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,10 +43,9 @@ namespace ScheduleService.Infrastructure.Migrations
                     b.Property<Guid>("ParticipantId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
+                    b.Property<int>("Status")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -51,7 +53,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ParticipantId");
 
-                    b.ToTable("ActivityAttendances", (string)null);
+                    b.ToTable("ActivityAttendance");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.CheckedItem", b =>
@@ -79,7 +81,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("CheckedItems", (string)null);
+                    b.ToTable("CheckedItems");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.CheckedItemParticipant", b =>
@@ -107,76 +109,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleParticipantId");
 
-                    b.ToTable("CheckedItemParticipants", (string)null);
-                });
-
-            modelBuilder.Entity("ScheduleService.Domain.Entities.Notification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<Guid?>("RecipientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ScheduleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SenderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ScheduleId");
-
-                    b.ToTable("Notifications", (string)null);
-                });
-
-            modelBuilder.Entity("ScheduleService.Domain.Entities.NotificationRecipient", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsRead")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<Guid>("NotificationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ReadAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("RecipientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NotificationId");
-
-                    b.ToTable("NotificationRecipients", (string)null);
+                    b.ToTable("CheckedItemParticipants");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.Schedule", b =>
@@ -228,10 +161,9 @@ namespace ScheduleService.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
+                    b.Property<int>("Status")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -245,7 +177,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Schedules", (string)null);
+                    b.ToTable("Schedules");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.ScheduleActivity", b =>
@@ -292,7 +224,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("ScheduleActivities", (string)null);
+                    b.ToTable("ScheduleActivities");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.ScheduleMedia", b =>
@@ -343,7 +275,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("ScheduleMedias", (string)null);
+                    b.ToTable("ScheduleMedias");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.ScheduleParticipant", b =>
@@ -365,10 +297,9 @@ namespace ScheduleService.Infrastructure.Migrations
                     b.Property<Guid>("ScheduleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
+                    b.Property<int>("Status")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("int");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -377,7 +308,7 @@ namespace ScheduleService.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("ScheduleParticipants", (string)null);
+                    b.ToTable("ScheduleParticipants");
                 });
 
             modelBuilder.Entity("ScheduleService.Domain.Entities.ActivityAttendance", b =>
@@ -429,27 +360,6 @@ namespace ScheduleService.Infrastructure.Migrations
                     b.Navigation("ScheduleParticipant");
                 });
 
-            modelBuilder.Entity("ScheduleService.Domain.Entities.Notification", b =>
-                {
-                    b.HasOne("ScheduleService.Domain.Entities.Schedule", "Schedule")
-                        .WithMany("Notifications")
-                        .HasForeignKey("ScheduleId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Schedule");
-                });
-
-            modelBuilder.Entity("ScheduleService.Domain.Entities.NotificationRecipient", b =>
-                {
-                    b.HasOne("ScheduleService.Domain.Entities.Notification", "Notification")
-                        .WithMany("NotificationRecipients")
-                        .HasForeignKey("NotificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Notification");
-                });
-
             modelBuilder.Entity("ScheduleService.Domain.Entities.ScheduleActivity", b =>
                 {
                     b.HasOne("ScheduleService.Domain.Entities.Schedule", "Schedule")
@@ -494,16 +404,9 @@ namespace ScheduleService.Infrastructure.Migrations
                     b.Navigation("CheckedItemParticipants");
                 });
 
-            modelBuilder.Entity("ScheduleService.Domain.Entities.Notification", b =>
-                {
-                    b.Navigation("NotificationRecipients");
-                });
-
             modelBuilder.Entity("ScheduleService.Domain.Entities.Schedule", b =>
                 {
                     b.Navigation("CheckLists");
-
-                    b.Navigation("Notifications");
 
                     b.Navigation("ScheduleActivities");
 

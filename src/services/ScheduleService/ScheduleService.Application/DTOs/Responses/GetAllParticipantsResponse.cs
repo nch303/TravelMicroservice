@@ -12,5 +12,6 @@ namespace ScheduleService.Application.DTOs.Responses
         public string? Name { get; set; } 
         public string Role { get; set; }
         public string Status { get; set; }
+        public string AvatarUrl { get; set; }
     }
 }

@@ -1,16 +1,12 @@
 ﻿using AutoMapper;
-using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ScheduleService.Application.DTOs.Requests;
 using ScheduleService.Application.DTOs.Responses;
 using ScheduleService.Application.IServiceClients;
 using ScheduleService.Application.IServices;
-using ScheduleService.Application.Services;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ScheduleService.API.Controllers
 {
@@ -26,10 +22,16 @@ namespace ScheduleService.API.Controllers
         private readonly IScheduleActivityService _scheduleActivityService;
         private readonly ICheckedItemService _checkedItemService;
         private readonly IScheduleMediaService _scheduleMediaService;
+        private readonly IUserServiceClient _userServiceClient;
+        private readonly IActivityAttendanceService _activityAttendanceService;
+        private readonly INotificationService _notificationService;
+        private readonly INotificationRecipientService _notificationRecipientService;
 
         public ScheduleController(IScheduleService scheduleService, IMapper mapper, IAuthServiceClient authServiceClient
-            , IScheduleParticipantService scheduleParticipantService, IScheduleActivityService scheduleActivityService, 
-            ICheckedItemService checkedItemService, IScheduleMediaService scheduleMediaService, ICheckItemParticipantService checkItemParticipantService)
+            , IScheduleParticipantService scheduleParticipantService, IScheduleActivityService scheduleActivityService,
+            ICheckedItemService checkedItemService, IScheduleMediaService scheduleMediaService, ICheckItemParticipantService checkItemParticipantService
+            , IUserServiceClient userServiceClient, IActivityAttendanceService activityAttendanceService, INotificationService notificationService
+            , INotificationRecipientService notificationRecipientService)
         {
             _scheduleService = scheduleService;
             _mapper = mapper;
@@ -39,6 +41,10 @@ namespace ScheduleService.API.Controllers
             _checkedItemService = checkedItemService;
             _scheduleMediaService = scheduleMediaService;
             _checkItemParticipantService = checkItemParticipantService;
+            _userServiceClient = userServiceClient;
+            _activityAttendanceService = activityAttendanceService;
+            _notificationService = notificationService;
+            _notificationRecipientService = notificationRecipientService;
         }
 
         [HttpGet("{id}")]
@@ -282,8 +288,9 @@ namespace ScheduleService.API.Controllers
         {
             try
             {
-                var result = await _scheduleParticipantService.KickParticipantAsync(participantId, scheduleId);
-                return Ok(new { message = "Participant's role changed" });
+                var participant = await _scheduleParticipantService.ChangeParticipantRoleAsync(participantId, scheduleId);
+                var response = _mapper.Map<ScheduleParticipantResponse>(participant);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -343,7 +350,7 @@ namespace ScheduleService.API.Controllers
         public async Task<IActionResult> AddCheckedItemToActivity([FromBody] List<CreateCheckedItemRequest> request)
         {
             try
-            {   
+            {
                 var checkedItems = _mapper.Map<List<CheckedItem>>(request);
                 await _checkedItemService.AddCheckedItemsAsync(checkedItems);
                 var checkedItemResponse = _mapper.Map<List<CheckedItemResponse>>(checkedItems);
@@ -405,6 +412,48 @@ namespace ScheduleService.API.Controllers
             {
                 await _scheduleActivityService.RestoreActivityById(activityId);
                 return Ok(new { message = "Activity restored" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("activities/check-in")]
+        [Authorize]
+        public async Task<IActionResult> CheckInActivity([FromBody] AttendanceRequest request)
+        {
+            try
+            {
+                var user = await _authServiceClient.GetCurrentAccountAsync();
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "User not found" });
+                }
+
+                await _activityAttendanceService.CheckInAsync(request.ActivityId, user.Id);
+                return Ok(new { message = "Check-in successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("activities/check-out")]
+        [Authorize]
+        public async Task<IActionResult> CheckOutActivity([FromBody] AttendanceRequest request)
+        {
+            try
+            {
+                var user = await _authServiceClient.GetCurrentAccountAsync();
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "User not found" });
+                }
+
+                await _activityAttendanceService.CheckOutAsync(request.ActivityId, user.Id);
+                return Ok(new { message = "Check-out successfully" });
             }
             catch (Exception ex)
             {
@@ -475,7 +524,7 @@ namespace ScheduleService.API.Controllers
 
         [HttpPost("media/upload")]
         [Authorize]
-        [RequestFormLimits(MultipartBodyLengthLimit = 104857600)] 
+        [RequestFormLimits(MultipartBodyLengthLimit = 104857600)]
         [RequestSizeLimit(104857600)]
         public async Task<IActionResult> UploadMedia([FromForm] UploadScheduleMediaRequest request)
         {
@@ -532,6 +581,77 @@ namespace ScheduleService.API.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("notification/create")]
+        [Authorize]
+        public async Task<IActionResult> CreateNotification([FromBody] CreateNotificationRequest request)
+        {
+            try
+            {
+                var user = await _authServiceClient.GetCurrentAccountAsync();
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "User not found" });
+                }
+
+                var notification = _mapper.Map<Notification>(request);
+                notification.SenderId = user.Id;
+                notification.CreatedAt = DateTime.UtcNow;
+                notification.Type = NotificationType.OwnerAnnouncement;
+
+                await _notificationService.CreateNotificationAsync(notification);
+                return Ok(new { message = "Create notification successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("notification/recipients")]
+        [Authorize]
+        public async Task<IActionResult> GetAllNotificationRecipientsByUserId()
+        {
+            try
+            {
+                var currentUser = await _authServiceClient.GetCurrentAccountAsync();
+                if (currentUser == null)
+                {
+                    return Unauthorized(new { message = "User not found" });
+                }
+
+                var profile = new ProfileResponse();
+                var userServiceClientResponse = new List<UserServiceClientResponse>();
+                var recipients = await _notificationRecipientService.GetAllNotificationRecipientsByUserIdAsync(currentUser.Id);
+                var responses = _mapper.Map<List<NotificationRecipientResponse>>(recipients);
+                foreach (var recipient in responses)
+                {
+                    userServiceClientResponse = await _userServiceClient.GetUsersByIdsAsync(new List<Guid> { recipient.SenderId });
+                    recipient.SenderName = userServiceClientResponse.FirstOrDefault(ur => ur.Id == recipient.SenderId)!.Name;
+                }
+                responses.OrderByDescending(r => r.CreatedAt);
+                return Ok(responses);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPatch("notification/recipients/read")]
+        [Authorize]
+        public async Task<IActionResult> UpdateNoticationRecipient(ReadNotificationRecipientRequest request)
+        {
+            try
+            {
+                await _notificationRecipientService.UpdateNoticationRecipientAsync(request.notificationRecipientId);
+                return Ok(new { message = "Read notification recipient successfully" });
             }
             catch (Exception ex)
             {

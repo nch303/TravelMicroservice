@@ -11,7 +11,6 @@ namespace ScheduleService.Application.DTOs.Requests
         public string? PlaceName { get; set; }
         public string? Location { get; set; }
         public string? Description { get; set; }
-        public int OrderIndex { get; set; }
         public DateTime CheckInTime { get; set; }
         public DateTime CheckOutTime { get; set; }
     }

@@ -36,7 +36,26 @@ namespace ScheduleService.Application.Mappings
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.participant.UserId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.user.Name))
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.participant.Role.ToString()))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.participant.Status.ToString()));
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.participant.Status.ToString()))
+                .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.user.AvatarUrl));
+
+            CreateMap<CreateNotificationRequest, Notification>()
+                .ForMember(dest => dest.ScheduleId, opt => opt.MapFrom(src => src.ScheduleId))
+                .ForMember(dest => dest.RecipientId, opt => opt.MapFrom(src => src.RecipientId))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message));
+
+            CreateMap<NotificationRecipient, NotificationRecipientResponse>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.NotificationId, opt => opt.MapFrom(src => src.NotificationId))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Notification.Title))
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Notification.Message))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Notification.Type))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.Notification.CreatedAt))
+                .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.Notification.SenderId))
+                .ForMember(dest => dest.RecipientId, opt => opt.MapFrom(src => src.RecipientId))
+                .ForMember(dest => dest.IsRead, opt => opt.MapFrom(src => src.IsRead))
+                .ForMember(dest => dest.ReadAt, opt => opt.MapFrom(src => src.ReadAt));
         }
     }
 }

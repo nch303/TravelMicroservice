@@ -21,5 +21,8 @@ namespace ScheduleService.Domain.Entities
 
         // Quan hệ N-N thông qua CheckedItemParticipant
         public ICollection<CheckedItemParticipant> CheckedItemParticipants { get; set; }
+
+        // Quan hệ 1-N với ActivityAttendance
+        public ICollection<ActivityAttendance> ActivityAttendances { get; set; }
     }
 }
