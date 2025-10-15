@@ -91,7 +91,7 @@ namespace ScheduleService.Application.Services
                 throw new UnauthorizedAccessException("Only the schedule owner can change participant's role.");
 
             // Get the participant to change role
-            var participant = await _scheduleParticipantRepository.GetParticipantByIdAsync(participantId);
+            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(participantId, scheduleId);
             if (participant == null)
                 throw new KeyNotFoundException("Participant not found.");
             if (participant.Status != ParticipantStatus.Active)
