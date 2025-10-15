@@ -1,4 +1,5 @@
-﻿using ScheduleService.Domain.Entities;
+﻿using ScheduleService.Application.DTOs.Responses;
+using ScheduleService.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,10 @@ namespace ScheduleService.Application.IServices
         Task<Schedule> GetScheduleByIdAsync(Guid id);
         Task SaveChangesAsync();
         Task<string> ShareScheduleAsync(Guid id);
-        Task JoinScheduleAsync(string sharedCode, Guid userId);
+        Task JoinScheduleAsync(string sharedCode, AccountResponse user);
         Task<Schedule> UpdateScheduleByIdAsync(Schedule newSchedule, Guid id);
-        Task<bool> CancelScheduleAsync(Guid id);
-        Task<bool> RestoreScheduleAsync(Guid id);
+        Task<bool> CancelScheduleAsync(Guid scheduleId, AccountResponse user);
+        Task<bool> RestoreScheduleAsync(Guid scheduleId, AccountResponse user);
         Task CreateScheduleAsync(Schedule schedule);
     }
 }

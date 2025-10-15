@@ -58,7 +58,7 @@ namespace ScheduleService.Infrastructure.Repositories
 
         public async Task<ScheduleActivity?> GetActivityByIdAsync(int id)
         {
-            return await _context.ScheduleActivities.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
+            return await _context.ScheduleActivities.Include(a => a.Schedule).FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
         }
 
         public async Task<ScheduleActivity?> GetDeletedActivityByIdAsync(int id)

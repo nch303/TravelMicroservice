@@ -134,7 +134,7 @@ namespace ScheduleService.API.Controllers
             try
             {
                 var user = await _authServiceClient.GetCurrentAccountAsync();
-                await _scheduleService.JoinScheduleAsync(request.ShareCode, user!.Id);
+                await _scheduleService.JoinScheduleAsync(request.ShareCode, user!);
                 return Ok(new { message = "Successfully joined the schedule" });
             }
             catch (Exception ex)
@@ -213,11 +213,13 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpPatch("schedule/{id}/cancel")]
+        [Authorize]
         public async Task<IActionResult> CancelSchedule(Guid id)
         {
             try
             {
-                var canceled = await _scheduleService.CancelScheduleAsync(id);
+                var currentUser = await _authServiceClient.GetCurrentAccountAsync();
+                var canceled = await _scheduleService.CancelScheduleAsync(id, currentUser!);
                 if (canceled == true)
                 {
                     return Ok(new { message = "Schedule canceled" });
@@ -234,11 +236,13 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpPatch("schedule/{id}/restore")]
+        [Authorize]
         public async Task<IActionResult> RestoreSchedule(Guid id)
         {
             try
             {
-                var restored = await _scheduleService.RestoreScheduleAsync(id);
+                var currentUser = await _authServiceClient.GetCurrentAccountAsync();
+                var restored = await _scheduleService.RestoreScheduleAsync(id, currentUser!);
                 if (restored == true)
                 {
                     return Ok(new { message = "Schedule restored" });
@@ -376,6 +380,23 @@ namespace ScheduleService.API.Controllers
                 await _checkedItemService.AddCheckedItemsAsync(checkedItems);
                 var checkedItemResponse = _mapper.Map<List<CheckedItemResponse>>(checkedItems);
                 return Ok(checkedItemResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("checked-items/get-by-current")]
+        [Authorize]
+        public async Task<IActionResult> GetByCurrentAccount(Guid scheduleId)
+        {
+            try
+            {
+                var currentUser = await _authServiceClient.GetCurrentAccountAsync();
+                var checklist = await _checkItemParticipantService.GetByCurrentAccountAsync(currentUser!.Id, scheduleId);
+                var response = _mapper.Map<List<CheckedItemParticipantResponse>>(checklist);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -662,7 +683,7 @@ namespace ScheduleService.API.Controllers
                 }
 
 
-                    return Ok(new { message = "Create notification successfully" });
+                return Ok(new { message = "Create notification successfully" });
             }
             catch (Exception ex)
             {

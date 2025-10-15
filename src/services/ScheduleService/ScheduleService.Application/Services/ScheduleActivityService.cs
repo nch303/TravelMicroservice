@@ -19,14 +19,27 @@ namespace ScheduleService.Application.Services
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
+        private readonly INotificationService _notificationService;
+        private readonly IRealtimeNotifier _realtimeNotifier;
 
         public ScheduleActivityService(IScheduleActivityRepository scheduleActivityRepository,IScheduleParticipantRepository scheduleParticipantRepository,
-            IScheduleRepository scheduleRepository, IAuthServiceClient authServiceClient)
+            IScheduleRepository scheduleRepository, IAuthServiceClient authServiceClient, INotificationService notificationService
+            , IRealtimeNotifier realtimeNotifier)
         {
             _scheduleActivityRepository = scheduleActivityRepository;
             _scheduleParticipantRepository = scheduleParticipantRepository;
             _scheduleRepository = scheduleRepository;
             _authServiceClient = authServiceClient;
+            _notificationService = notificationService;
+            _realtimeNotifier = realtimeNotifier;
+        }
+
+        private DateTime ConvertToUtc7(DateTime localDateTime)
+        {
+            // Convert sang giờ VN (UTC+7)
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(localDateTime, vnTimeZone);
+            return localTime;
         }
 
         //private static void ValidateActivityOrder(List<ScheduleActivity> activities, ScheduleActivity current)
@@ -167,6 +180,35 @@ namespace ScheduleService.Application.Services
             if (result <= 0)
                 throw new InvalidOperationException("Failed to update activity and reorder schedule.");
 
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = existing.ScheduleId,
+                SenderId = user.Id,
+                RecipientId = null,
+                Title = $"Lịch trình có 1 cập nhập",
+                Message = $"Nhóm {existing.Schedule.Title} có 1 thay đổi hoạt động",
+                Type = NotificationType.ActivityUpdated,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(existing.ScheduleId, new
+            {
+                Purpose = "Send Notification (Update Activity)",
+                Id = notification.Id,
+                ScheduleID = existing.ScheduleId,
+                ScheduleName = existing.Schedule.Title,
+                SenderId = user.Id,
+                SenderName = user.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
+
             return existing;
         }
 
@@ -182,6 +224,37 @@ namespace ScheduleService.Application.Services
             var result = await _scheduleActivityRepository.SaveChangesAsync();
             if (result <= 0)
                 throw new InvalidOperationException("Failed to update activity and reorder schedule.");
+
+            var user = await _authServiceClient.GetCurrentAccountAsync();
+
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = existing.ScheduleId,
+                SenderId = user.Id,
+                RecipientId = null,
+                Title = $"Lịch trình có 1 cập nhập",
+                Message = $"Nhóm {existing.Schedule.Title} có 1 thay đổi về thứ tự hoạt động",
+                Type = NotificationType.ActivityUpdated,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(existing.ScheduleId, new
+            {
+                Purpose = "Send Notification (Update Activity)",
+                Id = notification.Id,
+                ScheduleID = existing.ScheduleId,
+                ScheduleName = existing.Schedule.Title,
+                SenderId = user.Id,
+                SenderName = user.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
         }
 
         public async Task DeleteActivityById(int activityId)
@@ -209,6 +282,37 @@ namespace ScheduleService.Application.Services
 
             if (result <= 0)
                 throw new InvalidOperationException("Failed to delete activity and update order indexes.");
+
+            var user = await _authServiceClient.GetCurrentAccountAsync();
+
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = activity.ScheduleId,
+                SenderId = user.Id,
+                RecipientId = null,
+                Title = $"Lịch trình có 1 cập nhập",
+                Message = $"Nhóm {activity.Schedule.Title} có 1 hoạt động bị hủy",
+                Type = NotificationType.ActivityDeleted,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(activity.ScheduleId, new
+            {
+                Purpose = "Send Notification (Delete Activity)",
+                Id = notification.Id,
+                ScheduleID = activity.ScheduleId,
+                ScheduleName = activity.Schedule.Title,
+                SenderId = user.Id,
+                SenderName = user.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
         }
 
         public async Task RestoreActivityById(int activityId)
@@ -229,6 +333,37 @@ namespace ScheduleService.Application.Services
 
             if (result <= 0)
                 throw new InvalidOperationException("Failed to restore activity and update order indexes.");
+
+            var user = await _authServiceClient.GetCurrentAccountAsync();
+
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = activity.ScheduleId,
+                SenderId = user.Id,
+                RecipientId = null,
+                Title = $"Lịch trình có 1 cập nhập",
+                Message = $"Nhóm {activity.Schedule.Title} có 1 thay đổi về hoạt động",
+                Type = NotificationType.ActivityRestored,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(activity.ScheduleId, new
+            {
+                Purpose = "Send Notification (Restore Activity)",
+                Id = notification.Id,
+                ScheduleID = activity.ScheduleId,
+                ScheduleName = activity.Schedule.Title,
+                SenderId = user.Id,
+                SenderName = user.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
         }
 
         public async Task AddActivityAsync(ScheduleActivity activity)
@@ -245,6 +380,35 @@ namespace ScheduleService.Application.Services
                 throw new Exception("You do not have permission to add activity to this schedule");
             }
             await _scheduleActivityRepository.AddActivityAsync(activity);
+
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = activity.ScheduleId,
+                SenderId = user.Id,
+                RecipientId = null,
+                Title = $"Lịch trình có 1 cập nhập",
+                Message = $"Nhóm {activity.Schedule.Title} có 1 thay đổi về hoạt động",
+                Type = NotificationType.ActivityCreated,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(activity.ScheduleId, new
+            {
+                Purpose = "Send Notification (Create Activity)",
+                Id = notification.Id,
+                ScheduleID = activity.ScheduleId,
+                ScheduleName = activity.Schedule.Title,
+                SenderId = user.Id,
+                SenderName = user.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
         }
 
         public async Task<List<ScheduleActivity>> GetActivitiesByScheduleIdAsync(Guid scheduleId)

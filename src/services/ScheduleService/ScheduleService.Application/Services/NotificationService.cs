@@ -45,7 +45,6 @@ namespace ScheduleService.Application.Services
                             ReadAt = null
                         });
                     }
-
                 }
 
                 await _notificationRecipientRepository.CreateNotificationRecipientsAsync(recipients);

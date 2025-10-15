@@ -56,6 +56,10 @@ namespace ScheduleService.Application.Mappings
                 .ForMember(dest => dest.RecipientId, opt => opt.MapFrom(src => src.RecipientId))
                 .ForMember(dest => dest.IsRead, opt => opt.MapFrom(src => src.IsRead))
                 .ForMember(dest => dest.ReadAt, opt => opt.MapFrom(src => src.ReadAt));
+
+            CreateMap<CheckedItemParticipant, CheckedItemParticipantResponse>()
+                .ForMember(dest => dest.CheckedItemName, opt => opt.MapFrom(src => src.CheckedItem.Name));
+              
         }
     }
 }

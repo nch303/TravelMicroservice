@@ -36,5 +36,14 @@ namespace ScheduleService.Application.Services
         //{
         //    await _checkItemParticipantRepository.DeleteManyAsync(checkedItemId);
         //}
+
+        public async Task<List<CheckedItemParticipant>> GetByCurrentAccountAsync(Guid userId, Guid scheduleId)
+        {
+            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(userId, scheduleId);
+            if (participant == null)
+                throw new Exception("No participant be found");
+            var checkedList = await _checkItemParticipantRepository.GetByCurrentAccountAsync(participant!.Id);
+            return checkedList;
+        }
     }
 }

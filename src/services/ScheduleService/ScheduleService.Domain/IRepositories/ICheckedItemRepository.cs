@@ -14,5 +14,6 @@ namespace ScheduleService.Domain.IRepositories
         Task<List<CheckedItem>> GetByScheduleIdAsync(Guid scheduleId);
         Task DeleteManyAsync(List<int> checkedItemIds);
         Task<List<CheckedItem>> GetAvailableByScheduleIdAsync(Guid scheduleId);
+        Task<CheckedItem?> GetByIdAsync(int itemId);
     }
 }

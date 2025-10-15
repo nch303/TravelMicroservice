@@ -8,9 +8,16 @@ namespace ScheduleService.Domain.Enums
 {
     public enum NotificationType
     {
+        ScheduleJoined,
+        ScheduleKicked,
+        ScheduleLeft,
+        ScheduleUpdated,
+        ScheduleDeleted,
+        ScheduleRestored,
         ActivityCreated,
         ActivityUpdated,
         ActivityDeleted,
+        ActivityRestored,
         OwnerAnnouncement
     }
 }

@@ -1,4 +1,5 @@
-﻿using ScheduleService.Application.IServiceClients;
+﻿using ScheduleService.Application.DTOs.Responses;
+using ScheduleService.Application.IServiceClients;
 using ScheduleService.Application.IServices;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
@@ -16,14 +17,26 @@ namespace ScheduleService.Application.Services
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
         private readonly IAuthServiceClient _authServiceClient;
+        private readonly INotificationService _notificationService;
+        private readonly IRealtimeNotifier _realtimeNotifier;
 
         public SchedulesService(IScheduleRepository scheduleRepository
             , IScheduleParticipantRepository scheduleParticipantRepository
-            , IAuthServiceClient authServiceClient)
+            , IAuthServiceClient authServiceClient, INotificationService notificationService, IRealtimeNotifier realtimeNotifier)
         {
             _scheduleRepository = scheduleRepository;
             _scheduleParticipantRepository = scheduleParticipantRepository;
             _authServiceClient = authServiceClient;
+            _notificationService = notificationService;
+            _realtimeNotifier = realtimeNotifier;
+        }
+
+        private DateTime ConvertToUtc7(DateTime localDateTime)
+        {
+            // Convert sang giờ VN (UTC+7)
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(localDateTime, vnTimeZone);
+            return localTime;
         }
 
         private static void ValidateSchedule(Schedule validateSchedule, bool isUpdate = false)
@@ -80,7 +93,7 @@ namespace ScheduleService.Application.Services
             return sharedCode;
         }
 
-        public async Task JoinScheduleAsync(string sharedCode, Guid userId)
+        public async Task JoinScheduleAsync(string sharedCode, AccountResponse user)
         {
             var schedule = await _scheduleRepository.GetScheduleByShareCodeAsync(sharedCode);
             if (schedule == null)
@@ -88,7 +101,21 @@ namespace ScheduleService.Application.Services
                 throw new Exception("Schedule not found");
             }
 
-            var existingParticipant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(userId, schedule.Id);
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = schedule.Id,
+                SenderId = user.Id,
+                RecipientId = null,
+                Title = $"Có thành viên mới gia nhập",
+                Message = $"Nhóm {schedule.Title} vừa có thêm thành viên mới",
+                Type = NotificationType.ScheduleJoined,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            var existingParticipant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user.Id, schedule.Id);
             if (existingParticipant != null)
             {
                 if (existingParticipant.Status == ParticipantStatus.Banned)
@@ -109,6 +136,21 @@ namespace ScheduleService.Application.Services
                     schedule.ParticipantsCount += 1;
                     await _scheduleRepository.SaveChangesAsync();
 
+                    // Send Notification Realtime
+                    await _realtimeNotifier.SendGroupNotificationAsync(schedule.Id, new
+                    {
+                        Purpose = "Send Notification (New Joiner)",
+                        Id = notification.Id,
+                        ScheduleID = schedule.Id,
+                        ScheduleName = schedule.Title,
+                        SenderId = user.Id,
+                        SenderName = user.Profile!.Name,
+                        Title = notification.Title,
+                        Message = notification.Message,
+                        Type = notification.Type.ToString(),
+                        CreatedAt = ConvertToUtc7(notification.CreatedAt)
+                    });
+
                     return;
                 }
             }
@@ -116,7 +158,7 @@ namespace ScheduleService.Application.Services
             var participant = new ScheduleParticipant
             {
                 Id = Guid.NewGuid(),
-                UserId = userId,
+                UserId = user.Id,
                 ScheduleId = schedule.Id,
                 Role = ParticipantRole.Viewer,
                 JoineddAt = DateTime.UtcNow,
@@ -125,8 +167,25 @@ namespace ScheduleService.Application.Services
 
             // Increase participant count
             schedule.ParticipantsCount += 1;
-
             await _scheduleParticipantRepository.AddScheduleParticipantAsync(participant);
+
+            
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(schedule.Id, new
+            {
+                Purpose = "Send Notification (New Joiner)",
+                Id = notification.Id,
+                ScheduleID = schedule.Id,
+                ScheduleName = schedule.Title,
+                SenderId = user.Id,
+                SenderName = user.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
+
             await _scheduleRepository.SaveChangesAsync();
         }
 
@@ -163,33 +222,132 @@ namespace ScheduleService.Application.Services
             // Save changes
             await _scheduleRepository.SaveChangesAsync();
 
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = schedule.Id,
+                SenderId = user.Id,
+                RecipientId = null,
+                Title = $"Lịch trình có 1 cập nhập",
+                Message = $"Nhóm {schedule.Title} vừa có 1 thay đổi",
+                Type = NotificationType.ScheduleUpdated,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(schedule.Id, new
+            {
+                Purpose = "Send Notification (Update Schedule)",
+                Id = notification.Id,
+                ScheduleID = schedule.Id,
+                ScheduleName = schedule.Title,
+                SenderId = user.Id,
+                SenderName = user.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
+
             return schedule;
         }
 
-        public async Task<bool> CancelScheduleAsync(Guid id)
+        public async Task<bool> CancelScheduleAsync(Guid id, AccountResponse user)
         {
             var schedule = await _scheduleRepository.GetScheduleByIdAsync(id);
             if (schedule == null)
             {
                 throw new KeyNotFoundException($"Schedule with Id {id} not found.");
             }
+
+            if (user.Id != schedule.OwnerId)
+            {
+                throw new Exception("You do not have permission.");
+            }
+
             schedule.Status = ScheduleStatus.Inactive;
             // Save changes
             await _scheduleRepository.SaveChangesAsync();
 
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = schedule.Id,
+                SenderId = user.Id,
+                RecipientId = null,
+                Title = $"Lịch trình có 1 cập nhập",
+                Message = $"Nhóm {schedule.Title} đã bị hủy",
+                Type = NotificationType.ScheduleDeleted,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(schedule.Id, new
+            {
+                Purpose = "Send Notification (Delete Schedule)",
+                Id = notification.Id,
+                ScheduleID = schedule.Id,
+                ScheduleName = schedule.Title,
+                SenderId = user.Id,
+                SenderName = user.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
+
             return true;
         }
 
-        public async Task<bool> RestoreScheduleAsync(Guid id)
+        public async Task<bool> RestoreScheduleAsync(Guid id, AccountResponse user)
         {
             var schedule = await _scheduleRepository.GetScheduleByIdAsync(id);
             if (schedule == null)
             {
                 throw new KeyNotFoundException($"Schedule with Id {id} not found.");
             }
+
+            if (user.Id != schedule.OwnerId)
+            {
+                throw new Exception("You do not have permission.");
+            }
+
             schedule.Status = ScheduleStatus.Active;
             // Save changes
             await _scheduleRepository.SaveChangesAsync();
+
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = schedule.Id,
+                SenderId = user.Id,
+                RecipientId = null,
+                Title = $"Lịch trình có 1 cập nhập",
+                Message = $"Nhóm {schedule.Title} đã được khôi phục",
+                Type = NotificationType.ScheduleRestored,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(schedule.Id, new
+            {
+                Purpose = "Send Notification (Restore Schedule)",
+                Id = notification.Id,
+                ScheduleID = schedule.Id,
+                ScheduleName = schedule.Title,
+                SenderId = user.Id,
+                SenderName = user.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
 
             return true;
         }

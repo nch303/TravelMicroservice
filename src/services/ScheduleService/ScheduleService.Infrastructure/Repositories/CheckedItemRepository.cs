@@ -56,5 +56,10 @@ namespace ScheduleService.Infrastructure.Repositories
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<CheckedItem?> GetByIdAsync(int itemId)
+        {
+            return await _context.CheckedItems.FirstOrDefaultAsync(ci => ci.Id == itemId);
+        }
     }
 }

@@ -48,8 +48,43 @@ namespace ScheduleService.Infrastructure.Repositories
         //    {
         //        item.IsDeleted = true;
         //    }
-           
+
         //    await _context.SaveChangesAsync();
         //}
+
+        public async Task<CheckedItemParticipant> CreateAsync(CheckedItemParticipant newCheckedItemParticipant)
+        {
+            var entry = await _context.CheckedItemParticipants.AddAsync(newCheckedItemParticipant);
+            await _context.SaveChangesAsync(); 
+            return entry.Entity;
+        }
+
+        public async Task AddRangeAsync(IEnumerable<CheckedItemParticipant> entities)
+        {
+            await _context.CheckedItemParticipants.AddRangeAsync(entities);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<CheckedItemParticipant>> GetByCurrentAccountAsync(Guid participantId)
+        {
+            return await _context.CheckedItemParticipants
+                .Include(cp => cp.CheckedItem)
+                .Where(cp => cp.ScheduleParticipantId == participantId && cp.IsDeleted == false)
+                .ToListAsync();
+        }
+
+        public async Task DeleteManyAsync(List<int> itemIds)
+        {
+            var items = await _context.CheckedItemParticipants
+                .Where(c => itemIds.Contains(c.CheckedItemId))
+                .ToListAsync();
+
+            foreach (var item in items)
+            {
+                item.IsDeleted = true;
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

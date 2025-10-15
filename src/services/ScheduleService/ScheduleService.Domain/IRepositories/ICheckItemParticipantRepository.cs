@@ -12,5 +12,9 @@ namespace ScheduleService.Domain.IRepositories
         Task<CheckedItemParticipant?> GetByIdAsync(int checkedItemId, Guid scheduleParticipantId);
         Task<bool> ToggleCheckAsync(int checkedItemId, Guid scheduleParticipantId, bool isChecked);
         //Task DeleteManyAsync(List<int> checkedItemId);
+        Task<CheckedItemParticipant> CreateAsync(CheckedItemParticipant newCheckedItemParticipant);
+        Task AddRangeAsync(IEnumerable<CheckedItemParticipant> entities);
+        Task<List<CheckedItemParticipant>> GetByCurrentAccountAsync(Guid participantId);
+        Task DeleteManyAsync(List<int> itemIds);
     }
 }
