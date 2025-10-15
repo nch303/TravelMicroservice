@@ -26,12 +26,13 @@ namespace ScheduleService.API.Controllers
         private readonly IActivityAttendanceService _activityAttendanceService;
         private readonly INotificationService _notificationService;
         private readonly INotificationRecipientService _notificationRecipientService;
+        private readonly IRealtimeNotifier _realtimeNotifier;
 
         public ScheduleController(IScheduleService scheduleService, IMapper mapper, IAuthServiceClient authServiceClient
             , IScheduleParticipantService scheduleParticipantService, IScheduleActivityService scheduleActivityService,
             ICheckedItemService checkedItemService, IScheduleMediaService scheduleMediaService, ICheckItemParticipantService checkItemParticipantService
             , IUserServiceClient userServiceClient, IActivityAttendanceService activityAttendanceService, INotificationService notificationService
-            , INotificationRecipientService notificationRecipientService)
+            , INotificationRecipientService notificationRecipientService, IRealtimeNotifier realtimeNotifier)
         {
             _scheduleService = scheduleService;
             _mapper = mapper;
@@ -45,6 +46,15 @@ namespace ScheduleService.API.Controllers
             _activityAttendanceService = activityAttendanceService;
             _notificationService = notificationService;
             _notificationRecipientService = notificationRecipientService;
+            _realtimeNotifier = realtimeNotifier;
+        }
+
+        private DateTime ConvertToUtc7(DateTime localDateTime)
+        {
+            // Convert sang giờ VN (UTC+7)
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(localDateTime, vnTimeZone);
+            return localTime;
         }
 
         [HttpGet("{id}")]
@@ -617,7 +627,42 @@ namespace ScheduleService.API.Controllers
                 notification.Type = NotificationType.OwnerAnnouncement;
 
                 await _notificationService.CreateNotificationAsync(notification);
-                return Ok(new { message = "Create notification successfully" });
+
+                // Realtime Notification to participant
+                if (request.ScheduleId != null)
+                {
+                    var schedule = await _scheduleService.GetScheduleByIdAsync(request.ScheduleId.Value);
+                    await _realtimeNotifier.SendGroupNotificationAsync(request.ScheduleId.Value, new
+                    {
+                        Purpose = "Send Notification",
+                        Id = notification.Id,
+                        ScheduleID = request.ScheduleId.Value,
+                        ScheduleName = schedule.Title,
+                        SenderId = user.Id,
+                        SenderName = user.Profile!.Name,
+                        Title = notification.Title,
+                        Message = notification.Message,
+                        Type = notification.Type.ToString(),
+                        CreatedAt = ConvertToUtc7(notification.CreatedAt)
+                    });
+                }
+                else if (request.RecipientId != null)
+                {
+                    await _realtimeNotifier.SendUserNotificationAsync(request.RecipientId.Value, new
+                    {
+                        Purpose = "Send Notification",
+                        Id = notification.Id,
+                        SenderId = user.Id,
+                        SenderName = user.Profile!.Name,
+                        Title = notification.Title,
+                        Message = notification.Message,
+                        Type = notification.Type.ToString(),
+                        CreatedAt = ConvertToUtc7(notification.CreatedAt)
+                    });
+                }
+
+
+                    return Ok(new { message = "Create notification successfully" });
             }
             catch (Exception ex)
             {

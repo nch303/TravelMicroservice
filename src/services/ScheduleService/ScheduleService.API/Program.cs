@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
-using ScheduleService.Infrastructure.Extensions;
-using ScheduleService.Application.Mappings;
-using ScheduleService.Application.Extensions;
 using ScheduleService.API.Extensions;
+using ScheduleService.Application.Extensions;
+using ScheduleService.Application.Hubs;
+using ScheduleService.Application.Mappings;
+using ScheduleService.Infrastructure.Extensions;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,9 @@ builder.Services.AddHttpContextAccessor();
 
 //ENV
 Env.Load();
+
+// Thêm SignalR
+builder.Services.AddSignalR();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -103,5 +107,6 @@ app.UseAuthorization();
 app.UseCors("AllowSpecificOrigins");
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();

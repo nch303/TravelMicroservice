@@ -9,10 +9,15 @@ namespace ScheduleService.Application.Hubs
 {
     public class NotificationHub : Hub
     {
-        public async Task JoinGroup(string scheduleId)
+        public async Task JoinSchedule(string scheduleId)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, scheduleId);
-            Console.WriteLine($"Client {Context.ConnectionId} joined group {scheduleId}");
+            Console.WriteLine($"Client {Context.ConnectionId} joined schedule {scheduleId}");
+        }
+        public async Task JoinUser(string userId)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, userId);
+            Console.WriteLine($"Client {Context.ConnectionId} joined user {userId}");
         }
 
         public async Task LeaveGroup(string scheduleId)

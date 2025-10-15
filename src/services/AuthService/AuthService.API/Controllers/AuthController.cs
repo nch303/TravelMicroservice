@@ -183,7 +183,7 @@ namespace AuthService.API.Controllers
 
         }
 
-        [HttpGet("refresh-token")]
+        [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken(string refreshToken)
         {
             try
