@@ -127,7 +127,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "authservice",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/api/auth/{everything}",
@@ -139,7 +139,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "userservice",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/api/user/{everything}",
@@ -151,7 +151,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "scheduleservice",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/api/schedule/{everything}",
@@ -163,7 +163,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "messageservice",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/api/message/{everything}",
@@ -175,7 +175,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "advertisementservice",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/api/advertisement/{everything}",
@@ -235,7 +235,7 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://apigateway:80"
+    "BaseUrl": "https://apigateway:443"
   }
 }
 
