@@ -14,7 +14,7 @@ namespace ScheduleService.Application.DTOs.Responses
         public string Url { get; set; }
         public string? Description { get; set; }
         public DateTime UploadedAt { get; set; }
-        public Guid UploadedUserId { get; set; }
+        public Guid ParticipantId { get; set; }
         public MediaMethod UploadMethod { get; set; }
         public Guid? ScheduleId { get; set; }
         public int? ActivityId { get; set; }

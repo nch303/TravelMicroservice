@@ -14,6 +14,8 @@ namespace ScheduleService.Domain.Enums
         ScheduleUpdated,
         ScheduleDeleted,
         ScheduleRestored,
+        ScheduleRoleChanged,
+        ScheduleBanned,
         ActivityCreated,
         ActivityUpdated,
         ActivityDeleted,

@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace ScheduleService.Application.DTOs.Requests
 {
-    public class AttendanceRequest
+    public class UpdateScheduleMediaRequest
     {
-        public int ActivityId { get; set; }
+        public int MediaId { get; set; }
         public IFormFile File { get; set; }
         public string? Description { get; set; }
     }

@@ -125,7 +125,6 @@ namespace ScheduleService.Infrastructure.Configurations
                       .HasMaxLength(100)
                       .IsRequired();
                 entity.Property(sm => sm.UploadedAt).HasDefaultValueSql("GETUTCDATE()");
-                entity.Property(sm => sm.UploadedUserId).IsRequired();
                 entity.Property(sm => sm.UploadMethod)
                       .HasConversion<string>() // lưu enum dưới dạng string: "Check-in", "Check-out"
                       .HasMaxLength(100)
@@ -142,6 +141,12 @@ namespace ScheduleService.Infrastructure.Configurations
                     .WithMany(sa => sa.ScheduleMedias)
                     .HasForeignKey(sm => sm.ActivityId)
                     .OnDelete(DeleteBehavior.Restrict); // Nếu ScheduleActivity bị xoá, giữ lại ScheduleMedia
+
+                // Thiết lập quan hệ N-1 với ScheduleParticipant
+                entity.HasOne(sm => sm.ScheduleParticipant)
+                    .WithMany(sp => sp.ScheduleMedias)
+                    .HasForeignKey(sm => sm.ParticipantId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // ActivityAttendance

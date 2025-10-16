@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CloudinaryDotNet.Actions;
+﻿using CloudinaryDotNet.Actions;
 using ScheduleService.Application.DTOs.Responses;
 using ScheduleService.Application.IServiceClients;
 using ScheduleService.Application.IServices;
@@ -12,6 +7,12 @@ using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
 using ScheduleService.Domain.IRepositories;
 using Sprache;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ScheduleService.Application.Services
 {
@@ -21,14 +22,29 @@ namespace ScheduleService.Application.Services
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IUserServiceClient _userServiceClient;
         private readonly IAuthServiceClient _authServiceClient;
+        private readonly IRealtimeNotifier _realtimeNotifier;
+        private readonly INotificationService _notificationService;
 
-        public ScheduleParticipantService(IScheduleParticipantRepository scheduleParticipantRepository, IScheduleRepository scheduleRepository, IUserServiceClient userServiceClient, IAuthServiceClient authServiceClient)
+        public ScheduleParticipantService(IScheduleParticipantRepository scheduleParticipantRepository, IScheduleRepository scheduleRepository
+            , IUserServiceClient userServiceClient, IAuthServiceClient authServiceClient
+            , IRealtimeNotifier realtimeNotifier, INotificationService notificationService)
         {
             _scheduleParticipantRepository = scheduleParticipantRepository;
             _scheduleRepository = scheduleRepository;
             _userServiceClient = userServiceClient;
             _authServiceClient = authServiceClient;
+            _realtimeNotifier = realtimeNotifier;
+            _notificationService = notificationService;
         }
+
+        private DateTime ConvertToUtc7(DateTime localDateTime)
+        {
+            // Convert sang giờ VN (UTC+7)
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(localDateTime, vnTimeZone);
+            return localTime;
+        }
+
 
         public async Task<ScheduleParticipant?> GetByUserIdAndScheduleIdAsync(Guid userId, Guid scheduleId)
         {
@@ -71,10 +87,39 @@ namespace ScheduleService.Application.Services
             // Reload the schedule with participants included
             var updatedSchedule = await _scheduleRepository.GetScheduleWithParticipantsByIdAsync(scheduleId);
 
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = scheduleId,
+                SenderId = user.Id,
+                RecipientId = null,
+                Title = $"Lịch trình có 1 cập nhập",
+                Message = $"Nhóm {schedule.Title} có 1 người rời đi",
+                Type = NotificationType.ScheduleLeft,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(scheduleId, new
+            {
+                Purpose = "Send Notification (Leave Schedule)",
+                Id = notification.Id,
+                ScheduleID = scheduleId,
+                ScheduleName = schedule.Title,
+                SenderId = user.Id,
+                SenderName = user.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
+
             return updatedSchedule;
         }
 
-        public async Task<ScheduleParticipant> ChangeParticipantRoleAsync(Guid participantId, Guid scheduleId)
+        public async Task<ScheduleParticipant> ChangeParticipantRoleAsync(Guid userId, Guid scheduleId)
         {
             // Get current user (the one making the request)
             var currentUser = await _authServiceClient.GetCurrentAccountAsync();
@@ -91,7 +136,7 @@ namespace ScheduleService.Application.Services
                 throw new UnauthorizedAccessException("Only the schedule owner can change participant's role.");
 
             // Get the participant to change role
-            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(participantId, scheduleId);
+            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(userId, scheduleId);
             if (participant == null)
                 throw new KeyNotFoundException("Participant not found.");
             if (participant.Status != ParticipantStatus.Active)
@@ -103,6 +148,36 @@ namespace ScheduleService.Application.Services
 
             // Save changes
             await _scheduleParticipantRepository.SaveChangesAsync();
+
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = null,
+                SenderId = currentUser.Id,
+                RecipientId = userId,
+                Title = $" Bạn có 1 cập nhập mới",
+                Message = $"Bạn đã là Editor của nhóm {schedule.Title}",
+                Type = NotificationType.ScheduleRoleChanged,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(scheduleId, new
+            {
+                Purpose = "Send Notification (Change Role Schedule)",
+                Id = notification.Id,
+                ScheduleID = scheduleId,
+                ScheduleName = schedule.Title,
+                SenderId = currentUser.Id,
+                SenderName = currentUser.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
+
             return participant;
         }
 
@@ -148,6 +223,35 @@ namespace ScheduleService.Application.Services
 
             // Reload the updated schedule with participants
             var updatedSchedule = await _scheduleRepository.GetScheduleWithParticipantsByIdAsync(scheduleId);
+
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = scheduleId,
+                SenderId = currentUser.Id,
+                RecipientId = null,
+                Title = $"Lịch trình có 1 cập nhập",
+                Message = $"Nhóm {schedule.Title} có 1 người bị cấm",
+                Type = NotificationType.ScheduleBanned,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(scheduleId, new
+            {
+                Purpose = "Send Notification (Leave Schedule)",
+                Id = notification.Id,
+                ScheduleID = scheduleId,
+                ScheduleName = schedule.Title,
+                SenderId = currentUser.Id,
+                SenderName = currentUser.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
 
             return updatedSchedule;
         }
@@ -218,6 +322,35 @@ namespace ScheduleService.Application.Services
                 await _scheduleRepository.SaveChangesAsync();
                 result = created;
             }
+
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = scheduleId,
+                SenderId = currentUser.Id,
+                RecipientId = null,
+                Title = $"Lịch trình có 1 cập nhập",
+                Message = $"Nhóm {schedule.Title} có 1 người tham gia",
+                Type = NotificationType.ScheduleJoined,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(scheduleId, new
+            {
+                Purpose = "Send Notification (Join Schedule)",
+                Id = notification.Id,
+                ScheduleID = scheduleId,
+                ScheduleName = schedule.Title,
+                SenderId = currentUser.Id,
+                SenderName = currentUser.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
 
             return result;
         }

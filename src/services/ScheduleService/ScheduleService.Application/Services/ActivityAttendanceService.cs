@@ -1,4 +1,6 @@
-﻿using ScheduleService.Application.IServices;
+﻿using ScheduleService.Application.DTOs.Requests;
+using ScheduleService.Application.IServiceClients;
+using ScheduleService.Application.IServices;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
 using ScheduleService.Domain.IRepositories;
@@ -15,29 +17,46 @@ namespace ScheduleService.Application.Services
         private readonly IScheduleActivityRepository _scheduleActivityRepository;
         private readonly IScheduleParticipantRepository _participantRepository;
         private readonly IActivityAttendanceRepository _attendanceRepository;
+        private readonly IScheduleMediaService _mediaService;
+        private readonly IRealtimeNotifier _realtimeNotifier;
+        private readonly INotificationService _notificationService;
+        private readonly IAuthServiceClient _authServiceClient;
 
         public ActivityAttendanceService(IScheduleActivityRepository scheduleActivityRepository, IScheduleParticipantRepository participantRepository
-            , IActivityAttendanceRepository activityAttendanceRepository)
+            , IActivityAttendanceRepository activityAttendanceRepository, IScheduleMediaService mediaService
+            , IRealtimeNotifier realtimeNotifier, INotificationService notificationService, IAuthServiceClient authServiceClient)
         {
             _scheduleActivityRepository = scheduleActivityRepository;
             _participantRepository = participantRepository;
             _attendanceRepository = activityAttendanceRepository;
+            _mediaService = mediaService;
+            _realtimeNotifier = realtimeNotifier;
+            _notificationService = notificationService;
+            _authServiceClient = authServiceClient;
         }
 
-        public async Task CheckInAsync(int activityId, Guid userId)
+        private DateTime ConvertToUtc7(DateTime localDateTime)
         {
-            // Validate participant
-            var participant = await _participantRepository.GetParticipantByUserIdAsync(userId);
-            if (participant == null)
-            {
-                throw new Exception("No participant was found");
-            }
+            // Convert sang giờ VN (UTC+7)
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(localDateTime, vnTimeZone);
+            return localTime;
+        }
 
+        public async Task CheckInAsync(Guid userId, AttendanceRequest request)
+        {
             // Validate activity
-            var activity = await _scheduleActivityRepository.GetActivityByIdAsync(activityId);
+            var activity = await _scheduleActivityRepository.GetActivityByIdAsync(request.ActivityId);
             if (activity == null)
             {
                 throw new Exception("No activity was found");
+            }
+
+            // Validate participant
+            var participant = await _participantRepository.GetByUserIdAndScheduleIdAsync(userId, activity.ScheduleId);
+            if (participant == null)
+            {
+                throw new Exception("No participant was found");
             }
 
             // Validate participant in activity
@@ -58,14 +77,56 @@ namespace ScheduleService.Application.Services
                 CheckInTime = DateTime.UtcNow,
                 CheckOutTime = null,
                 Status = AttendanceStatus.CheckIn,
-                ActivityId = activityId,
+                ActivityId = request.ActivityId,
                 ParticipantId = participant.Id
             };
 
             await _attendanceRepository.CreateAttendanceAsync(attendance);
+
+            // Create media
+            var mediaRequest = new UploadScheduleMediaRequest
+            {
+                File = request.File,
+                Description = request.Description,
+                UploadMethod = MediaMethod.CheckIn,
+                ActivityId = activity.Id,
+                ScheduleId = null
+            };
+            await _mediaService.UploadAsync(mediaRequest);
+
+            var user = await _authServiceClient.GetCurrentAccountAsync();
+
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = activity.ScheduleId,
+                SenderId = userId,
+                RecipientId = null,
+                Title = $"Có ai đó vừa check-in",
+                Message = $"{user!.Profile!.Name} vừa check-in: {activity.PlaceName}",
+                Type = NotificationType.ActivityUpdated,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(activity.ScheduleId, new
+            {
+                Purpose = "Send Notification (Check-in Activity)",
+                Id = notification.Id,
+                ScheduleID = activity.ScheduleId,
+                ScheduleName = activity.Schedule.Title,
+                SenderId = userId,
+                SenderName = user!.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
         }
 
-        public async Task CheckOutAsync(int activityId, Guid userId)
+        public async Task CheckOutAsync(Guid userId, AttendanceRequest request)
         {
             // Validate participant
             var participant = await _participantRepository.GetParticipantByUserIdAsync(userId);
@@ -75,7 +136,7 @@ namespace ScheduleService.Application.Services
             }
 
             // Validate activity
-            var activity = await _scheduleActivityRepository.GetActivityByIdAsync(activityId);
+            var activity = await _scheduleActivityRepository.GetActivityByIdAsync(request.ActivityId);
             if (activity == null)
             {
                 throw new Exception("No activity was found");
@@ -93,7 +154,7 @@ namespace ScheduleService.Application.Services
             }
 
             // Validate check-in exists
-            var existingAttendance = await _attendanceRepository.GetAttendanceByActivityAndParticipantAsync(activityId, participant.Id);
+            var existingAttendance = await _attendanceRepository.GetAttendanceByActivityAndParticipantAsync(request.ActivityId, participant.Id);
             if (existingAttendance == null || existingAttendance.Status != AttendanceStatus.CheckIn)
             {
                 throw new Exception("You need to complete the check-in before check-out");
@@ -104,10 +165,52 @@ namespace ScheduleService.Application.Services
                 CheckInTime = null,
                 CheckOutTime = DateTime.UtcNow,
                 Status = AttendanceStatus.CheckOut,
-                ActivityId = activityId,
+                ActivityId = request.ActivityId,
                 ParticipantId = participant.Id
             };
             await _attendanceRepository.CreateAttendanceAsync(attendance);
+
+            // Create media
+            var mediaRequest = new UploadScheduleMediaRequest
+            {
+                File = request.File,
+                Description = request.Description,
+                UploadMethod = MediaMethod.CheckOut,
+                ActivityId = activity.Id,
+                ScheduleId = null
+            };
+            await _mediaService.UploadAsync(mediaRequest);
+
+            var user = await _authServiceClient.GetCurrentAccountAsync();
+
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = activity.ScheduleId,
+                SenderId = userId,
+                RecipientId = null,
+                Title = $"Có ai đó vừa check-out",
+                Message = $"{user!.Profile!.Name} vừa check-out: {activity.PlaceName}",
+                Type = NotificationType.ActivityUpdated,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _notificationService.CreateNotificationAsync(notification);
+
+            // Send Notification Realtime
+            await _realtimeNotifier.SendGroupNotificationAsync(activity.ScheduleId, new
+            {
+                Purpose = "Send Notification (Check-out Activity)",
+                Id = notification.Id,
+                ScheduleID = activity.ScheduleId,
+                ScheduleName = activity.Schedule.Title,
+                SenderId = userId,
+                SenderName = user!.Profile!.Name,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type.ToString(),
+                CreatedAt = ConvertToUtc7(notification.CreatedAt)
+            });
         }
     }
 }

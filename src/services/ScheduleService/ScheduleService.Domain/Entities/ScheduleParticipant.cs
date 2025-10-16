@@ -24,5 +24,8 @@ namespace ScheduleService.Domain.Entities
 
         // Quan hệ 1-N với ActivityAttendance
         public ICollection<ActivityAttendance> ActivityAttendances { get; set; }
+
+        // Quan hệ 1-N với ScheduleMedia
+        public ICollection<ScheduleMedia> ScheduleMedias { get; set; }
     }
 }

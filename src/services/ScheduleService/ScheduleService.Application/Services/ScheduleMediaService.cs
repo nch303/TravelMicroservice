@@ -1,12 +1,13 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
+﻿using CloudinaryDotNet;
 using ScheduleService.Application.DTOs.Requests;
 using ScheduleService.Application.IServiceClients;
 using ScheduleService.Application.IServices;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
 using ScheduleService.Domain.IRepositories;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace ScheduleService.Application.Services
 {
@@ -78,14 +79,48 @@ namespace ScheduleService.Application.Services
                 Url = url,
                 Description = request.Description ?? string.Empty,
                 UploadedAt = DateTime.UtcNow,
-                UploadedUserId = user.Id,
                 UploadMethod = request.UploadMethod,
                 ScheduleId = request.ScheduleId,
-                ActivityId = request.ActivityId
+                ActivityId = request.ActivityId,
+                ParticipantId = participant.Id
             };
 
             await _mediaRepository.AddAsync(media);
             return media;
+        }
+
+        public async Task<List<ScheduleMedia>> GetByActivityIdAsync(int activityId)
+        {
+            return await _mediaRepository.GetByActivityIdAsync(activityId);
+        }
+
+        public async Task<ScheduleMedia> UpdateAsync(UpdateScheduleMediaRequest request)
+        {
+            if (request.File == null || request.File.Length == 0)
+                throw new Exception("File không hợp lệ");
+
+            // Chọn media type theo extension
+            var ext = Path.GetExtension(request.File.FileName).ToLowerInvariant();
+            var mediaType = (ext == ".mp4" || ext == ".mov" || ext == ".avi" || ext == ".mkv") ? MediaType.Video : MediaType.Image;
+
+            var user = await _authServiceClient.GetCurrentAccountAsync();
+
+
+            var existedMedia = await _mediaRepository.GetByIdAsync(request.MediaId);
+            if (existedMedia == null) throw new Exception("Can not find media");
+            else
+            {
+                // Lưu file
+                var url = await _storage.SaveAsync(request.File);
+
+                existedMedia.MediaType = mediaType;
+                existedMedia.Url = url;
+                existedMedia.Description = request.Description ?? string.Empty;
+                existedMedia.UploadedAt = DateTime.UtcNow;
+
+                await _mediaRepository.SaveChangesAsync();
+            }
+            return existedMedia;
         }
     }
 }

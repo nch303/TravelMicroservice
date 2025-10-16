@@ -11,5 +11,7 @@ namespace ScheduleService.Application.IServices
     public interface IScheduleMediaService
     {
         Task<ScheduleMedia> UploadAsync(UploadScheduleMediaRequest request);
+        Task<List<ScheduleMedia>> GetByActivityIdAsync(int activityId);
+        Task<ScheduleMedia> UpdateAsync(UpdateScheduleMediaRequest request);
     }
 }

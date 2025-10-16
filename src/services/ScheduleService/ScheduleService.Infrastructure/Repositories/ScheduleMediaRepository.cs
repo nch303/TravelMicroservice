@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.IRepositories;
 using ScheduleService.Infrastructure.Configurations;
@@ -27,6 +28,16 @@ namespace ScheduleService.Infrastructure.Repositories
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<ScheduleMedia>> GetByActivityIdAsync(int activityId)
+        {
+            return await _context.ScheduleMedias.Where(sm => sm.ActivityId == activityId).ToListAsync();
+        }
+
+        public async Task<ScheduleMedia?> GetByIdAsync(int mediaId)
+        {
+            return await _context.ScheduleMedias.FirstOrDefaultAsync(sm => sm.Id == mediaId);
         }
     }
 }

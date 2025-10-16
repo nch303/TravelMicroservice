@@ -14,7 +14,6 @@ namespace ScheduleService.Domain.Entities
         public string Url { get; set; }
         public string Description { get; set; }
         public DateTime UploadedAt { get; set; }
-        public Guid UploadedUserId { get; set; }
         public MediaMethod UploadMethod { get; set; } 
 
 
@@ -23,5 +22,7 @@ namespace ScheduleService.Domain.Entities
         public Schedule? Schedule { get; set; }
         public int? ActivityId { get; set; }
         public ScheduleActivity? Activity { get; set; }
+        public Guid ParticipantId { get; set; }
+        public ScheduleParticipant ScheduleParticipant { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using ScheduleService.Application.DTOs.Requests;
 using ScheduleService.Application.DTOs.Responses;
 using ScheduleService.Application.IServiceClients;
@@ -463,7 +464,7 @@ namespace ScheduleService.API.Controllers
 
         [HttpPost("activities/check-in")]
         [Authorize]
-        public async Task<IActionResult> CheckInActivity([FromBody] AttendanceRequest request)
+        public async Task<IActionResult> CheckInActivity([FromForm] AttendanceRequest request)
         {
             try
             {
@@ -473,7 +474,7 @@ namespace ScheduleService.API.Controllers
                     return Unauthorized(new { message = "User not found" });
                 }
 
-                await _activityAttendanceService.CheckInAsync(request.ActivityId, user.Id);
+                await _activityAttendanceService.CheckInAsync(user.Id, request);
                 return Ok(new { message = "Check-in successfully" });
             }
             catch (Exception ex)
@@ -484,7 +485,7 @@ namespace ScheduleService.API.Controllers
 
         [HttpPost("activities/check-out")]
         [Authorize]
-        public async Task<IActionResult> CheckOutActivity([FromBody] AttendanceRequest request)
+        public async Task<IActionResult> CheckOutActivity([FromForm] AttendanceRequest request)
         {
             try
             {
@@ -494,7 +495,7 @@ namespace ScheduleService.API.Controllers
                     return Unauthorized(new { message = "User not found" });
                 }
 
-                await _activityAttendanceService.CheckOutAsync(request.ActivityId, user.Id);
+                await _activityAttendanceService.CheckOutAsync(user.Id, request);
                 return Ok(new { message = "Check-out successfully" });
             }
             catch (Exception ex)
@@ -573,6 +574,38 @@ namespace ScheduleService.API.Controllers
             try
             {
                 var media = await _scheduleMediaService.UploadAsync(request);
+                var response = _mapper.Map<ScheduleMediaResponse>(media);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("media/get-by-activityId")]
+        [Authorize]
+        public async Task<IActionResult> GetByActivityAsync(int activityId)
+        {
+            try
+            {
+                var medias = await _scheduleMediaService.GetByActivityIdAsync(activityId);
+                var response = _mapper.Map<List<ScheduleMediaResponse>>(medias);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("media/update")]
+        [Authorize]
+        public async Task<IActionResult> UpdateAsync(UpdateScheduleMediaRequest request)
+        {
+            try
+            {
+                var media = await _scheduleMediaService.UpdateAsync(request);
                 var response = _mapper.Map<ScheduleMediaResponse>(media);
                 return Ok(response);
             }

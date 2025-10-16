@@ -11,5 +11,7 @@ namespace ScheduleService.Domain.IRepositories
     {
         Task<ScheduleMedia> AddAsync(ScheduleMedia media);
         Task SaveChangesAsync();
+        Task<List<ScheduleMedia>> GetByActivityIdAsync(int activityId);
+        Task<ScheduleMedia?> GetByIdAsync(int mediaId);
     }
 }

@@ -123,7 +123,7 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/api/auth/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "authservice",
@@ -135,7 +135,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/user/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "userservice",
@@ -147,7 +147,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/schedule/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "scheduleservice",
@@ -159,7 +159,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/message/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "messageservice",
@@ -171,7 +171,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/advertisement/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "advertisementservice",
@@ -189,7 +189,7 @@
         {
           "Name": "Auth Service",
           "Version": "v1",
-          "Url": "http://authservice/swagger/v1/swagger.json"
+          "Url": "https://authservice/swagger/v1/swagger.json"
         }
       ]
     },
@@ -199,7 +199,7 @@
         {
           "Name": "User Service",
           "Version": "v1",
-          "Url": "http://userservice/swagger/v1/swagger.json"
+          "Url": "https://userservice/swagger/v1/swagger.json"
         }
       ]
     },
@@ -209,7 +209,7 @@
         {
           "Name": "Schedule Service",
           "Version": "v1",
-          "Url": "http://scheduleservice/swagger/v1/swagger.json"
+          "Url": "https://scheduleservice/swagger/v1/swagger.json"
         }
       ]
     },
@@ -219,7 +219,7 @@
         {
           "Name": "Message Service",
           "Version": "v1",
-          "Url": "http://messageservice/swagger/v1/swagger.json"
+          "Url": "https://messageservice/swagger/v1/swagger.json"
         }
       ]
     },
@@ -229,13 +229,13 @@
         {
           "Name": "Advertisement Service",
           "Version": "v1",
-          "Url": "http://advertisementservice/swagger/v1/swagger.json"
+          "Url": "https://advertisementservice/swagger/v1/swagger.json"
         }
       ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://apigateway:80"
+    "BaseUrl": "https://apigateway:80"
   }
 }
 
