@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: apigateway
     ports:
-      - "5120:80"
+      # - "5120:80"
       - "5120:443"
     volumes:
       - ./https:/https
@@ -25,7 +25,7 @@ services:
       dockerfile: Dockerfile
     container_name: authservice
     ports:
-      - "5001:80"
+      # - "5001:80"
       - "5001:443"
     environment:
       - BREVO_API_KEY=${BREVO_API_KEY} 
@@ -39,7 +39,7 @@ services:
        dockerfile: Dockerfile
      container_name: userservice
      ports:
-       - "5002:80"
+       # - "5002:80"
        - "5002:443"
      environment:
        - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
@@ -55,7 +55,7 @@ services:
        dockerfile: Dockerfile
      container_name: scheduleservice
      ports:
-       - "5003:80"
+       # - "5003:80"
        - "5003:443"
      environment:
        - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
@@ -71,7 +71,7 @@ services:
        dockerfile: Dockerfile
      container_name: messageservice
      ports:
-       - "5004:80"
+       # - "5004:80"
        - "5004:443"
      environment:
        - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
@@ -87,7 +87,7 @@ services:
        dockerfile: Dockerfile
      container_name: advertisementService
      ports:
-       - "5005:80"
+       # - "5005:80"
        - "5005:443"
      environment:
        - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
