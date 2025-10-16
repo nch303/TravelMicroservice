@@ -65,6 +65,11 @@ namespace ScheduleService.API.Controllers
             try
             {
                 var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+                if (currentAccount == null)
+                {
+                    throw new UnauthorizedAccessException("Can not authorize");
+                }
+
                 var currentParticipant = await _scheduleParticipantService.GetByUserIdAndScheduleIdAsync(currentAccount!.Id, id);
                 var schedule = await _scheduleService.GetScheduleByIdAsync(id);
                 var scheduleResponse = _mapper.Map<ScheduleResponse>(schedule);
@@ -78,6 +83,7 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpGet("{scheduleId}/activities/date(dd-MM-yyyy)/{date}")]
+        [Authorize]
         public async Task<IActionResult> GetActivitiesByDate(Guid scheduleId, DateTime date)
         {
             try
@@ -95,6 +101,11 @@ namespace ScheduleService.API.Controllers
 
                 // ✅ Call service
                 var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+                if(currentAccount == null)
+                {
+                    throw new UnauthorizedAccessException("Can not authorize");
+                }
+
                 var currentParticipant = await _scheduleParticipantService.GetByUserIdAndScheduleIdAsync(currentAccount!.Id, scheduleId);
                 var activities = await _scheduleActivityService.GetActivitiesByDateAsync(scheduleId, date);
                 var responses = _mapper.Map<List<ScheduleActivityResponse>>(activities);
@@ -113,6 +124,7 @@ namespace ScheduleService.API.Controllers
 
 
         [HttpPost("share/{id}")]
+        [Authorize]
         public async Task<IActionResult> ShareSchedule(Guid id)
         {
             try
@@ -135,6 +147,10 @@ namespace ScheduleService.API.Controllers
             try
             {
                 var user = await _authServiceClient.GetCurrentAccountAsync();
+                if (user == null)
+                {
+                    throw new UnauthorizedAccessException("Can not authorize");
+                }
                 await _scheduleService.JoinScheduleAsync(request.ShareCode, user!);
                 return Ok(new { message = "Successfully joined the schedule" });
             }
@@ -145,6 +161,7 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpGet("participant/schedules/{participantId}")]
+        [Authorize]
         public async Task<IActionResult> GetAllScheduleByParticipantId(Guid participantId)
         {
             try
@@ -167,6 +184,7 @@ namespace ScheduleService.API.Controllers
 
 
         [HttpPut("schedule/{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateSchedule(Guid id, [FromBody] UpdateScheduleRequest newSchedule)
         {
             try
@@ -357,6 +375,7 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpGet("{id}/activities")]
+        [Authorize]
         public async Task<IActionResult> GetActivities(Guid id)
         {
             try
@@ -406,6 +425,7 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpPut("activities/{activityId}")]
+        [Authorize]
         public async Task<IActionResult> UpdateActivity(int activityId, [FromBody] UpdateActivityRequest newActivity)
         {
             try
@@ -421,6 +441,7 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpPut("activities/{newIndex}/{activityId}")]
+        [Authorize]
         public async Task<IActionResult> UpdateActivityIndexActivity(int activityId, int newIndex)
         {
             try
@@ -435,6 +456,7 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpDelete("activities/{activityId}")]
+        [Authorize]
         public async Task<IActionResult> DeleteActivity(int activityId)
         {
             try
@@ -449,6 +471,7 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpPatch("activities/restore/{activityId}")]
+        [Authorize]
         public async Task<IActionResult> RestoreActivity(int activityId)
         {
             try
@@ -520,6 +543,7 @@ namespace ScheduleService.API.Controllers
         }
 
         [HttpDelete("checkitems/bulk")]
+        [Authorize]
         public async Task<IActionResult> DeleteManyCheckedItems([FromBody] List<int> checkItemIds)
         {
             try
