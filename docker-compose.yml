@@ -7,12 +7,9 @@ services:
       dockerfile: Dockerfile
     container_name: apigateway
     ports:
-      # - "5120:80"
-      - "5120:443"
-    volumes:
-      - ./https:/https
+      - "5120:80"
     environment:
-      - ASPNETCORE_URLS=http://+:80;https://+:443
+      - ASPNETCORE_URLS=http://+:80
     depends_on:
       - authservice
       - userservice
@@ -25,11 +22,10 @@ services:
       dockerfile: Dockerfile
     container_name: authservice
     ports:
-      # - "5001:80"
-      - "5001:443"
+      - "5001:80"
     environment:
       - BREVO_API_KEY=${BREVO_API_KEY} 
-      - ASPNETCORE_URLS=http://+:80;https://+:443
+      - ASPNETCORE_URLS=http://+:80
     networks:
       - travelnet
 
@@ -39,13 +35,12 @@ services:
        dockerfile: Dockerfile
      container_name: userservice
      ports:
-       # - "5002:80"
-       - "5002:443"
+       - "5002:80"
      environment:
        - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
        - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
        - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-       - ASPNETCORE_URLS=http://+:80;https://+:443
+       - ASPNETCORE_URLS=http://+:80
      networks:
        - travelnet
 
@@ -55,13 +50,12 @@ services:
        dockerfile: Dockerfile
      container_name: scheduleservice
      ports:
-       # - "5003:80"
-       - "5003:443"
+       - "5003:80"
      environment:
        - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
        - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
        - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-       - ASPNETCORE_URLS=http://+:80;https://+:443
+       - ASPNETCORE_URLS=http://+:80
      networks:
        - travelnet  
 
@@ -71,13 +65,12 @@ services:
        dockerfile: Dockerfile
      container_name: messageservice
      ports:
-       # - "5004:80"
-       - "5004:443"
+       - "5004:80"
      environment:
        - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
        - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
        - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-       - ASPNETCORE_URLS=http://+:80;https://+:443
+       - ASPNETCORE_URLS=http://+:80
      networks:
        - travelnet  
     
@@ -87,13 +80,12 @@ services:
        dockerfile: Dockerfile
      container_name: advertisementService
      ports:
-       # - "5005:80"
-       - "5005:443"
+       - "5005:80"
      environment:
        - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
        - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
        - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-       - ASPNETCORE_URLS=http://+:80;https://+:443
+       - ASPNETCORE_URLS=http://+:80
      networks:
        - travelnet  
 
