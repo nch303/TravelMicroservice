@@ -15,7 +15,7 @@ namespace ScheduleService.Application.IServices
         Task<string> ShareScheduleAsync(Guid id);
         Task JoinScheduleAsync(string sharedCode, AccountResponse user);
         Task<Schedule> UpdateScheduleByIdAsync(Schedule newSchedule, Guid id);
-        Task<bool> CancelScheduleAsync(Guid scheduleId, AccountResponse user);
+        Task<Schedule> CancelScheduleAsync(Guid scheduleId, AccountResponse user);
         Task<bool> RestoreScheduleAsync(Guid scheduleId, AccountResponse user);
         Task CreateScheduleAsync(Schedule schedule);
     }

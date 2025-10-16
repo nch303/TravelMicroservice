@@ -254,7 +254,7 @@ namespace ScheduleService.Application.Services
             return schedule;
         }
 
-        public async Task<bool> CancelScheduleAsync(Guid id, AccountResponse user)
+        public async Task<Schedule> CancelScheduleAsync(Guid id, AccountResponse user)
         {
             var schedule = await _scheduleRepository.GetScheduleByIdAsync(id);
             if (schedule == null)
@@ -300,7 +300,7 @@ namespace ScheduleService.Application.Services
                 CreatedAt = ConvertToUtc7(notification.CreatedAt)
             });
 
-            return true;
+            return schedule;
         }
 
         public async Task<bool> RestoreScheduleAsync(Guid id, AccountResponse user)

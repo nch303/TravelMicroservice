@@ -239,14 +239,8 @@ namespace ScheduleService.API.Controllers
             {
                 var currentUser = await _authServiceClient.GetCurrentAccountAsync();
                 var canceled = await _scheduleService.CancelScheduleAsync(id, currentUser!);
-                if (canceled == true)
-                {
-                    return Ok(new { message = "Schedule canceled" });
-                }
-                else
-                {
-                    return BadRequest(new { message = "Schedule cancel unsuccessfull" });
-                }
+                var scheduleResponse = _mapper.Map<ScheduleResponse>(canceled);
+                return Ok(scheduleResponse);
             }
             catch (Exception ex)
             {

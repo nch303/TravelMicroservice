@@ -142,8 +142,16 @@ namespace ScheduleService.Application.Services
             if (participant.Status != ParticipantStatus.Active)
                 throw new InvalidOperationException("Participant is not currently active.");
 
-            // Mark participant as 'Left'
-            participant.Role = ParticipantRole.Editor;
+            // Mark participant as 'Editor'
+            if (participant.Role == ParticipantRole.Viewer)
+            {
+                participant.Role = ParticipantRole.Editor;
+            }
+            else if (participant.Role == ParticipantRole.Editor)
+            {
+                participant.Role = ParticipantRole.Viewer;
+            }
+
             schedule.UpdatedAt = DateTime.UtcNow;
 
             // Save changes
