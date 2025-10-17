@@ -92,6 +92,7 @@ namespace AdvertisementService.Application.Services
             purchase.RemainingPostCount -= 1;
             await _postRepository.AddAsync(post);
             await _postRepository.SaveChangesAsync();
+            await _purchaseRepository.SaveChangesAsync();
 
             return post;
         }
