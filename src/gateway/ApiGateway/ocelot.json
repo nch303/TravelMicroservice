@@ -204,7 +204,7 @@
       "SwaggerKey": "advertisement"
     },
     {
-      "DownstreamPathTemplate": "/api/paymentment/{everything}",
+      "DownstreamPathTemplate": "/api/payment/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
