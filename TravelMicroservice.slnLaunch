@@ -23,6 +23,10 @@
         "Action": "Start"
       },
       {
+        "Path": "src\\services\\PaymentService\\PaymentService.API\\PaymentService.API.csproj",
+        "Action": "Start"
+      },
+      {
         "Path": "src\\gateway\\ApiGateway\\ApiGateway.csproj",
         "Action": "Start",
         "DebugTarget": "https"

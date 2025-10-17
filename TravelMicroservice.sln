@@ -82,6 +82,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdvertisementService.Domain
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdvertisementService.Infrastructure", "src\services\AdvertisementService\AdvertisementService.Infrastructure\AdvertisementService.Infrastructure.csproj", "{0644680E-5657-4C1D-895A-597D80C0FC06}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PaymentService", "PaymentService", "{46574693-B62F-45C6-8EBD-9D946E856AB8}"
+	ProjectSection(SolutionItems) = preProject
+		src\services\PaymentService\Dockerfile = src\services\PaymentService\Dockerfile
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.API", "src\services\PaymentService\PaymentService.API\PaymentService.API.csproj", "{917F6F32-EB2E-4445-B445-AD5FFB309D24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Application", "src\services\PaymentService\PaymentService.Application\PaymentService.Application.csproj", "{6CA58180-D8DF-447D-B5F8-9D4480A639C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Domain", "src\services\PaymentService\PaymentService.Domain\PaymentService.Domain.csproj", "{46AAF12E-57C0-4010-9AE3-64D2B391994E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Infrastructure", "src\services\PaymentService\PaymentService.Infrastructure\PaymentService.Infrastructure.csproj", "{14F49F7F-5933-401B-80F4-3A8A4E60632B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -176,6 +189,22 @@ Global
 		{0644680E-5657-4C1D-895A-597D80C0FC06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0644680E-5657-4C1D-895A-597D80C0FC06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0644680E-5657-4C1D-895A-597D80C0FC06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{917F6F32-EB2E-4445-B445-AD5FFB309D24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{917F6F32-EB2E-4445-B445-AD5FFB309D24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{917F6F32-EB2E-4445-B445-AD5FFB309D24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{917F6F32-EB2E-4445-B445-AD5FFB309D24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CA58180-D8DF-447D-B5F8-9D4480A639C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CA58180-D8DF-447D-B5F8-9D4480A639C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CA58180-D8DF-447D-B5F8-9D4480A639C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CA58180-D8DF-447D-B5F8-9D4480A639C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46AAF12E-57C0-4010-9AE3-64D2B391994E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46AAF12E-57C0-4010-9AE3-64D2B391994E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46AAF12E-57C0-4010-9AE3-64D2B391994E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46AAF12E-57C0-4010-9AE3-64D2B391994E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14F49F7F-5933-401B-80F4-3A8A4E60632B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14F49F7F-5933-401B-80F4-3A8A4E60632B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14F49F7F-5933-401B-80F4-3A8A4E60632B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14F49F7F-5933-401B-80F4-3A8A4E60632B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -209,6 +238,11 @@ Global
 		{750FA756-9ECA-4FD9-9074-75A71578FAC9} = {24149763-1766-4823-86B8-A26A7708E120}
 		{1122C02A-3747-4603-A8B6-6CBC7190B22E} = {24149763-1766-4823-86B8-A26A7708E120}
 		{0644680E-5657-4C1D-895A-597D80C0FC06} = {24149763-1766-4823-86B8-A26A7708E120}
+		{46574693-B62F-45C6-8EBD-9D946E856AB8} = {5D6FDDF7-0D87-4ABA-BBDA-2A4996BA0760}
+		{917F6F32-EB2E-4445-B445-AD5FFB309D24} = {46574693-B62F-45C6-8EBD-9D946E856AB8}
+		{6CA58180-D8DF-447D-B5F8-9D4480A639C1} = {46574693-B62F-45C6-8EBD-9D946E856AB8}
+		{46AAF12E-57C0-4010-9AE3-64D2B391994E} = {46574693-B62F-45C6-8EBD-9D946E856AB8}
+		{14F49F7F-5933-401B-80F4-3A8A4E60632B} = {46574693-B62F-45C6-8EBD-9D946E856AB8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DDF00A1D-DAD5-44E8-B8DC-398CBD101221}

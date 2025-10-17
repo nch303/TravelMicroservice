@@ -59,6 +59,18 @@
 //      ],
 //      "UpstreamPathTemplate": "/api/advertisement/{everything}",
 //      "SwaggerKey": "advertisement"
+//    },
+//    {
+//      "DownstreamPathTemplate": "/api/payment/{everything}",
+//      "DownstreamScheme": "https",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "localhost",
+//          "Port": 7024
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/api/payment/{everything}",
+//      "SwaggerKey": "payment"
 //    }
 //  ],
 //  "SwaggerEndPoints": [
@@ -109,6 +121,16 @@
 //          "Name": "Advertisement Service",
 //          "Version": "v1",
 //          "Url": "https://localhost:7023/swagger/v1/swagger.json"
+//        }
+//      ]
+//    },
+//    {
+//      "Key": "payment",
+//      "Config": [
+//        {
+//          "Name": "Payment Service",
+//          "Version": "v1",
+//          "Url": "https://localhost:7024/swagger/v1/swagger.json"
 //        }
 //      ]
 //    }
@@ -180,6 +202,18 @@
       ],
       "UpstreamPathTemplate": "/api/advertisement/{everything}",
       "SwaggerKey": "advertisement"
+    },
+    {
+      "DownstreamPathTemplate": "/api/paymentment/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "paymentservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/payment/{everything}",
+      "SwaggerKey": "payment"
     }
   ],
   "SwaggerEndPoints": [
@@ -230,6 +264,16 @@
           "Name": "Advertisement Service",
           "Version": "v1",
           "Url": "http://advertisementservice/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "payment",
+      "Config": [
+        {
+          "Name": "Payment Service",
+          "Version": "v1",
+          "Url": "http://paymentservice/swagger/v1/swagger.json"
         }
       ]
     }

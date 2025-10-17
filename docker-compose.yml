@@ -88,6 +88,22 @@ services:
        - ASPNETCORE_URLS=http://+:80
      networks:
        - travelnet  
+  
+  paymentservice:
+     build:
+       context: ./src/services/PaymentService
+       dockerfile: Dockerfile
+     container_name: paymentService
+     ports:
+       - "5006:80"
+     environment:
+       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+       - SEPAY_API_KEY=${SEPAY_API_KEY}
+       - ASPNETCORE_URLS=http://+:80
+     networks:
+       - travelnet
 
 networks:
   travelnet:
