@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AdvertisementService.Application.DTOs.Requests
+namespace PaymentService.Application.DTOs.Requests
 {
     public class CreatePurchaseRequest
     {

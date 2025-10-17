@@ -42,7 +42,7 @@ namespace AdvertisementService.Application.Services
 
         }
 
-        public async Task<PartnerPackagePurchase> CreatePurchaseAsync(Guid partnerId, Guid packageId)
+        public async Task<PartnerPackagePurchase> CreatePurchaseAsync(Guid partnerId, Guid packageId, Guid transactionId)
         {
             var package = await _packageRepository.GetByIdAsync(packageId);
             if (package == null || !package.IsActive)
@@ -57,7 +57,8 @@ namespace AdvertisementService.Application.Services
                 EndDate = DateTime.UtcNow.AddDays(package.DurationInDays),
                 RemainingPostCount = package.MaxPostCount,
                 Status = PartnerPackagePurchaseStatus.Active,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                PaymentTransactionId = transactionId
             };
 
             await _purchaseRepository.AddAsync(purchase);

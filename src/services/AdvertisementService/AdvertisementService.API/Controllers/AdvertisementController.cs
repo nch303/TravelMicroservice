@@ -125,7 +125,7 @@ namespace AdvertisementService.API.Controllers
             var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
             if (currentAccount == null) return Unauthorized("Invalid account");
 
-            var purchase = await _purchaseService.CreatePurchaseAsync(currentAccount.Id, request.PackageId);
+            var purchase = await _purchaseService.CreatePurchaseAsync(currentAccount.Id, request.PackageId, request.TransactionId);
             var purchaseResponse = _mapper.Map<PurchaseResponse>(purchase);
             return Ok(purchaseResponse);
         }

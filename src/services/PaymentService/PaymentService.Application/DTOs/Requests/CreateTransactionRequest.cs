@@ -8,7 +8,6 @@ namespace PaymentService.Application.DTOs.Requests
 {
     public class CreateTransactionRequest
     {
-        public Guid UserId {  get; set; }
         public Guid PackageId { get; set; }
         public decimal Amount { get; set; }
     }

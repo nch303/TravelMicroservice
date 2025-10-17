@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PaymentService.Application.DTOs.Requests;
+using PaymentService.Application.IServiceClients;
 using PaymentService.Application.IServices;
 using PaymentService.Domain.Entities;
 
@@ -11,82 +13,152 @@ namespace PaymentService.API.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
+        private readonly IAuthServiceClient _authServiceClient;
+        private readonly IAdvertisementServiceClient _advertisementServiceClient;
 
-        public PaymentController(ITransactionService transactionService)
+        public PaymentController(ITransactionService transactionService, IAuthServiceClient authServiceClient
+            , IAdvertisementServiceClient advertisementServiceClient)
         {
             _transactionService = transactionService;
+            _authServiceClient = authServiceClient;
+            _advertisementServiceClient = advertisementServiceClient;
         }
 
         [HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> CreatePayment([FromBody] CreateTransactionRequest request)
         {
-            // request: { userId, packageId, amount, note }
-
-            var transactionId = Guid.NewGuid();
-            var transaction = new Transaction
+            try
             {
-                Id = transactionId,
-                UserId = request.UserId,
-                PackageId = request.PackageId,
-                AmountIn = request.Amount,
-                TransactionContent = $"{transactionId.ToString()}", // mã nội dung riêng
-                Status = "Pending"
-            };
-                
-            await _transactionService.CreateTransactionAsync(transaction);
+                var currentUser = await _authServiceClient.GetCurrentAccountAsync();
+                if (currentUser == null)
+                {
+                    throw new UnauthorizedAccessException();
+                }
 
-            var url = $"https://qr.sepay.vn/img?acc=0888294028&bank=VPBank&amount={request.Amount}&des={transaction.Id}";
+                var package = await _advertisementServiceClient.GetPackageByIdAsync(request.PackageId);
+                if (package == null)
+                {
+                    throw new Exception("Can not find package");
+                }
 
-            // Hướng dẫn người dùng chuyển tiền
-            return Ok(new
+                var transactionId = Guid.NewGuid();
+                var transaction = new Transaction
+                {
+                    Id = transactionId,
+                    UserId = currentUser.Id,
+                    PackageId = package.Id,
+                    AmountIn = request.Amount,
+                    TransactionContent = $"Pay{transactionId.ToString()}ment", // mã nội dung riêng
+                    Status = "Pending"
+                };
+
+
+
+                await _transactionService.CreateTransactionAsync(transaction);
+
+                var url = $"https://qr.sepay.vn/img?acc=0888294028&bank=VPBank&amount={request.Amount}&des={transaction.TransactionContent}";
+
+                // Hướng dẫn người dùng chuyển tiền
+                return Ok(new
+                {
+                    message = "Vui lòng chuyển khoản theo hướng dẫn",
+                    bank = "VP Bank - 0888294028 - SEPAY COMPANY",
+                    transactionId = transactionId,
+                    content = transaction.TransactionContent,
+                    amount = request.Amount,
+                    url = url
+                });
+            }
+            catch (Exception ex)
             {
-                message = "Vui lòng chuyển khoản theo hướng dẫn",
-                bank = "VP Bank - 0888294028 - SEPAY COMPANY",
-                content = transaction.TransactionContent,
-                amount = request.Amount,
-                url = url
-            });
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("webhook")]
         public async Task<IActionResult> ReceiveWebhook([FromBody] SepayWebhookRequest request, [FromHeader(Name = "Authorization")] string apiKey)
         {
-            var secretKey = Environment.GetEnvironmentVariable("SEPAY_API_KEY");
-            if (apiKey != $"Apikey {secretKey}")
+            try
             {
-                return Unauthorized("Invalid API Key");
+                var secretKey = Environment.GetEnvironmentVariable("SEPAY_API_KEY");
+                if (apiKey != $"Apikey {secretKey}")
+                {
+                    return Unauthorized("Invalid API Key");
+                }
+
+                if (request.TransferType != "in")
+                    return Ok("Ignore: outgoing transaction");
+
+
+                // Tách theo dấu '-'
+                int startIndex = request.Content!.IndexOf("Pay") + "Pay".Length;
+                int endIndex = request.Content.IndexOf("ment");
+                var id = new Guid();
+
+                if (startIndex >= 0 && endIndex > startIndex)
+                {
+                    string guidString = request.Content.Substring(startIndex, endIndex - startIndex).Trim();
+                    Console.WriteLine(guidString);
+
+                    // Nếu cần ép về kiểu Guid
+                    if (Guid.TryParse(guidString, out Guid transactionId))
+                    {
+                        id = transactionId;
+                        Console.WriteLine($"✅ GUID hợp lệ: {transactionId}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("❌ Không phải GUID hợp lệ");
+                    }
+                }
+
+                // Tìm transaction trùng nội dung chuyển khoản
+                var transaction = await _transactionService.GetTransactionById(id);
+
+                if (transaction != null && transaction.Status == "Pending")
+                {
+                    transaction.Status = "Success";
+                    transaction.TransactionDate = DateTime.Parse(request.TransactionDate);
+                    transaction.AccountNumber = request.AccountNumber;
+                    transaction.SubAccount = request.SubAccount;
+                    transaction.AmountIn = request.TransferAmount;
+                    transaction.Accumulated = request.Accumulated;
+                    transaction.Gateway = request.Gateway;
+                    transaction.Code = request.Code;
+                    await _transactionService.SaveChangesAsync();
+
+                    // Kích hoạt package cho user
+                    var purchaseRequest = new CreatePurchaseRequest
+                    {
+                        PackageId = transaction.PackageId!.Value,
+                        TransactionId = transaction.Id
+                    };
+
+                    await _advertisementServiceClient.CreatePurchaseAsync(purchaseRequest);
+                }
+                
+
+                return Ok("Webhook processed");
             }
-
-            if (request.TransferType != "in")
-                return Ok("Ignore: outgoing transaction");
-
-            var transactionId = Guid.Parse(request.Content);
-
-            // Tìm transaction trùng nội dung chuyển khoản
-            var transaction = await _transactionService.GetTransactionById(transactionId);
-
-            if (transaction != null && transaction.Status == "Pending")
+            catch (Exception ex)
             {
-                transaction.Status = "Success";
-                transaction.TransactionDate = DateTime.Parse(request.TransactionDate);
-                transaction.AccountNumber = request.AccountNumber;
-                transaction.SubAccount = request.SubAccount;
-                transaction.AmountIn = request.TransferAmount;
-                transaction.Accumulated = request.Accumulated;
-                transaction.Gateway = request.Gateway;
-                transaction.Code = request.Code;
-                await _transactionService.SaveChangesAsync();
-
-                // Kích hoạt package cho user
-                //var package = await _context.Packages.FindAsync(transaction.PackageId);
-                //if (package != null)
-                //{
-                //    // ví dụ cập nhật trạng thái hoặc cộng lượt đăng bài
-                //    // package.RemainingPosts += package.PostCount;
-                //}
+                return BadRequest(new { message = ex.Message });
             }
+        }
 
-            return Ok("Webhook processed");
+        [HttpGet("transaction/status/by-id")]
+        public async Task<IActionResult> GetTransactionById(Guid transactionId)
+        {
+            try
+            {
+                var transaction = await _transactionService.GetTransactionById(transactionId);
+                return Ok(new { status = transaction!.Status });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ namespace PaymentService.Application.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<ITransactionService, TransactionService>();
+            
 
 
             // Cấu hình gọi API từ các service khác
@@ -32,6 +33,11 @@ namespace PaymentService.Application.Extensions
             });
 
             services.AddHttpClient<IUserServiceClient, UserServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri(link);
+            });
+
+            services.AddHttpClient<IAdvertisementServiceClient, AdvertisementServiceClient>(client =>
             {
                 client.BaseAddress = new Uri(link);
             });

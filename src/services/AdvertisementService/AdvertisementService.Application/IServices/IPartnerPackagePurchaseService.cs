@@ -11,7 +11,7 @@ namespace AdvertisementService.Application.IServices
     {
         Task<IEnumerable<PartnerPackagePurchase>> GetPurchasesByPartnerAsync(Guid partnerId);
         Task<PartnerPackagePurchase?> GetByIdAsync(Guid id);
-        Task<PartnerPackagePurchase> CreatePurchaseAsync(Guid partnerId, Guid packageId);
+        Task<PartnerPackagePurchase> CreatePurchaseAsync(Guid partnerId, Guid packageId, Guid transactionId);
     }
 
 }
