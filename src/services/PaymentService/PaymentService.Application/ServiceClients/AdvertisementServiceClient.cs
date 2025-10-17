@@ -25,6 +25,16 @@ namespace PaymentService.Application.ServiceClients
 
         public async Task<PackageResponse?> GetPackageByIdAsync(Guid packageId)
         {
+            // Lấy token từ request hiện tại
+            var accessToken = _httpContextAccessor.HttpContext?
+                .Request.Headers["Authorization"].ToString();
+
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", accessToken.Replace("Bearer ", ""));
+            }
+
             var response = await _httpClient.GetAsync($"api/advertisement/package/get-by-id/{packageId}");
 
             if (!response.IsSuccessStatusCode)
