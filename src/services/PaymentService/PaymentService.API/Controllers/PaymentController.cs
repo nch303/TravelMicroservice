@@ -131,6 +131,7 @@ namespace PaymentService.API.Controllers
                     // Kích hoạt package cho user
                     var purchaseRequest = new CreatePurchaseRequest
                     {
+                        UserId = transaction.UserId!.Value,
                         PackageId = transaction.PackageId!.Value,
                         TransactionId = transaction.Id
                     };

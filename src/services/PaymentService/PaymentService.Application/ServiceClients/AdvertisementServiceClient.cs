@@ -47,16 +47,6 @@ namespace PaymentService.Application.ServiceClients
 
         public async Task<PurchaseResponse?> CreatePurchaseAsync(CreatePurchaseRequest request)
         {
-            // Lấy token từ request hiện tại
-            var accessToken = _httpContextAccessor.HttpContext?
-                .Request.Headers["Authorization"].ToString();
-
-            if (!string.IsNullOrEmpty(accessToken))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", accessToken.Replace("Bearer ", ""));
-            }
-
             var response = await _httpClient.PostAsJsonAsync("api/advertisement/partner/purchase/create", request);
 
             if (!response.IsSuccessStatusCode)

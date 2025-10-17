@@ -8,6 +8,7 @@ namespace PaymentService.Application.DTOs.Requests
 {
     public class CreatePurchaseRequest
     {
+        public Guid UserId {  get; set; }
         public Guid PackageId { get; set; }
         public Guid TransactionId { get; set; }
     }

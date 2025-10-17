@@ -119,13 +119,9 @@ namespace AdvertisementService.API.Controllers
 
         // Mua gói quảng cáo (chưa tích hợp thanh toán)
         [HttpPost("partner/purchase/create")]
-        [Authorize]
         public async Task<IActionResult> CreatePurchase([FromBody] CreatePurchaseRequest request)
         {
-            var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
-            if (currentAccount == null) return Unauthorized("Invalid account");
-
-            var purchase = await _purchaseService.CreatePurchaseAsync(currentAccount.Id, request.PackageId, request.TransactionId);
+            var purchase = await _purchaseService.CreatePurchaseAsync(request.UserId, request.PackageId, request.TransactionId);
             var purchaseResponse = _mapper.Map<PurchaseResponse>(purchase);
             return Ok(purchaseResponse);
         }
