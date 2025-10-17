@@ -1,179 +1,36 @@
-{
-  "Routes": [
-    {
-      "DownstreamPathTemplate": "/api/user/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7019
-        }
-      ],
-      "UpstreamPathTemplate": "/api/user/{everything}",
-      "SwaggerKey": "user"
-    },
-    {
-      "DownstreamPathTemplate": "/api/auth/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7020
-        }
-      ],
-      "UpstreamPathTemplate": "/api/auth/{everything}",
-      "SwaggerKey": "auth"
-    },
-    {
-      "DownstreamPathTemplate": "/api/schedule/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7021
-        }
-      ],
-      "UpstreamPathTemplate": "/api/schedule/{everything}",
-      "SwaggerKey": "schedule"
-    },
-    {
-      "DownstreamPathTemplate": "/api/message/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7022
-        }
-      ],
-      "UpstreamPathTemplate": "/api/message/{everything}",
-      "SwaggerKey": "message"
-    },
-    {
-      "DownstreamPathTemplate": "/api/advertisement/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7023
-        }
-      ],
-      "UpstreamPathTemplate": "/api/advertisement/{everything}",
-      "SwaggerKey": "advertisement"
-    },
-    {
-      "DownstreamPathTemplate": "/api/payment/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7024
-        }
-      ],
-      "UpstreamPathTemplate": "/api/payment/{everything}",
-      "SwaggerKey": "payment"
-    }
-  ],
-  "SwaggerEndPoints": [
-    {
-      "Key": "user",
-      "Config": [
-        {
-          "Name": "Users Service",
-          "Version": "v1",
-          "Url": "https://localhost:7019/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "auth",
-      "Config": [
-        {
-          "Name": "Auth Service",
-          "Version": "v1",
-          "Url": "https://localhost:7020/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "schedule",
-      "Config": [
-        {
-          "Name": "Schedule Service",
-          "Version": "v1",
-          "Url": "https://localhost:7021/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "message",
-      "Config": [
-        {
-          "Name": "Message Service",
-          "Version": "v1",
-          "Url": "https://localhost:7022/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "advertisement",
-      "Config": [
-        {
-          "Name": "Advertisement Service",
-          "Version": "v1",
-          "Url": "https://localhost:7023/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "payment",
-      "Config": [
-        {
-          "Name": "Payment Service",
-          "Version": "v1",
-          "Url": "https://localhost:7024/swagger/v1/swagger.json"
-        }
-      ]
-    }
-  ],
-  "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:5120"
-  }
-}
-
-
 //{
 //  "Routes": [
 //    {
-//      "DownstreamPathTemplate": "/api/auth/{everything}",
-//      "DownstreamScheme": "http",
-//      "DownstreamHostAndPorts": [
-//        {
-//          "Host": "authservice",
-//          "Port": 80
-//        }
-//      ],
-//      "UpstreamPathTemplate": "/api/auth/{everything}",
-//      "SwaggerKey": "auth"
-//    },
-//    {
 //      "DownstreamPathTemplate": "/api/user/{everything}",
-//      "DownstreamScheme": "http",
+//      "DownstreamScheme": "https",
 //      "DownstreamHostAndPorts": [
 //        {
-//          "Host": "userservice",
-//          "Port": 80
+//          "Host": "localhost",
+//          "Port": 7019
 //        }
 //      ],
 //      "UpstreamPathTemplate": "/api/user/{everything}",
 //      "SwaggerKey": "user"
 //    },
 //    {
-//      "DownstreamPathTemplate": "/api/schedule/{everything}",
-//      "DownstreamScheme": "http",
+//      "DownstreamPathTemplate": "/api/auth/{everything}",
+//      "DownstreamScheme": "https",
 //      "DownstreamHostAndPorts": [
 //        {
-//          "Host": "scheduleservice",
-//          "Port": 80
+//          "Host": "localhost",
+//          "Port": 7020
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/api/auth/{everything}",
+//      "SwaggerKey": "auth"
+//    },
+//    {
+//      "DownstreamPathTemplate": "/api/schedule/{everything}",
+//      "DownstreamScheme": "https",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "localhost",
+//          "Port": 7021
 //        }
 //      ],
 //      "UpstreamPathTemplate": "/api/schedule/{everything}",
@@ -181,11 +38,11 @@
 //    },
 //    {
 //      "DownstreamPathTemplate": "/api/message/{everything}",
-//      "DownstreamScheme": "http",
+//      "DownstreamScheme": "https",
 //      "DownstreamHostAndPorts": [
 //        {
-//          "Host": "messageservice",
-//          "Port": 80
+//          "Host": "localhost",
+//          "Port": 7022
 //        }
 //      ],
 //      "UpstreamPathTemplate": "/api/message/{everything}",
@@ -193,11 +50,11 @@
 //    },
 //    {
 //      "DownstreamPathTemplate": "/api/advertisement/{everything}",
-//      "DownstreamScheme": "http",
+//      "DownstreamScheme": "https",
 //      "DownstreamHostAndPorts": [
 //        {
-//          "Host": "advertisementservice",
-//          "Port": 80
+//          "Host": "localhost",
+//          "Port": 7023
 //        }
 //      ],
 //      "UpstreamPathTemplate": "/api/advertisement/{everything}",
@@ -205,11 +62,11 @@
 //    },
 //    {
 //      "DownstreamPathTemplate": "/api/payment/{everything}",
-//      "DownstreamScheme": "http",
+//      "DownstreamScheme": "https",
 //      "DownstreamHostAndPorts": [
 //        {
-//          "Host": "paymentservice",
-//          "Port": 80
+//          "Host": "localhost",
+//          "Port": 7024
 //        }
 //      ],
 //      "UpstreamPathTemplate": "/api/payment/{everything}",
@@ -218,22 +75,22 @@
 //  ],
 //  "SwaggerEndPoints": [
 //    {
+//      "Key": "user",
+//      "Config": [
+//        {
+//          "Name": "Users Service",
+//          "Version": "v1",
+//          "Url": "https://localhost:7019/swagger/v1/swagger.json"
+//        }
+//      ]
+//    },
+//    {
 //      "Key": "auth",
 //      "Config": [
 //        {
 //          "Name": "Auth Service",
 //          "Version": "v1",
-//          "Url": "http://authservice/swagger/v1/swagger.json"
-//        }
-//      ]
-//    },
-//    {
-//      "Key": "user",
-//      "Config": [
-//        {
-//          "Name": "User Service",
-//          "Version": "v1",
-//          "Url": "http://userservice/swagger/v1/swagger.json"
+//          "Url": "https://localhost:7020/swagger/v1/swagger.json"
 //        }
 //      ]
 //    },
@@ -243,7 +100,7 @@
 //        {
 //          "Name": "Schedule Service",
 //          "Version": "v1",
-//          "Url": "http://scheduleservice/swagger/v1/swagger.json"
+//          "Url": "https://localhost:7021/swagger/v1/swagger.json"
 //        }
 //      ]
 //    },
@@ -253,7 +110,7 @@
 //        {
 //          "Name": "Message Service",
 //          "Version": "v1",
-//          "Url": "http://messageservice/swagger/v1/swagger.json"
+//          "Url": "https://localhost:7022/swagger/v1/swagger.json"
 //        }
 //      ]
 //    },
@@ -263,7 +120,7 @@
 //        {
 //          "Name": "Advertisement Service",
 //          "Version": "v1",
-//          "Url": "http://advertisementservice/swagger/v1/swagger.json"
+//          "Url": "https://localhost:7023/swagger/v1/swagger.json"
 //        }
 //      ]
 //    },
@@ -273,13 +130,156 @@
 //        {
 //          "Name": "Payment Service",
 //          "Version": "v1",
-//          "Url": "http://paymentservice/swagger/v1/swagger.json"
+//          "Url": "https://localhost:7024/swagger/v1/swagger.json"
 //        }
 //      ]
 //    }
 //  ],
 //  "GlobalConfiguration": {
-//    "BaseUrl": "http://apigateway:80"
+//    "BaseUrl": "https://localhost:5120"
 //  }
 //}
+
+
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "authservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/auth/{everything}",
+      "SwaggerKey": "auth"
+    },
+    {
+      "DownstreamPathTemplate": "/api/user/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "userservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/user/{everything}",
+      "SwaggerKey": "user"
+    },
+    {
+      "DownstreamPathTemplate": "/api/schedule/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "scheduleservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/schedule/{everything}",
+      "SwaggerKey": "schedule"
+    },
+    {
+      "DownstreamPathTemplate": "/api/message/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "messageservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/message/{everything}",
+      "SwaggerKey": "message"
+    },
+    {
+      "DownstreamPathTemplate": "/api/advertisement/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "advertisementservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/advertisement/{everything}",
+      "SwaggerKey": "advertisement"
+    },
+    {
+      "DownstreamPathTemplate": "/api/payment/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "paymentservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/payment/{everything}",
+      "SwaggerKey": "payment"
+    }
+  ],
+  "SwaggerEndPoints": [
+    {
+      "Key": "auth",
+      "Config": [
+        {
+          "Name": "Auth Service",
+          "Version": "v1",
+          "Url": "http://authservice/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "user",
+      "Config": [
+        {
+          "Name": "User Service",
+          "Version": "v1",
+          "Url": "http://userservice/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "schedule",
+      "Config": [
+        {
+          "Name": "Schedule Service",
+          "Version": "v1",
+          "Url": "http://scheduleservice/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "message",
+      "Config": [
+        {
+          "Name": "Message Service",
+          "Version": "v1",
+          "Url": "http://messageservice/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "advertisement",
+      "Config": [
+        {
+          "Name": "Advertisement Service",
+          "Version": "v1",
+          "Url": "http://advertisementservice/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "payment",
+      "Config": [
+        {
+          "Name": "Payment Service",
+          "Version": "v1",
+          "Url": "http://paymentservice/swagger/v1/swagger.json"
+        }
+      ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://apigateway:80"
+  }
+}
 
