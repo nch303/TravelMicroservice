@@ -14,5 +14,6 @@ namespace AuthService.Domain.IRepositories
         Task AddAsync(Account account);
         Task SaveChangesAsync();
         Task ChangePasswordAsync(Account account);
+        Task<List<Account>> GetAllAccountsAsync();
     }
 }

@@ -251,5 +251,27 @@ namespace AuthService.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            try
+            {
+                var accounts = await _authService.GetAllAccountsAsync();
+                var profile = new ProfileResponse();
+                var responses = _mapper.Map<List<AccountResponse>>(accounts);
+                foreach (var response in responses)
+                {
+                    profile = await _userServiceClient.GetProfileAsync(response.Id);
+                    response.Profile = profile;
+                }
+                return Ok(responses);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

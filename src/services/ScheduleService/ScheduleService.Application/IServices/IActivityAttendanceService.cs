@@ -1,4 +1,5 @@
 ﻿using ScheduleService.Application.DTOs.Requests;
+using ScheduleService.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,8 @@ namespace ScheduleService.Application.IServices
 {
     public interface IActivityAttendanceService
     {
-        public Task CheckInAsync(Guid userId, AttendanceRequest attendanceRequest);
-        public Task CheckOutAsync(Guid userId, AttendanceRequest attendanceRequest);
+        public Task<ActivityAttendance> CheckInAsync(Guid userId, AttendanceRequest attendanceRequest);
+        public Task<ActivityAttendance> CheckOutAsync(Guid userId, AttendanceRequest attendanceRequest);
 
     }
 }

@@ -71,6 +71,18 @@
 //      ],
 //      "UpstreamPathTemplate": "/api/payment/{everything}",
 //      "SwaggerKey": "payment"
+//    },
+//    {
+//      "DownstreamPathTemplate": "/api/admin/{everything}",
+//      "DownstreamScheme": "https",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "localhost",
+//          "Port": 7025
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/api/admin/{everything}",
+//      "SwaggerKey": "admin"
 //    }
 //  ],
 //  "SwaggerEndPoints": [
@@ -131,6 +143,16 @@
 //          "Name": "Payment Service",
 //          "Version": "v1",
 //          "Url": "https://localhost:7024/swagger/v1/swagger.json"
+//        }
+//      ]
+//    },
+//    {
+//      "Key": "admin",
+//      "Config": [
+//        {
+//          "Name": "Admin Service",
+//          "Version": "v1",
+//          "Url": "https://localhost:7025/swagger/v1/swagger.json"
 //        }
 //      ]
 //    }
@@ -214,6 +236,18 @@
       ],
       "UpstreamPathTemplate": "/api/payment/{everything}",
       "SwaggerKey": "payment"
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "adminservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/admin/{everything}",
+      "SwaggerKey": "admin"
     }
   ],
   "SwaggerEndPoints": [
@@ -274,6 +308,16 @@
           "Name": "Payment Service",
           "Version": "v1",
           "Url": "http://paymentservice/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "admin",
+      "Config": [
+        {
+          "Name": "Admin Service",
+          "Version": "v1",
+          "Url": "http://adminservice/swagger/v1/swagger.json"
         }
       ]
     }

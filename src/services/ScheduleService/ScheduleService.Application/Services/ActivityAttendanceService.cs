@@ -43,7 +43,7 @@ namespace ScheduleService.Application.Services
             return localTime;
         }
 
-        public async Task CheckInAsync(Guid userId, AttendanceRequest request)
+        public async Task<ActivityAttendance> CheckInAsync(Guid userId, AttendanceRequest request)
         {
             // Validate activity
             var activity = await _scheduleActivityRepository.GetActivityByIdAsync(request.ActivityId);
@@ -70,6 +70,13 @@ namespace ScheduleService.Application.Services
             {
                 throw new Exception("The participant is not in this activity");
             }
+
+            var existedAttendance = await _attendanceRepository.GetCheckInAttendanceByActivityAndParticipantAsync(activity.Id, participant.Id);
+            if (existedAttendance != null)
+            {
+                throw new Exception("An activity just check-in 1 time");
+            }
+
 
             var attendance = new ActivityAttendance
             {
@@ -124,23 +131,25 @@ namespace ScheduleService.Application.Services
                 Type = notification.Type.ToString(),
                 CreatedAt = ConvertToUtc7(notification.CreatedAt)
             });
+
+            return attendance;
         }
 
-        public async Task CheckOutAsync(Guid userId, AttendanceRequest request)
-        {
-            // Validate participant
-            var participant = await _participantRepository.GetParticipantByUserIdAsync(userId);
-            if (participant == null)
-            {
-                throw new Exception("No participant was found");
-            }
-
+        public async Task<ActivityAttendance> CheckOutAsync(Guid userId, AttendanceRequest request)
+        {   
             // Validate activity
             var activity = await _scheduleActivityRepository.GetActivityByIdAsync(request.ActivityId);
             if (activity == null)
             {
                 throw new Exception("No activity was found");
             }
+            // Validate participant
+            var participant = await _participantRepository.GetByUserIdAndScheduleIdAsync(userId, activity.ScheduleId);
+            if (participant == null)
+            {
+                throw new Exception("No participant was found");
+            }
+
 
             // Validate participant in activity
             var participants = await _participantRepository.GetAllParticipantByScheduleIdAsync(activity.ScheduleId);
@@ -148,17 +157,25 @@ namespace ScheduleService.Application.Services
             {
                 throw new Exception("No participant is in the activity");
             }
+
             if (participants.FirstOrDefault(p => p.Id == participant.Id) == null)
             {
                 throw new Exception("The participant is not in this activity");
             }
 
             // Validate check-in exists
-            var existingAttendance = await _attendanceRepository.GetAttendanceByActivityAndParticipantAsync(request.ActivityId, participant.Id);
-            if (existingAttendance == null || existingAttendance.Status != AttendanceStatus.CheckIn)
+            var existingCheckInAttendance = await _attendanceRepository.GetCheckInAttendanceByActivityAndParticipantAsync(request.ActivityId, participant.Id);
+            if (existingCheckInAttendance == null)
             {
                 throw new Exception("You need to complete the check-in before check-out");
             }
+
+            var existingCheckOutAttendance = await _attendanceRepository.GetCheckOutAttendanceByActivityAndParticipantAsync(request.ActivityId, participant.Id);
+            if(existingCheckOutAttendance != null)
+            {
+                throw new Exception("An activity only check-out 1 time");
+            }
+
             var attendance = new ActivityAttendance
             {
                 Id = Guid.NewGuid(),
@@ -211,6 +228,8 @@ namespace ScheduleService.Application.Services
                 Type = notification.Type.ToString(),
                 CreatedAt = ConvertToUtc7(notification.CreatedAt)
             });
+            
+            return attendance!;
         }
     }
 }

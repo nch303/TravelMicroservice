@@ -59,7 +59,11 @@ namespace ScheduleService.Application.Mappings
 
             CreateMap<CheckedItemParticipant, CheckedItemParticipantResponse>()
                 .ForMember(dest => dest.CheckedItemName, opt => opt.MapFrom(src => src.CheckedItem.Name));
-              
+
+            CreateMap<ActivityAttendance, AttendanceResponse>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+
+
         }
     }
 }

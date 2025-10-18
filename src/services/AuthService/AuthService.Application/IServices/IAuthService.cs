@@ -23,5 +23,6 @@ namespace AuthService.Application.IServices
         Task ChangePasswordAsync(Account user);
         Task<(string accessToken, string refreshToken)> RefreshAsync(string refreshToken, Account account);
         Task<Account> GetCurrentAccount();
+        Task<List<Account>> GetAllAccountsAsync();
     }
 }

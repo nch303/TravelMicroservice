@@ -47,5 +47,10 @@ namespace AuthService.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<Account>> GetAllAccountsAsync()
+        {
+            return await _context.Accounts.Include(a => a.Role).ToListAsync();
+        }
+
     }
 }

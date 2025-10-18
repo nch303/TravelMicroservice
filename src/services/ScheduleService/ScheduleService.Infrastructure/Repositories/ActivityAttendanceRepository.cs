@@ -1,4 +1,5 @@
 ﻿using ScheduleService.Domain.Entities;
+using ScheduleService.Domain.Enums;
 using ScheduleService.Domain.IRepositories;
 using ScheduleService.Infrastructure.Configurations;
 using System;
@@ -29,10 +30,16 @@ namespace ScheduleService.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<ActivityAttendance?> GetAttendanceByActivityAndParticipantAsync(int activityId, Guid participantId)
+        public async Task<ActivityAttendance?> GetCheckInAttendanceByActivityAndParticipantAsync(int activityId, Guid participantId)
         {
             return await Task.FromResult(_context.ActivityAttendances
-                .FirstOrDefault(a => a.ActivityId == activityId && a.ParticipantId == participantId));
+                .FirstOrDefault(a => a.ActivityId == activityId && a.ParticipantId == participantId && a.Status == AttendanceStatus.CheckIn));
+        }
+
+        public async Task<ActivityAttendance?> GetCheckOutAttendanceByActivityAndParticipantAsync(int activityId, Guid participantId)
+        {
+            return await Task.FromResult(_context.ActivityAttendances
+                .FirstOrDefault(a => a.ActivityId == activityId && a.ParticipantId == participantId && a.Status == AttendanceStatus.CheckOut));
         }
     }
 }

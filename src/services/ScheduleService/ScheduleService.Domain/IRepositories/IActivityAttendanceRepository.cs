@@ -11,6 +11,7 @@ namespace ScheduleService.Domain.IRepositories
     {
         Task CreateAttendanceAsync(ActivityAttendance activityAttendance);
         Task SaveChangesAsync();
-        Task<ActivityAttendance?> GetAttendanceByActivityAndParticipantAsync(int activityId, Guid participantId);
+        Task<ActivityAttendance?> GetCheckInAttendanceByActivityAndParticipantAsync(int activityId, Guid participantId);
+        Task<ActivityAttendance?> GetCheckOutAttendanceByActivityAndParticipantAsync(int activityId, Guid participantId);
     }
 }

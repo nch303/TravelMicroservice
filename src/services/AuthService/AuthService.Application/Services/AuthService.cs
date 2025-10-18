@@ -377,6 +377,11 @@ namespace AuthService.Application.Services
             }
         }
 
+        public async Task<List<Account>> GetAllAccountsAsync()
+        {
+            return await _authRepository.GetAllAccountsAsync();
+        }
+
 
     }
 }

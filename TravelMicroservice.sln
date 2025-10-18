@@ -95,6 +95,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Domain", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Infrastructure", "src\services\PaymentService\PaymentService.Infrastructure\PaymentService.Infrastructure.csproj", "{14F49F7F-5933-401B-80F4-3A8A4E60632B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AdminService", "AdminService", "{414F3E3A-5475-4365-A053-B4D728E23B91}"
+	ProjectSection(SolutionItems) = preProject
+		src\services\AdminService\Dockerfile = src\services\AdminService\Dockerfile
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminService.API", "src\services\AdminService\AdminService.API\AdminService.API.csproj", "{2F71F78A-F63C-43FC-B145-54B6B8DDBFC6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminService.Application", "src\services\AdminService\AdminService.Application\AdminService.Application.csproj", "{7857B179-2327-3EBE-9C33-7373A86EAD69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminService.Domain", "src\services\AdminService\AdminService.Domain\AdminService.Domain.csproj", "{EF6CF133-86B8-481E-A2F8-5AA71077206D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminService.Infrastructure", "src\services\AdminService\AdminService.Infrastructure\AdminService.Infrastructure.csproj", "{4C3FFA6B-2B18-4D0D-B14F-D6987495347B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -205,6 +218,22 @@ Global
 		{14F49F7F-5933-401B-80F4-3A8A4E60632B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14F49F7F-5933-401B-80F4-3A8A4E60632B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14F49F7F-5933-401B-80F4-3A8A4E60632B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F71F78A-F63C-43FC-B145-54B6B8DDBFC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F71F78A-F63C-43FC-B145-54B6B8DDBFC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F71F78A-F63C-43FC-B145-54B6B8DDBFC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F71F78A-F63C-43FC-B145-54B6B8DDBFC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7857B179-2327-3EBE-9C33-7373A86EAD69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7857B179-2327-3EBE-9C33-7373A86EAD69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7857B179-2327-3EBE-9C33-7373A86EAD69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7857B179-2327-3EBE-9C33-7373A86EAD69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF6CF133-86B8-481E-A2F8-5AA71077206D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF6CF133-86B8-481E-A2F8-5AA71077206D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF6CF133-86B8-481E-A2F8-5AA71077206D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF6CF133-86B8-481E-A2F8-5AA71077206D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C3FFA6B-2B18-4D0D-B14F-D6987495347B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C3FFA6B-2B18-4D0D-B14F-D6987495347B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C3FFA6B-2B18-4D0D-B14F-D6987495347B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C3FFA6B-2B18-4D0D-B14F-D6987495347B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -243,6 +272,11 @@ Global
 		{6CA58180-D8DF-447D-B5F8-9D4480A639C1} = {46574693-B62F-45C6-8EBD-9D946E856AB8}
 		{46AAF12E-57C0-4010-9AE3-64D2B391994E} = {46574693-B62F-45C6-8EBD-9D946E856AB8}
 		{14F49F7F-5933-401B-80F4-3A8A4E60632B} = {46574693-B62F-45C6-8EBD-9D946E856AB8}
+		{414F3E3A-5475-4365-A053-B4D728E23B91} = {5D6FDDF7-0D87-4ABA-BBDA-2A4996BA0760}
+		{2F71F78A-F63C-43FC-B145-54B6B8DDBFC6} = {414F3E3A-5475-4365-A053-B4D728E23B91}
+		{7857B179-2327-3EBE-9C33-7373A86EAD69} = {414F3E3A-5475-4365-A053-B4D728E23B91}
+		{EF6CF133-86B8-481E-A2F8-5AA71077206D} = {414F3E3A-5475-4365-A053-B4D728E23B91}
+		{4C3FFA6B-2B18-4D0D-B14F-D6987495347B} = {414F3E3A-5475-4365-A053-B4D728E23B91}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DDF00A1D-DAD5-44E8-B8DC-398CBD101221}

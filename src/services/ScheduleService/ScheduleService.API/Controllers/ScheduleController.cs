@@ -491,8 +491,9 @@ namespace ScheduleService.API.Controllers
                     return Unauthorized(new { message = "User not found" });
                 }
 
-                await _activityAttendanceService.CheckInAsync(user.Id, request);
-                return Ok(new { message = "Check-in successfully" });
+                var attendance = await _activityAttendanceService.CheckInAsync(user.Id, request);
+                var response = _mapper.Map<AttendanceResponse>(attendance);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -512,8 +513,9 @@ namespace ScheduleService.API.Controllers
                     return Unauthorized(new { message = "User not found" });
                 }
 
-                await _activityAttendanceService.CheckOutAsync(user.Id, request);
-                return Ok(new { message = "Check-out successfully" });
+                var attendance = await _activityAttendanceService.CheckOutAsync(user.Id, request);
+                var response = _mapper.Map<AttendanceResponse>(attendance);
+                return Ok(response);
             }
             catch (Exception ex)
             {
