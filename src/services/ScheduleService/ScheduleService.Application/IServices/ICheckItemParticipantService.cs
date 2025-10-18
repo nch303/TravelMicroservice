@@ -9,7 +9,7 @@ namespace ScheduleService.Application.IServices
 {
     public interface ICheckItemParticipantService
     {
-        Task ToggleCheckAsync(int checkedItemId, bool isChecked);
+        Task<CheckedItemParticipant> ToggleCheckAsync(int checkedItemId, bool isChecked);
         Task<List<CheckedItemParticipant>> GetByCurrentAccountAsync(Guid userId, Guid scheduleId);
     }
 }

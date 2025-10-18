@@ -26,16 +26,16 @@ namespace ScheduleService.Infrastructure.Repositories
                                        && c.ScheduleParticipantId == scheduleParticipantId);
         }
 
-        public async Task<bool> ToggleCheckAsync(int checkedItemId, Guid scheduleParticipantId, bool isChecked)
+        public async Task<CheckedItemParticipant?> ToggleCheckAsync(int checkedItemId, Guid scheduleParticipantId, bool isChecked)
         {
             var existing = await GetByIdAsync(checkedItemId, scheduleParticipantId);
-            if (existing == null) return false;
+            if (existing == null) return null;
 
             existing.IsChecked = isChecked;
-            existing.CheckedAt = isChecked ? DateTime.UtcNow : default;
+            existing.CheckedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-            return true;
+            return existing;
         }
 
         //public async Task DeleteManyAsync(List<int> checkedItemIds)

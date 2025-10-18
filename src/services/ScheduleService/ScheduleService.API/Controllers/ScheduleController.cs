@@ -527,8 +527,10 @@ namespace ScheduleService.API.Controllers
         {
             try
             {
-                await _checkItemParticipantService.ToggleCheckAsync(checkedItemId, isChecked);
-                return NoContent();
+                var checkedItemParticipant = await _checkItemParticipantService.ToggleCheckAsync(checkedItemId, isChecked);
+                var response = _mapper.Map<CheckedItemParticipantResponse>(checkedItemParticipant);
+                response.CheckedAt = ConvertToUtc7(response.CheckedAt);
+                return Ok(response);
             }
             catch (Exception ex)
             {

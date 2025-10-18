@@ -10,7 +10,7 @@ namespace ScheduleService.Domain.IRepositories
     public interface ICheckItemParticipantRepository
     {
         Task<CheckedItemParticipant?> GetByIdAsync(int checkedItemId, Guid scheduleParticipantId);
-        Task<bool> ToggleCheckAsync(int checkedItemId, Guid scheduleParticipantId, bool isChecked);
+        Task<CheckedItemParticipant?> ToggleCheckAsync(int checkedItemId, Guid scheduleParticipantId, bool isChecked);
         //Task DeleteManyAsync(List<int> checkedItemId);
         Task<CheckedItemParticipant> CreateAsync(CheckedItemParticipant newCheckedItemParticipant);
         Task AddRangeAsync(IEnumerable<CheckedItemParticipant> entities);

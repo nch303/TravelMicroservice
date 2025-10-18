@@ -15,21 +15,32 @@ namespace ScheduleService.Application.Services
         private readonly ICheckItemParticipantRepository _checkItemParticipantRepository;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IScheduleParticipantRepository _scheduleParticipantRepository;
+        private readonly ICheckedItemRepository _checkedItemRepository;
 
-        public CheckItemParticipantService(ICheckItemParticipantRepository checkItemParticipantRepository, IAuthServiceClient authServiceClient, IScheduleParticipantRepository scheduleParticipantRepository)
+        public CheckItemParticipantService(ICheckItemParticipantRepository checkItemParticipantRepository, IAuthServiceClient authServiceClient
+            , IScheduleParticipantRepository scheduleParticipantRepository, ICheckedItemRepository checkedItemRepository)
         {
             _checkItemParticipantRepository = checkItemParticipantRepository;
             _authServiceClient = authServiceClient;
             _scheduleParticipantRepository = scheduleParticipantRepository;
+            _checkedItemRepository = checkedItemRepository;
         }
 
-        public async Task ToggleCheckAsync(int checkedItemId, bool isChecked)
+        public async Task<CheckedItemParticipant> ToggleCheckAsync(int checkedItemId, bool isChecked)
         {
             var user = await _authServiceClient.GetCurrentAccountAsync();
-            var participant = await _scheduleParticipantRepository.GetParticipantByUserIdAsync(user!.Id);
-            var success = await _checkItemParticipantRepository.ToggleCheckAsync(checkedItemId, participant!.Id, isChecked);
-            if (!success)
+            var item = await _checkedItemRepository.GetByIdAsync(checkedItemId);
+            if (item == null)
+            {
+                throw new Exception("Can not find item");
+            }
+
+            var participant = await _scheduleParticipantRepository.GetByUserIdAndScheduleIdAsync(user!.Id, item.ScheduleId);
+            var itemParticipant = await _checkItemParticipantRepository.ToggleCheckAsync(checkedItemId, participant!.Id, isChecked);
+            if (itemParticipant == null)
                 throw new KeyNotFoundException("CheckedItemParticipant not found");
+
+            return itemParticipant;
         }
 
         //public async Task DeleteManyAsync(List<int> checkedItemId)
