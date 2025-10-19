@@ -9,7 +9,7 @@ namespace AdvertisementService.Domain.IRepositories
 {
     public interface IPartnerPackagePurchaseRepository
     {
-        Task<List<PartnerPackagePurchase>> GetByPartnerIdAsync(Guid partnerId);
+        Task<List<PartnerPackagePurchase>?> GetByPartnerIdAsync(Guid partnerId);
         Task<PartnerPackagePurchase?> GetByIdAsync(Guid id);
         Task AddAsync(PartnerPackagePurchase purchase);
         Task SaveChangesAsync();

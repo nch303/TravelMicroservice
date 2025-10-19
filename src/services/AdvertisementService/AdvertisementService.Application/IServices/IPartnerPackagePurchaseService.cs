@@ -9,7 +9,7 @@ namespace AdvertisementService.Application.IServices
 {
     public interface IPartnerPackagePurchaseService
     {
-        Task<IEnumerable<PartnerPackagePurchase>> GetPurchasesByPartnerAsync(Guid partnerId);
+        Task<List<PartnerPackagePurchase>?> GetPurchasesByPartnerAsync(Guid partnerId);
         Task<PartnerPackagePurchase?> GetByIdAsync(Guid id);
         Task<PartnerPackagePurchase> CreatePurchaseAsync(Guid partnerId, Guid packageId, Guid transactionId);
     }

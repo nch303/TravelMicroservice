@@ -19,7 +19,7 @@ namespace AdvertisementService.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<List<PartnerPackagePurchase>> GetByPartnerIdAsync(Guid partnerId)
+        public async Task<List<PartnerPackagePurchase>?> GetByPartnerIdAsync(Guid partnerId)
         {
             return await _context.PartnerPackagePurchases
                 .Include(p => p.Package)

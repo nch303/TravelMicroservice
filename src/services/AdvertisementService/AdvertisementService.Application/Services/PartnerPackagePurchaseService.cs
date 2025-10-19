@@ -23,11 +23,9 @@ namespace AdvertisementService.Application.Services
             _packageRepository = packageRepository;
         }
 
-        public async Task<IEnumerable<PartnerPackagePurchase>> GetPurchasesByPartnerAsync(Guid partnerId)
+        public async Task<List<PartnerPackagePurchase>?> GetPurchasesByPartnerAsync(Guid partnerId)
         {
             var purchases = await _purchaseRepository.GetByPartnerIdAsync(partnerId);
-            if(purchases == null || !purchases.Any())
-                throw new Exception("Đối tác chưa mua gói quảng cáo nào.");
 
             return purchases;
         }
