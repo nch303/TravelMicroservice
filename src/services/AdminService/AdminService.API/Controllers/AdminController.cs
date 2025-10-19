@@ -13,12 +13,18 @@ namespace AdminService.API.Controllers
         private readonly IScheduleServiceClient _scheduleServiceClient;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IAdvertisementServiceClient _packageServiceClient;
+        private readonly IPaymentServiceClient _paymentServiceClient;
+        private readonly IUserServiceClient _userServiceClient;
 
-        public AdminController(IScheduleServiceClient scheduleServiceClient, IAuthServiceClient authServiceClient, IAdvertisementServiceClient packageServiceClient)
+        public AdminController(IScheduleServiceClient scheduleServiceClient, IAuthServiceClient authServiceClient
+            , IAdvertisementServiceClient packageServiceClient, IPaymentServiceClient paymentServiceClient
+            , IUserServiceClient userServiceClient)
         {
             _scheduleServiceClient = scheduleServiceClient;
             _authServiceClient = authServiceClient;
             _packageServiceClient = packageServiceClient;
+            _paymentServiceClient = paymentServiceClient;
+            _userServiceClient = userServiceClient;
         }
 
         [HttpGet("account/all")]
@@ -29,6 +35,21 @@ namespace AdminService.API.Controllers
             {
                 var accounts =  await _authServiceClient.GetAllAccountsAsync();
                 return Ok(accounts);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("profile/by-id")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetProfileAsync(Guid userId)
+        {
+            try
+            {
+                var profile = await _userServiceClient.GetProfileAsync(userId);
+                return Ok(profile);
             }
             catch (Exception ex)
             {
@@ -143,12 +164,27 @@ namespace AdminService.API.Controllers
 
         [HttpGet("post/all")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAlllPostAsync()
+        public async Task<IActionResult> GetAllPostAsync()
         {
             try
             {
                 var posts = await _packageServiceClient.GetAllPostAsync();
                 return Ok(posts);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("transaction/all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllTransactionAsync()
+        {
+            try
+            {
+                var transactions = await _paymentServiceClient.GetAllTransactionsAsync();
+                return Ok(transactions);
             }
             catch (Exception ex)
             {

@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PaymentService.Application.DTOs.Requests;
+using PaymentService.Application.DTOs.Responses;
 using PaymentService.Application.IServiceClients;
 using PaymentService.Application.IServices;
 using PaymentService.Domain.Entities;
@@ -15,13 +17,15 @@ namespace PaymentService.API.Controllers
         private readonly ITransactionService _transactionService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IAdvertisementServiceClient _advertisementServiceClient;
+        private readonly IMapper _mapper;
 
         public PaymentController(ITransactionService transactionService, IAuthServiceClient authServiceClient
-            , IAdvertisementServiceClient advertisementServiceClient)
+            , IAdvertisementServiceClient advertisementServiceClient, IMapper mapper)
         {
             _transactionService = transactionService;
             _authServiceClient = authServiceClient;
             _advertisementServiceClient = advertisementServiceClient;
+            _mapper = mapper;
         }
 
         [HttpPost("create")]
@@ -169,7 +173,8 @@ namespace PaymentService.API.Controllers
             try
             {
                 var transactions = await _transactionService.GetAllTransactionsAsync();
-                return Ok(transactions);
+                var response = _mapper.Map<List<TransactionResponse>>(transactions);
+                return Ok(response);
             }
             catch (Exception ex)
             {

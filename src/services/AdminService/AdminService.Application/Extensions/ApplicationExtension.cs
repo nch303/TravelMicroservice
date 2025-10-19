@@ -42,6 +42,11 @@ namespace AdminService.Application.Extensions
                 client.BaseAddress = new Uri(link);
             });
 
+            services.AddHttpClient<IPaymentServiceClient, PaymentServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri(link);
+            });
+
             return services;
         }
     }
