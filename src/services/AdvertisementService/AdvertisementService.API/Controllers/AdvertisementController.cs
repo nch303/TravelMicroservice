@@ -236,7 +236,6 @@ namespace AdvertisementService.API.Controllers
         }
 
         [HttpGet("post/all")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllPostAsync()
         {
             try
