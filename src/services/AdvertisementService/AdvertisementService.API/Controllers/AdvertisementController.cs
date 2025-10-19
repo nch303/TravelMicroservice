@@ -5,6 +5,7 @@ using AdvertisementService.Application.IServices;
 using AdvertisementService.Domain.Entities;
 using AdvertisementService.Domain.Enums;
 using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -242,8 +243,9 @@ namespace AdvertisementService.API.Controllers
             try
             {
                 var posts = await _advertisementService.GetAllPostAsync();
-                var reponses = _mapper.Map<List<AdvertisementPostResponse>>(posts);
-                return Ok(reponses);
+                var responses = _mapper.Map<List<AdvertisementPostResponse>>(posts);
+                responses.OrderByDescending(r => r.CreatedAt).ToList();
+                return Ok(responses);
             }
             catch (Exception ex)
             {
@@ -257,8 +259,9 @@ namespace AdvertisementService.API.Controllers
             try
             {
                 var posts = await _advertisementService.GetApprovedPostAsync();
-                var reponses = _mapper.Map<List<AdvertisementPostResponse>>(posts);
-                return Ok(reponses);
+                var responses = _mapper.Map<List<AdvertisementPostResponse>>(posts);
+                responses.OrderByDescending(r => r.CreatedAt).ToList();
+                return Ok(responses);
             }
             catch (Exception ex)
             {
