@@ -244,7 +244,7 @@ namespace AdvertisementService.API.Controllers
             {
                 var posts = await _advertisementService.GetAllPostAsync();
                 var responses = _mapper.Map<List<AdvertisementPostResponse>>(posts);
-                responses.OrderByDescending(r => r.CreatedAt).ToList();
+                responses = responses.OrderByDescending(r => r.CreatedAt).ToList();
                 return Ok(responses);
             }
             catch (Exception ex)
@@ -260,7 +260,7 @@ namespace AdvertisementService.API.Controllers
             {
                 var posts = await _advertisementService.GetApprovedPostAsync();
                 var responses = _mapper.Map<List<AdvertisementPostResponse>>(posts);
-                responses.OrderByDescending(r => r.CreatedAt).ToList();
+                responses = responses.OrderByDescending(r => r.CreatedAt).ToList();
                 return Ok(responses);
             }
             catch (Exception ex)
