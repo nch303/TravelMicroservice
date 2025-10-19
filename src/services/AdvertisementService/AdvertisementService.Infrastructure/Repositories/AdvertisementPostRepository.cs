@@ -32,7 +32,7 @@ namespace AdvertisementService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<List<AdvertisementPost>> GetByPartnerIdAsync(Guid partnerId)
+        public async Task<List<AdvertisementPost>?> GetByPartnerIdAsync(Guid partnerId)
         {
             return await _context.AdvertisementPosts
                 .Include(p => p.MediaItems)

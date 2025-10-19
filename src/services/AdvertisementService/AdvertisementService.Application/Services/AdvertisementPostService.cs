@@ -99,7 +99,7 @@ namespace AdvertisementService.Application.Services
 
 
 
-        public async Task<IEnumerable<AdvertisementPost>> GetPostsByPartnerAsync(Guid partnerId)
+        public async Task<List<AdvertisementPost>?> GetPostsByPartnerAsync(Guid partnerId)
         {
             return await _postRepository.GetByPartnerIdAsync(partnerId);
         }

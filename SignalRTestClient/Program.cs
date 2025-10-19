@@ -82,15 +82,16 @@ class Program
         });
 
         await connection2.StartAsync();
-        Console.WriteLine("✅ Connected to ChatHub.");
+        Console.WriteLine("✅ Connected to NotiHub.");
 
         var currentUserId = "5F44A969-8518-4863-8B00-B6170F1B4311".ToLower();
         var currentScheduleId = "C1F31D44-3D35-453A-3A4C-08DE00029182".ToLower();
-        // Tham gia nhóm cá nhân
-        await connection2.InvokeAsync("JoinUser", currentUserId);
-        Console.WriteLine($"{currentUserId}");
 
         // Nếu user đang trong 1 lịch trình
+        await connection2.InvokeAsync("JoinUser", currentUserId);
+        Console.WriteLine($"{currentUserId}");
+     
+        // Tham gia nhóm cá nhân
         await connection2.InvokeAsync("JoinSchedule", currentScheduleId);
         Console.WriteLine($"{currentScheduleId}");
 
