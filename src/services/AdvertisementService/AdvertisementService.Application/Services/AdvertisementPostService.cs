@@ -1,4 +1,5 @@
 ﻿using AdvertisementService.Application.DTOs.Requests;
+using AdvertisementService.Application.IServiceClients;
 using AdvertisementService.Application.IServices;
 using AdvertisementService.Domain.Entities;
 using AdvertisementService.Domain.Enums;
@@ -16,13 +17,15 @@ namespace AdvertisementService.Application.Services
         private readonly IAdvertisementPostRepository _postRepository;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IPartnerPackagePurchaseRepository _purchaseRepository;
+        private readonly IAuthServiceClient _authServiceClient;
 
         public AdvertisementPostService(IAdvertisementPostRepository postRepository, ICloudinaryService cloudinaryService
-            , IPartnerPackagePurchaseRepository purchaseRepository)
+            , IPartnerPackagePurchaseRepository purchaseRepository, IAuthServiceClient authServiceClient)
         {
             _postRepository = postRepository;
             _cloudinaryService = cloudinaryService;
             _purchaseRepository = purchaseRepository;
+            _authServiceClient = authServiceClient;
         }
 
         public async Task<AdvertisementPost> CreatePostAsync(Guid partnerId, CreateAdvertisementPostRequest request)
@@ -179,6 +182,53 @@ namespace AdvertisementService.Application.Services
         public async Task<List<AdvertisementPost>?> GetAllPostAsync()
         {
             return await _postRepository.GetAllPostAsync();
+        }
+
+        public async Task<List<AdvertisementPost>?> GetApprovedPostAsync()
+        {
+            return await _postRepository.GetApprovedPostAsync();
+        }
+
+        public async Task<AdvertisementPost> ApprovePostAsync(Guid postId)
+        {
+            var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+            if (currentAccount == null)
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            var post = await _postRepository.GetByIdAsync(postId);
+            if(post == null)
+            {
+                throw new Exception("Can not find post");
+            }
+
+            post.ApprovedAt = DateTime.UtcNow;
+            post.ApprovedBy = currentAccount.Id;
+            post.Status = AdvertisementStatus.Approved;
+            await _postRepository.SaveChangesAsync();
+            return post;
+        }
+
+        public async Task<AdvertisementPost> RejectPostAsync(Guid postId)
+        {
+            var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+            if (currentAccount == null)
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            var post = await _postRepository.GetByIdAsync(postId);
+            if (post == null)
+            {
+                throw new Exception("Can not find post");
+            }
+
+            post.ApprovedAt = DateTime.UtcNow;
+            post.ApprovedBy = currentAccount.Id;
+            post.Status = AdvertisementStatus.Rejected;
+            await _postRepository.SaveChangesAsync();
+            return post;
         }
     }
 }

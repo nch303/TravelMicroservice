@@ -15,5 +15,8 @@ namespace AdvertisementService.Application.IServices
         Task<AdvertisementPost?> GetPostByIdAsync(Guid id);
         Task<AdvertisementPost> UpdatePostAsync(Guid postId, UpdateAdvertisementPostRequest request);
         Task<List<AdvertisementPost>?> GetAllPostAsync();
+        Task<List<AdvertisementPost>?> GetApprovedPostAsync();
+        Task<AdvertisementPost> ApprovePostAsync(Guid postId);
+        Task<AdvertisementPost> RejectPostAsync(Guid postId);
     }
 }

@@ -3,6 +3,7 @@ using AdvertisementService.Application.DTOs.Responses;
 using AdvertisementService.Application.IServiceClients;
 using AdvertisementService.Application.IServices;
 using AdvertisementService.Domain.Entities;
+using AdvertisementService.Domain.Enums;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -250,6 +251,21 @@ namespace AdvertisementService.API.Controllers
             }
         }
 
+        [HttpGet("post/be-approved")]
+        public async Task<IActionResult> GetAllApprovedPostAsync()
+        {
+            try
+            {
+                var posts = await _advertisementService.GetApprovedPostAsync();
+                var reponses = _mapper.Map<List<AdvertisementPostResponse>>(posts);
+                return Ok(reponses);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpGet("partner/post/get-by-id/{id}")]
         public async Task<IActionResult> GetPostById(Guid id)
         {
@@ -274,6 +290,36 @@ namespace AdvertisementService.API.Controllers
                 var updated = await _advertisementService.UpdatePostAsync(postId, request);
                 var postResponse = _mapper.Map<AdvertisementPostResponse>(updated);
                 return Ok(postResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("admin/post/approve")]
+        public async Task<IActionResult> ApprovePostAsync(Guid postId)
+        {
+            try
+            {
+                var post = await _advertisementService.ApprovePostAsync(postId);
+                var response = _mapper.Map<AdvertisementPostResponse>(post);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("admin/post/reject")]
+        public async Task<IActionResult> RejectPostAsync(Guid postId)
+        {
+            try
+            {
+                var post = await _advertisementService.RejectPostAsync(postId);
+                var response = _mapper.Map<AdvertisementPostResponse>(post);
+                return Ok(response);
             }
             catch (Exception ex)
             {

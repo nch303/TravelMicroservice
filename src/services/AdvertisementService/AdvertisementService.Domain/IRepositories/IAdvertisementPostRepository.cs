@@ -14,5 +14,6 @@ namespace AdvertisementService.Domain.IRepositories
         Task<List<AdvertisementPost>?> GetByPartnerIdAsync(Guid partnerId);
         Task SaveChangesAsync();
         Task<List<AdvertisementPost>?> GetAllPostAsync();
+        Task<List<AdvertisementPost>?> GetApprovedPostAsync();
     }
 }

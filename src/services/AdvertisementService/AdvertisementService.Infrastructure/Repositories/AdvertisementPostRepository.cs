@@ -1,4 +1,5 @@
 ﻿using AdvertisementService.Domain.Entities;
+using AdvertisementService.Domain.Enums;
 using AdvertisementService.Domain.IRepositories;
 using AdvertisementService.Infrastructure.Configurations;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,11 @@ namespace AdvertisementService.Infrastructure.Repositories
         public async Task<List<AdvertisementPost>?> GetAllPostAsync()
         {
             return await _context.AdvertisementPosts.Include(a => a.MediaItems).ToListAsync();
+        }
+
+        public async Task<List<AdvertisementPost>?> GetApprovedPostAsync()
+        {
+            return await _context.AdvertisementPosts.Include(a => a.MediaItems).Where(ap => ap.Status == AdvertisementStatus.Approved).ToListAsync();
         }
     }
 }
