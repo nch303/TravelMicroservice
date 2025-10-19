@@ -18,5 +18,7 @@ namespace ScheduleService.Application.DTOs.Responses
         public MediaMethod UploadMethod { get; set; }
         public Guid? ScheduleId { get; set; }
         public int? ActivityId { get; set; }
+        public string? ParticipantName { get; set; }
+        public string? ParticipantAvatar { get; set; }
     }
 }

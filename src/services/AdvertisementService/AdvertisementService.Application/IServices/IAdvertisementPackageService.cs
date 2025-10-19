@@ -14,5 +14,6 @@ namespace AdvertisementService.Application.IServices
         Task<AdvertisementPackage> CreateAsync(AdvertisementPackage package);
         Task<AdvertisementPackage?> UpdateAsync(Guid id, AdvertisementPackage updated);
         Task<bool> DeleteAsync(Guid id);
+        Task<AdvertisementPackage?> RestoreAsync(Guid id);
     }
 }

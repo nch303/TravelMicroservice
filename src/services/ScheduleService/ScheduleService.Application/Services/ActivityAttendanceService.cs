@@ -231,5 +231,24 @@ namespace ScheduleService.Application.Services
             
             return attendance!;
         }
+
+        public async Task<string> GetAttendanceStatusAsync(int activityId, Guid participantId)
+        {
+            var status = "";
+            var checkin = await _attendanceRepository.GetCheckInAttendanceByActivityAndParticipantAsync(activityId, participantId);
+            if (checkin != null)
+            {
+                status = checkin.Status.ToString();
+            }
+
+            var checkout = await _attendanceRepository.GetCheckOutAttendanceByActivityAndParticipantAsync(activityId, participantId);
+            if (checkout != null)
+            {
+                status = checkout.Status.ToString();
+            }
+
+            return status;
+
+        }
     }
 }

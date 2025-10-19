@@ -1,4 +1,5 @@
-﻿using ScheduleService.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
 using ScheduleService.Domain.IRepositories;
 using ScheduleService.Infrastructure.Configurations;
@@ -41,5 +42,6 @@ namespace ScheduleService.Infrastructure.Repositories
             return await Task.FromResult(_context.ActivityAttendances
                 .FirstOrDefault(a => a.ActivityId == activityId && a.ParticipantId == participantId && a.Status == AttendanceStatus.CheckOut));
         }
+       
     }
 }

@@ -35,5 +35,10 @@ namespace PaymentService.Infrastructure.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<Transaction>?> GetAllTransactionsAsync()
+        {
+            return await _context.Transactions.ToListAsync();
+        } 
     }
 }

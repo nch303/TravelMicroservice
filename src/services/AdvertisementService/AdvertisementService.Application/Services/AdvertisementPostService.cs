@@ -175,5 +175,10 @@ namespace AdvertisementService.Application.Services
 
             return existingPost;
         }
+
+        public async Task<List<AdvertisementPost>?> GetAllPostAsync()
+        {
+            return await _postRepository.GetAllPostAsync();
+        }
     }
 }

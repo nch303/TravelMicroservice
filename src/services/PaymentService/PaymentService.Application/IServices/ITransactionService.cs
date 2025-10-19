@@ -12,5 +12,6 @@ namespace PaymentService.Application.IServices
         Task<Transaction> CreateTransactionAsync(Transaction transaction);
         Task<Transaction?> GetTransactionById(Guid transactionId);
         Task SaveChangesAsync();
+        Task<List<Transaction>?> GetAllTransactionsAsync();
     }
 }

@@ -48,5 +48,10 @@ namespace ScheduleService.Infrastructure.Repositories
         {
             await _context.Schedules.AddAsync(schedule);
         }
+
+        public async Task<List<Schedule>> GetAllSchedulesAsync()
+        {
+            return await _context.Schedules.ToListAsync();
+        }
     }
 }

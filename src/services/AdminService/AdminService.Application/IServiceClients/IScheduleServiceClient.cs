@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace AdminService.Application.IServiceClients
 {
-    public interface IAuthServiceClient
+    public interface IScheduleServiceClient
     {
-        Task<AccountResponse?> GetCurrentAccountAsync();
-        Task<List<AccountResponse>?> GetAllAccountsAsync();
+        Task<List<ScheduleResponse>> GetAllSchedulesAsync();
     }
 }

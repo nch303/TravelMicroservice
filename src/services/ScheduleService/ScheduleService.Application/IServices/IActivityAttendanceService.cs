@@ -12,6 +12,6 @@ namespace ScheduleService.Application.IServices
     {
         public Task<ActivityAttendance> CheckInAsync(Guid userId, AttendanceRequest attendanceRequest);
         public Task<ActivityAttendance> CheckOutAsync(Guid userId, AttendanceRequest attendanceRequest);
-
+        public Task<string> GetAttendanceStatusAsync(int activityId, Guid participantId);
     }
 }

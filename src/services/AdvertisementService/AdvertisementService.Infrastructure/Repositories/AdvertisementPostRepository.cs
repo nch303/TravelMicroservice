@@ -44,5 +44,10 @@ namespace AdvertisementService.Infrastructure.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<AdvertisementPost>?> GetAllPostAsync()
+        {
+            return await _context.AdvertisementPosts.Include(a => a.MediaItems).ToListAsync();
+        }
     }
 }

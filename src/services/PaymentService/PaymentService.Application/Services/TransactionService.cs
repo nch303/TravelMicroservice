@@ -39,5 +39,10 @@ namespace PaymentService.Application.Services
         {
             await _transactionRepository.SaveChangesAsync();
         }
+
+        public async Task<List<Transaction>?> GetAllTransactionsAsync()
+        {
+            return await _transactionRepository.GetAllTransactionsAsync();
+        }
     }
 }

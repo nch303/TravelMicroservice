@@ -58,7 +58,7 @@ namespace AdvertisementService.Application.Mappings
                 .ForMember(dest => dest.PostedAt, opt => opt.MapFrom(src => src.PostedAt))
                 .ForMember(dest => dest.ApprovedBy, opt => opt.MapFrom(src => src.ApprovedBy))
                 .ForMember(dest => dest.ApprovedAt, opt => opt.MapFrom(src => src.ApprovedAt))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.PackagePurchaseId, opt => opt.MapFrom(src => src.PackagePurchaseId))
                 .ForMember(dest => dest.MediaIds, opt => opt.MapFrom(src => src.MediaItems.Select(m => m.Id).ToList()))

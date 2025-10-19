@@ -14,5 +14,6 @@ namespace AdvertisementService.Application.IServices
         Task<IEnumerable<AdvertisementPost>> GetPostsByPartnerAsync(Guid partnerId);
         Task<AdvertisementPost?> GetPostByIdAsync(Guid id);
         Task<AdvertisementPost> UpdatePostAsync(Guid postId, UpdateAdvertisementPostRequest request);
+        Task<List<AdvertisementPost>?> GetAllPostAsync();
     }
 }

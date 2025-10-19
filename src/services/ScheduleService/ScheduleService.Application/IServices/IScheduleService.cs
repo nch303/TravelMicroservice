@@ -18,5 +18,6 @@ namespace ScheduleService.Application.IServices
         Task<Schedule> CancelScheduleAsync(Guid scheduleId, AccountResponse user);
         Task<bool> RestoreScheduleAsync(Guid scheduleId, AccountResponse user);
         Task CreateScheduleAsync(Schedule schedule);
+        Task<List<Schedule>> GetAllSchedulesAsync();
     }
 }

@@ -35,6 +35,7 @@ namespace ScheduleService.Infrastructure.Repositories
         public async Task<List<ScheduleActivity>> GetActivitiesByDateAsync(Guid scheduleId, DateTime date)
         {
             return await _context.ScheduleActivities
+                .Include(sa => sa.ActivityAttendances)
                 .Where(a => a.ScheduleId == scheduleId
                     && !a.IsDeleted
                     && a.CheckInTime.Date == date.Date)

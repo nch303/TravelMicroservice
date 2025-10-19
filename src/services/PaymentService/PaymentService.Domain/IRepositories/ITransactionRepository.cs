@@ -12,5 +12,6 @@ namespace PaymentService.Domain.IRepositories
         Task<Transaction> CreateTransactionAsync(Transaction transaction);
         Task<Transaction?> GetTransactionById(Guid transactionId);
         Task SaveChangesAsync();
+        Task<List<Transaction>?> GetAllTransactionsAsync();
     }
 }

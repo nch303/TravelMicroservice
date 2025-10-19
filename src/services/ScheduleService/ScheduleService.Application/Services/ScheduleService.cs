@@ -358,5 +358,10 @@ namespace ScheduleService.Application.Services
             await _scheduleRepository.CreateScheduleAsync(schedule);
             await _scheduleRepository.SaveChangesAsync();
         }
+
+        public async Task<List<Schedule>> GetAllSchedulesAsync()
+        {
+            return await _scheduleRepository.GetAllSchedulesAsync();
+        }
     }
 }

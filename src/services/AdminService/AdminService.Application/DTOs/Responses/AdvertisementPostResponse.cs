@@ -1,11 +1,11 @@
-﻿using AdvertisementService.Domain.Enums;
+﻿using AdminService.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AdvertisementService.Application.DTOs.Responses
+namespace AdminService.Application.DTOs.Responses
 {
     public class AdvertisementPostResponse
     {

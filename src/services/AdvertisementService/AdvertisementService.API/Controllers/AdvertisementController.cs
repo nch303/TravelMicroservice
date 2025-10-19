@@ -45,7 +45,7 @@ namespace AdvertisementService.API.Controllers
 
 
         [HttpGet("package/get-all")]
-        [Authorize(Roles = "Partner")]
+        [Authorize(Roles = "Partner,Admin")]
         public async Task<IActionResult> GetAll()
         {
             var packages = await _packageService.GetAllAsync();
@@ -94,7 +94,18 @@ namespace AdvertisementService.API.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             await _packageService.DeleteAsync(id);
-            return Ok(new { Message = "Delete package successfully." });
+            var package = await _packageService.GetByIdAsync(id);
+            var response = _mapper.Map<PackageResponse>(package);
+            return Ok(response);
+        }
+
+        [HttpPatch("package/restore/{id}")]
+        [Authorize]
+        public async Task<IActionResult> Restore(Guid id)
+        {
+            var package = await _packageService.RestoreAsync(id);
+            var response = _mapper.Map<PackageResponse>(package);
+            return Ok(response);
         }
 
         // Lấy danh sách gói đã mua của Partner
@@ -143,6 +154,22 @@ namespace AdvertisementService.API.Controllers
             var posts = await _advertisementService.GetPostsByPartnerAsync(partnerId);
             var postsResponse = _mapper.Map<List<AdvertisementPostResponse>>(posts);
             return Ok(postsResponse);
+        }
+
+        [HttpGet("post/all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllPostAsync()
+        {
+            try
+            {
+                var posts = await _advertisementService.GetAllPostAsync();
+                var reponses = _mapper.Map<List<AdvertisementPostResponse>>(posts);
+                return Ok(reponses);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpGet("partner/post/get-by-id/{id}")]

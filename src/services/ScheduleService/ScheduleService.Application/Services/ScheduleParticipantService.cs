@@ -379,5 +379,15 @@ namespace ScheduleService.Application.Services
 
             return (participants, users);
         }
+
+        public async Task<ScheduleParticipant?> GetParticipantByIdAsync(Guid participantId)
+        {
+            var participant = await _scheduleParticipantRepository.GetParticipantByIdAsync(participantId);
+            if (participant == null)
+            {
+                throw new Exception("Can not find participant");
+            }
+            return participant;
+        }
     }
 }

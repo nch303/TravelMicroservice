@@ -8,6 +8,7 @@ using ScheduleService.Application.IServiceClients;
 using ScheduleService.Application.IServices;
 using ScheduleService.Domain.Entities;
 using ScheduleService.Domain.Enums;
+using System.Security.Cryptography.Xml;
 
 namespace ScheduleService.API.Controllers
 {
@@ -109,6 +110,10 @@ namespace ScheduleService.API.Controllers
                 var currentParticipant = await _scheduleParticipantService.GetByUserIdAndScheduleIdAsync(currentAccount!.Id, scheduleId);
                 var activities = await _scheduleActivityService.GetActivitiesByDateAsync(scheduleId, date);
                 var responses = _mapper.Map<List<ScheduleActivityResponse>>(activities);
+                foreach (var response in responses) 
+                {
+                    response.AttendanceStatus = await _activityAttendanceService.GetAttendanceStatusAsync(response.Id, currentParticipant.Id);
+                }
                 var result = new
                 {
                     ParticipantRole = currentParticipant.Role.ToString(),
@@ -612,8 +617,19 @@ namespace ScheduleService.API.Controllers
             try
             {
                 var medias = await _scheduleMediaService.GetByActivityIdAsync(activityId);
-                var response = _mapper.Map<List<ScheduleMediaResponse>>(medias);
-                return Ok(response);
+                var responses = _mapper.Map<List<ScheduleMediaResponse>>(medias);
+
+                // Get profile
+                var profile = new List<UserServiceClientResponse>();
+                var participant = new ScheduleParticipant();
+                foreach( var response in responses)
+                {
+                    participant = await _scheduleParticipantService.GetParticipantByIdAsync(response.ParticipantId);
+                    profile = await _userServiceClient.GetUsersByIdsAsync(new List<Guid> {participant!.UserId });
+                    response.ParticipantName = profile.FirstOrDefault()?.Name;
+                    response.ParticipantAvatar = profile.FirstOrDefault()?.AvatarUrl;
+                }
+                return Ok(responses);
             }
             catch (Exception ex)
             {
@@ -784,6 +800,23 @@ namespace ScheduleService.API.Controllers
             {
                 await _notificationRecipientService.UpdateNoticationRecipientAsync(request.notificationRecipientId);
                 return Ok(new { message = "Read notification recipient successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        //Admin
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllScheduleAsync()
+        {
+            try
+            {
+                var schedules = await _scheduleService.GetAllSchedulesAsync();
+                var responses = _mapper.Map<List<ScheduleResponse>>(schedules);
+                return Ok(responses);
             }
             catch (Exception ex)
             {

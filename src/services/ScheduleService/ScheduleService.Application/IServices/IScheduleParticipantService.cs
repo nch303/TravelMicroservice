@@ -20,5 +20,6 @@ namespace ScheduleService.Application.IServices
         Task<Schedule?> KickParticipantAsync(Guid scheduleId, Guid participantId);
         Task<ScheduleParticipant> AddParticipantByEmailAsync(Guid scheduleId, string email);
         Task<ScheduleParticipant> ChangeParticipantRoleAsync(Guid participantId, Guid scheduleId);
+        Task<ScheduleParticipant?> GetParticipantByIdAsync(Guid participantId);
     }
 }

@@ -17,6 +17,7 @@ namespace ScheduleService.Application.DTOs.Responses
         public DateTime CheckOutTime { get; set; }
         public int OrderIndex { get; set; }
         public bool IsDeleted { get; set; }
+        public string AttendanceStatus { get; set; }
 
         // Foreign key to Schedule (1-N)
         public Guid ScheduleId { get; set; }

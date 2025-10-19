@@ -13,5 +13,6 @@ namespace AdvertisementService.Domain.IRepositories
         Task<AdvertisementPost?> GetByIdAsync(Guid id);
         Task<List<AdvertisementPost>> GetByPartnerIdAsync(Guid partnerId);
         Task SaveChangesAsync();
+        Task<List<AdvertisementPost>?> GetAllPostAsync();
     }
 }

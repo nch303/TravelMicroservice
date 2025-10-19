@@ -32,6 +32,16 @@ namespace AdminService.Application.Extensions
                 client.BaseAddress = new Uri(link);
             });
 
+            services.AddHttpClient<IScheduleServiceClient, ScheduleServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri(link);
+            });
+
+            services.AddHttpClient<IAdvertisementServiceClient, AdvertisementServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri(link);
+            });
+
             return services;
         }
     }

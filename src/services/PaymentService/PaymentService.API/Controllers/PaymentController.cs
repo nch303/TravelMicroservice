@@ -161,5 +161,20 @@ namespace PaymentService.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("transaction/all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllTransactionAsync()
+        {
+            try
+            {
+                var transactions = await _transactionService.GetAllTransactionsAsync();
+                return Ok(transactions);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

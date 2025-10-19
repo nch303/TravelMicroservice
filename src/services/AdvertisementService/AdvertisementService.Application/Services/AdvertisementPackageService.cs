@@ -53,6 +53,18 @@ namespace AdvertisementService.Application.Services
             await _packageRepository.DeleteAsync(id);
             return true;
         }
+
+        public async Task<AdvertisementPackage?> RestoreAsync(Guid id)
+        {
+            var package = await _packageRepository.GetByIdAsync(id);
+            if (package == null)
+            {
+                throw new Exception("Can not find package");
+            }
+            package.IsActive = true;
+            await _packageRepository.SaveChangesAsync();
+            return package;
+        }
     }
 
 }

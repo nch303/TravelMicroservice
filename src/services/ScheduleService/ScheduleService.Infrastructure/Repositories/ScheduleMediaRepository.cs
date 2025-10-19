@@ -32,7 +32,7 @@ namespace ScheduleService.Infrastructure.Repositories
 
         public async Task<List<ScheduleMedia>> GetByActivityIdAsync(int activityId)
         {
-            return await _context.ScheduleMedias.Where(sm => sm.ActivityId == activityId).ToListAsync();
+            return await _context.ScheduleMedias.Include(sm => sm.ScheduleParticipant).Where(sm => sm.ActivityId == activityId).ToListAsync();
         }
 
         public async Task<ScheduleMedia?> GetByIdAsync(int mediaId)
