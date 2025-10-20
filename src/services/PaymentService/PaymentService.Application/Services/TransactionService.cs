@@ -45,7 +45,7 @@ namespace PaymentService.Application.Services
             return await _transactionRepository.GetAllTransactionsAsync();
         }
 
-        public async Task<Transaction> CancelTransactionAyns(Guid transactionId)
+        public async Task<Transaction> CancelTransactionAsync(Guid transactionId)
         {
             var transaction = await GetTransactionById(transactionId);
             if (transaction == null)

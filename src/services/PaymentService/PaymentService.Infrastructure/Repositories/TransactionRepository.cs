@@ -41,7 +41,7 @@ namespace PaymentService.Infrastructure.Repositories
             return await _context.Transactions.ToListAsync();
         } 
 
-        public async Task<List<Transaction>?> GetByCurrentAccount(Guid accountId)
+        public async  Task<List<Transaction>?> GetByCurrentAccountAsync(Guid accountId)
         {
             return await _context.Transactions.Where(t => t.UserId == accountId).ToListAsync();
         }
