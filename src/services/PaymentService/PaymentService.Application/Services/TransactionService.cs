@@ -44,5 +44,29 @@ namespace PaymentService.Application.Services
         {
             return await _transactionRepository.GetAllTransactionsAsync();
         }
+
+        public async Task<Transaction> CancelTransactionAyns(Guid transactionId)
+        {
+            var transaction = await GetTransactionById(transactionId);
+            if (transaction == null)
+            {
+                throw new Exception("Can not find transaction");
+            }
+
+            transaction.Status = "Cancel";
+            await _transactionRepository.SaveChangesAsync();
+            return transaction;
+        }
+
+        public async Task<List<Transaction>?> GetByCurrentAccountAsync(Guid accountId)
+        {
+            var transactions = await _transactionRepository.GetByCurrentAccountAsync(accountId);
+            if (transactions == null)
+            {
+                throw new Exception("No transaction was found");
+            }
+
+            return transactions;
+        }
     }
 }

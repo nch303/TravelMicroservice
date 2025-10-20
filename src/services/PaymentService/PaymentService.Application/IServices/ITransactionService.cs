@@ -13,5 +13,7 @@ namespace PaymentService.Application.IServices
         Task<Transaction?> GetTransactionById(Guid transactionId);
         Task SaveChangesAsync();
         Task<List<Transaction>?> GetAllTransactionsAsync();
+        Task<Transaction> CancelTransactionAsync(Guid transactionId);
+        Task<List<Transaction>?> GetByCurrentAccountAsync(Guid accountId);
     }
 }

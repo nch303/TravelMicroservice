@@ -142,7 +142,7 @@ namespace PaymentService.API.Controllers
 
                     await _advertisementServiceClient.CreatePurchaseAsync(purchaseRequest);
                 }
-                
+
 
                 return Ok("Webhook processed");
             }
@@ -175,6 +175,42 @@ namespace PaymentService.API.Controllers
                 var transactions = await _transactionService.GetAllTransactionsAsync();
                 var response = _mapper.Map<List<TransactionResponse>>(transactions);
                 return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPatch("transaction/cancel")]
+        [Authorize]
+        public async Task<IActionResult> CancelTransactionAsync(Guid transactionId)
+        {
+            try
+            {
+                var transaction = await _transactionService.CancelTransactionAsync(transactionId);
+                var response = _mapper.Map<TransactionResponse>(transaction);   
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("transaction/all/by-current-account")]
+        [Authorize]
+        public async Task<IActionResult> GetByCurrentAccountAsync()
+        {
+            try
+            {
+                var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
+                if(currentAccount == null)
+                    throw new UnauthorizedAccessException();
+
+                var transactions = await _transactionService.GetByCurrentAccountAsync(currentAccount.Id);
+                var responses = _mapper.Map<List<TransactionResponse>>(transactions);   
+                return Ok(responses);
             }
             catch (Exception ex)
             {

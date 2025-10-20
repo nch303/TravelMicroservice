@@ -13,5 +13,6 @@ namespace PaymentService.Domain.IRepositories
         Task<Transaction?> GetTransactionById(Guid transactionId);
         Task SaveChangesAsync();
         Task<List<Transaction>?> GetAllTransactionsAsync();
+        Task<List<Transaction>?> GetByCurrentAccountAsync(Guid accountId);
     }
 }
