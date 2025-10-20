@@ -37,6 +37,85 @@ services:
      ports:
        - "5002:80"
      environment:
+       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+       - ASPNETCORE_URLS=http://+:80
+     networks:
+       - travelnet
+
+  scheduleservice:
+     build:
+       context: ./src/services/ScheduleService
+       dockerfile: Dockerfile
+     container_name: scheduleservice
+     ports:
+       - "5003:80"
+     environment:
+       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+       - ASPNETCORE_URLS=http://+:80
+     networks:
+       - travelnet  
+
+  messageservice:
+     build:
+       context: ./src/services/MessageService
+       dockerfile: Dockerfile
+     container_name: messageservice
+     ports:
+       - "5004:80"
+     environment:
+       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+       - ASPNETCORE_URLS=http://+:80
+     networks:
+       - travelnet  
+    
+  advertisementservice:
+     build:
+       context: ./src/services/AdvertisementService
+       dockerfile: Dockerfile
+     container_name: advertisementService
+     ports:
+       - "5005:80"
+     environment:
+       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+       - ASPNETCORE_URLS=http://+:80
+     networks:
+       - travelnet  
+  
+  paymentservice:
+     build:
+       context: ./src/services/PaymentService
+       dockerfile: Dockerfile
+     container_name: paymentService
+     ports:
+       - "5006:80"
+     environment:
+       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+       - SEPAY_API_KEY=${SEPAY_API_KEY}
+       - ASPNETCORE_URLS=http://+:80
+     networks:
+       - travelnet
+
+  adminservice:
+     build:
+       context: ./src/services/AdminService
+       dockerfile: Dockerfile
+     container_name: adminService
+     ports:
+       - "5007:80"
+     environment:
+       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
        - ASPNETCORE_URLS=http://+:80
      networks:
        - travelnet

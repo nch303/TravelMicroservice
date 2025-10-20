@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ScheduleService.Domain.Entities;
+
+namespace ScheduleService.Domain.IRepositories
+{
+    public interface ICheckItemParticipantRepository
+    {
+        Task<CheckedItemParticipant?> GetByIdAsync(int checkedItemId, Guid scheduleParticipantId);
+        Task<CheckedItemParticipant?> ToggleCheckAsync(int checkedItemId, Guid scheduleParticipantId, bool isChecked);
+        //Task DeleteManyAsync(List<int> checkedItemId);
+        Task<CheckedItemParticipant> CreateAsync(CheckedItemParticipant newCheckedItemParticipant);
+        Task AddRangeAsync(IEnumerable<CheckedItemParticipant> entities);
+        Task<List<CheckedItemParticipant>> GetByCurrentAccountAsync(Guid participantId);
+        Task DeleteManyAsync(List<int> itemIds);
+    }
+}

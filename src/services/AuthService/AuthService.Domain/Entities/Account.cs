@@ -20,6 +20,7 @@ namespace AuthService.Domain.Entities
         public string PasswordHash { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = false;
+        public string ResetToken { get; set; } = string.Empty ;
 
         [Required]
         public int RoleId { get; set; }

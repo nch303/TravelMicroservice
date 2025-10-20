@@ -19,8 +19,10 @@ namespace AuthService.Application.IServices
         Task<string> GetValidResetPasswordOtpAsync(string email, string otpCode, string purpose);
         Task ResetPasswordAsync(string resetToken, string newPassword);
         Task<Account?> GetByIdAsync(Guid id);
+        Task<Account?> GetByEmailAsync(string email);
         Task ChangePasswordAsync(Account user);
         Task<(string accessToken, string refreshToken)> RefreshAsync(string refreshToken, Account account);
         Task<Account> GetCurrentAccount();
+        Task<List<Account>> GetAllAccountsAsync();
     }
 }

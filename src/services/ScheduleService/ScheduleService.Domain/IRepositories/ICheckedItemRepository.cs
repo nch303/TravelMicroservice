@@ -1,0 +1,19 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ScheduleService.Domain.Entities;
+
+namespace ScheduleService.Domain.IRepositories
+{
+    public interface ICheckedItemRepository
+    {
+        Task AddCheckedItemsAsync(List<CheckedItem> items);
+        Task SaveChangesAsync();
+        Task<List<CheckedItem>> GetByScheduleIdAsync(Guid scheduleId);
+        Task DeleteManyAsync(List<int> checkedItemIds);
+        Task<List<CheckedItem>> GetAvailableByScheduleIdAsync(Guid scheduleId);
+        Task<CheckedItem?> GetByIdAsync(int itemId);
+    }
+}

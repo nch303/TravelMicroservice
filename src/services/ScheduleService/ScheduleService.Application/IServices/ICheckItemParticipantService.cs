@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ScheduleService.Domain.Entities;
+
+namespace ScheduleService.Application.IServices
+{
+    public interface ICheckItemParticipantService
+    {
+        Task<CheckedItemParticipant> ToggleCheckAsync(int checkedItemId, bool isChecked);
+        Task<List<CheckedItemParticipant>> GetByCurrentAccountAsync(Guid userId, Guid scheduleId);
+    }
+}

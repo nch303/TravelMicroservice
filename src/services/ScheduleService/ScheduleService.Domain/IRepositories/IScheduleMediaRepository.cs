@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ScheduleService.Domain.Entities;
+
+namespace ScheduleService.Domain.IRepositories
+{
+    public interface IScheduleMediaRepository
+    {
+        Task<ScheduleMedia> AddAsync(ScheduleMedia media);
+        Task SaveChangesAsync();
+        Task<List<ScheduleMedia>> GetByActivityIdAsync(int activityId);
+        Task<ScheduleMedia?> GetByIdAsync(int mediaId);
+    }
+}

@@ -183,7 +183,7 @@ namespace AuthService.API.Controllers
 
         }
 
-        [HttpGet("refresh-token")]
+        [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken(string refreshToken)
         {
             try
@@ -227,6 +227,46 @@ namespace AuthService.API.Controllers
                 var profile = await _userServiceClient.GetProfileAsync(user.Id);
                 userResponse.Profile = profile;
                 return Ok(userResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("account-by-email")]
+        public async Task<IActionResult> GetAccountByEmail([FromQuery] string email)
+        {
+            try
+            {
+                var account = await _authService.GetByEmailAsync(email);
+                if (account == null)
+                    return NotFound(new { message = "Email không hợp lệ" });
+
+                var response = _mapper.Map<AccountResponse>(account);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            try
+            {
+                var accounts = await _authService.GetAllAccountsAsync();
+                var profile = new ProfileResponse();
+                var responses = _mapper.Map<List<AccountResponse>>(accounts);
+                foreach (var response in responses)
+                {
+                    profile = await _userServiceClient.GetProfileAsync(response.Id);
+                    response.Profile = profile;
+                }
+                return Ok(responses);
             }
             catch (Exception ex)
             {

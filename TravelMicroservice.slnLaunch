@@ -11,9 +11,33 @@
         "Action": "Start"
       },
       {
+        "Path": "src\\services\\ScheduleService\\ScheduleService.API\\ScheduleService.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\services\\MessageService\\MessageService.API\\MessageService.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\services\\AdvertisementService\\AdvertisementService.API\\AdvertisementService.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\services\\PaymentService\\PaymentService.API\\PaymentService.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\services\\AdminService\\AdminService.API\\AdminService.API.csproj",
+        "Action": "Start"
+      },
+      {
         "Path": "src\\gateway\\ApiGateway\\ApiGateway.csproj",
         "Action": "Start",
         "DebugTarget": "https"
+      },
+      {
+        "Path": "SignalRTestClient\\SignalRTestClient.csproj",
+        "Action": "Start"
       }
     ]
   }

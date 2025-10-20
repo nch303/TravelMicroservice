@@ -29,6 +29,7 @@ namespace AuthService.Infrastructure.Configurations
                 entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(255);
                 entity.Property(u => u.CreatedAt).IsRequired();
                 entity.Property(u => u.IsActive).IsRequired();
+                entity.Property(u => u.ResetToken).IsRequired(false);
 
                 // Unique constraint cho email
                 entity.HasIndex(u => u.Email).IsUnique();

@@ -10,7 +10,6 @@
 //        }
 //      ],
 //      "UpstreamPathTemplate": "/api/user/{everything}",
-//      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
 //      "SwaggerKey": "user"
 //    },
 //    {
@@ -23,8 +22,67 @@
 //        }
 //      ],
 //      "UpstreamPathTemplate": "/api/auth/{everything}",
-//      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
 //      "SwaggerKey": "auth"
+//    },
+//    {
+//      "DownstreamPathTemplate": "/api/schedule/{everything}",
+//      "DownstreamScheme": "https",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "localhost",
+//          "Port": 7021
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/api/schedule/{everything}",
+//      "SwaggerKey": "schedule"
+//    },
+//    {
+//      "DownstreamPathTemplate": "/api/message/{everything}",
+//      "DownstreamScheme": "https",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "localhost",
+//          "Port": 7022
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/api/message/{everything}",
+//      "SwaggerKey": "message"
+//    },
+//    {
+//      "DownstreamPathTemplate": "/api/advertisement/{everything}",
+//      "DownstreamScheme": "https",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "localhost",
+//          "Port": 7023
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/api/advertisement/{everything}",
+//      "SwaggerKey": "advertisement"
+//    },
+//    {
+//      "DownstreamPathTemplate": "/api/payment/{everything}",
+//      "DownstreamScheme": "https",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "localhost",
+//          "Port": 7024
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/api/payment/{everything}",
+//      "SwaggerKey": "payment"
+//    },
+//    {
+//      "DownstreamPathTemplate": "/api/admin/{everything}",
+//      "DownstreamScheme": "https",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "localhost",
+//          "Port": 7025
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/api/admin/{everything}",
+//      "SwaggerKey": "admin"
 //    }
 //  ],
 //  "SwaggerEndPoints": [
@@ -47,6 +105,56 @@
 //          "Url": "https://localhost:7020/swagger/v1/swagger.json"
 //        }
 //      ]
+//    },
+//    {
+//      "Key": "schedule",
+//      "Config": [
+//        {
+//          "Name": "Schedule Service",
+//          "Version": "v1",
+//          "Url": "https://localhost:7021/swagger/v1/swagger.json"
+//        }
+//      ]
+//    },
+//    {
+//      "Key": "message",
+//      "Config": [
+//        {
+//          "Name": "Message Service",
+//          "Version": "v1",
+//          "Url": "https://localhost:7022/swagger/v1/swagger.json"
+//        }
+//      ]
+//    },
+//    {
+//      "Key": "advertisement",
+//      "Config": [
+//        {
+//          "Name": "Advertisement Service",
+//          "Version": "v1",
+//          "Url": "https://localhost:7023/swagger/v1/swagger.json"
+//        }
+//      ]
+//    },
+//    {
+//      "Key": "payment",
+//      "Config": [
+//        {
+//          "Name": "Payment Service",
+//          "Version": "v1",
+//          "Url": "https://localhost:7024/swagger/v1/swagger.json"
+//        }
+//      ]
+//    },
+//    {
+//      "Key": "admin",
+//      "Config": [
+//        {
+//          "Name": "Admin Service",
+//          "Version": "v1",
+//          "Url": "https://localhost:7025/swagger/v1/swagger.json"
+//        }
+//      ]
 //    }
 //  ],
 //  "GlobalConfiguration": {
@@ -67,7 +175,6 @@
         }
       ],
       "UpstreamPathTemplate": "/api/auth/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "auth"
     },
     {
@@ -80,8 +187,67 @@
         }
       ],
       "UpstreamPathTemplate": "/api/user/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "user"
+    },
+    {
+      "DownstreamPathTemplate": "/api/schedule/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "scheduleservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/schedule/{everything}",
+      "SwaggerKey": "schedule"
+    },
+    {
+      "DownstreamPathTemplate": "/api/message/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "messageservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/message/{everything}",
+      "SwaggerKey": "message"
+    },
+    {
+      "DownstreamPathTemplate": "/api/advertisement/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "advertisementservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/advertisement/{everything}",
+      "SwaggerKey": "advertisement"
+    },
+    {
+      "DownstreamPathTemplate": "/api/payment/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "paymentservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/payment/{everything}",
+      "SwaggerKey": "payment"
+    },
+    {
+      "DownstreamPathTemplate": "/api/admin/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "adminservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/admin/{everything}",
+      "SwaggerKey": "admin"
     }
   ],
   "SwaggerEndPoints": [
@@ -102,6 +268,56 @@
           "Name": "User Service",
           "Version": "v1",
           "Url": "http://userservice/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "schedule",
+      "Config": [
+        {
+          "Name": "Schedule Service",
+          "Version": "v1",
+          "Url": "http://scheduleservice/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "message",
+      "Config": [
+        {
+          "Name": "Message Service",
+          "Version": "v1",
+          "Url": "http://messageservice/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "advertisement",
+      "Config": [
+        {
+          "Name": "Advertisement Service",
+          "Version": "v1",
+          "Url": "http://advertisementservice/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "payment",
+      "Config": [
+        {
+          "Name": "Payment Service",
+          "Version": "v1",
+          "Url": "http://paymentservice/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "admin",
+      "Config": [
+        {
+          "Name": "Admin Service",
+          "Version": "v1",
+          "Url": "http://adminservice/swagger/v1/swagger.json"
         }
       ]
     }

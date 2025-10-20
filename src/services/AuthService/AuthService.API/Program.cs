@@ -1,4 +1,5 @@
-﻿using AuthService.Application.Extensions;
+﻿using AuthService.API.Extensions;
+using AuthService.Application.Extensions;
 using AuthService.Application.IServiceClients;
 using AuthService.Application.Mappings;
 using AuthService.Application.ServiceClients;
@@ -11,6 +12,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCorsPolicy();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
@@ -100,6 +102,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowSpecificOrigins");
 
 app.MapControllers();
 

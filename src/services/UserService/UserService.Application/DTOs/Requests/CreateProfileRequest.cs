@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace UserService.Application.DTOs.Requests
 {
@@ -13,7 +14,7 @@ namespace UserService.Application.DTOs.Requests
         public string Name { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
-        public string AvatarUrl { get; set; } = string.Empty;
+        public IFormFile? AvatarUrl { get; set; }
         public string Gender { get; set; } = string.Empty;
     }
 }

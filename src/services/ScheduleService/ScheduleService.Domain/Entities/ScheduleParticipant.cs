@@ -1,0 +1,31 @@
+﻿using ScheduleService.Domain.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ScheduleService.Domain.Entities
+{
+    public class ScheduleParticipant
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public ParticipantRole Role { get; set; } 
+        public DateTime JoineddAt { get; set; }
+        public ParticipantStatus Status { get; set; }
+
+        // Foreign key to Schedule (1-N)
+        public Guid ScheduleId { get; set; }
+        public Schedule Schedule { get; set; }
+
+        // Quan hệ N-N thông qua CheckedItemParticipant
+        public ICollection<CheckedItemParticipant> CheckedItemParticipants { get; set; }
+
+        // Quan hệ 1-N với ActivityAttendance
+        public ICollection<ActivityAttendance> ActivityAttendances { get; set; }
+
+        // Quan hệ 1-N với ScheduleMedia
+        public ICollection<ScheduleMedia> ScheduleMedias { get; set; }
+    }
+}
