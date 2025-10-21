@@ -12,6 +12,8 @@ namespace ScheduleService.Application.DTOs.Responses
         public int Id { get; set; }
         public string PlaceName { get; set; }
         public string Location { get; set; }
+        public string? Latitude { get; set; }
+        public string? Longitude { get; set; }
         public string Description { get; set; }
         public DateTime CheckInTime { get; set; }
         public DateTime CheckOutTime { get; set; }

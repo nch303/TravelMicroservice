@@ -293,6 +293,23 @@ namespace ScheduleService.API.Controllers
             }
         }
 
+        [HttpPost("activity/add-list-activities")]
+        [Authorize]
+        public async Task<IActionResult> AddListActivitiesToSchedule([FromBody] List<CreateScheduleActivityRequest> request)
+        {
+            try
+            {
+                var activities = _mapper.Map<List<ScheduleActivity>>(request);
+                await _scheduleActivityService.AddListActivityAsync(activities);
+                var activityResponse = _mapper.Map<List<ScheduleActivityResponse>>(activities);
+                return Ok(activityResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPost("{scheduleId}/leave/{userId}")]
         [Authorize]
         public async Task<IActionResult> LeaveSchedule(Guid scheduleId)

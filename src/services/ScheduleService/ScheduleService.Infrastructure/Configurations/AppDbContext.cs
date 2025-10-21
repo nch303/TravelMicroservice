@@ -66,6 +66,8 @@ namespace ScheduleService.Infrastructure.Configurations
                 entity.HasKey(sa => sa.Id);
                 entity.Property(sa => sa.PlaceName).IsRequired().HasMaxLength(255);
                 entity.Property(sa => sa.Location).HasMaxLength(500);
+                entity.Property(sa => sa.Latitude).HasMaxLength(500);
+                entity.Property(sa => sa.Longitude).HasMaxLength(500);
                 entity.Property(sa => sa.Description).HasMaxLength(1000);
                 entity.Property(sa => sa.CheckInTime).IsRequired();
                 entity.Property(sa => sa.CheckOutTime).IsRequired();

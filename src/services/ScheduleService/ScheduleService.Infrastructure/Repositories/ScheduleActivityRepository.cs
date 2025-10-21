@@ -66,5 +66,12 @@ namespace ScheduleService.Infrastructure.Repositories
         {
             return await _context.ScheduleActivities.FirstOrDefaultAsync(a => a.Id == id && a.IsDeleted == true);
         }
+
+        public async Task<List<ScheduleActivity>> AddListActivityAsync(List<ScheduleActivity> scheduleActivities)
+        {
+            await _context.ScheduleActivities.AddRangeAsync(scheduleActivities);
+            await _context.SaveChangesAsync();
+            return scheduleActivities;
+        }
     }
 }

@@ -432,5 +432,11 @@ namespace ScheduleService.Application.Services
             var sorted = activities.OrderBy(a => a.OrderIndex).ToList();
             return sorted;
         }
+
+        public async Task<List<ScheduleActivity>> AddListActivityAsync(List<ScheduleActivity> scheduleActivities)
+        {
+            var activities = await _scheduleActivityRepository.AddListActivityAsync(scheduleActivities);
+            return activities;
+        }
     }
 }
