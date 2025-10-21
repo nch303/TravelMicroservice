@@ -161,8 +161,12 @@ namespace AdvertisementService.API.Controllers
             try
             {
                 var purchases = await _purchaseService.GetPurchasesByPartnerAsync(partnerId);
-                var purchasesResponse = _mapper.Map<List<PurchaseResponse>>(purchases);
-                return Ok(purchasesResponse);
+                var purchasesResponses = _mapper.Map<List<PurchaseResponse>>(purchases);
+                for (int i = 0; i < purchasesResponses.Count; i++)
+                {
+                    purchasesResponses[i].Price = purchases[i].Package.Price;
+                }
+                return Ok(purchasesResponses);
             }
             catch (Exception ex)
             {
@@ -180,6 +184,7 @@ namespace AdvertisementService.API.Controllers
                 if (purchase == null) return NotFound();
 
                 var purchaseResponse = _mapper.Map<PurchaseResponse>(purchase);
+                purchaseResponse.Price = purchase.Package.Price;
                 return Ok(purchaseResponse);
             }
             catch (Exception ex)
@@ -195,7 +200,9 @@ namespace AdvertisementService.API.Controllers
             try
             {
                 var purchase = await _purchaseService.CreatePurchaseAsync(request.UserId, request.PackageId, request.TransactionId);
+                var package = await _packageService.GetByIdAsync(request.PackageId);
                 var purchaseResponse = _mapper.Map<PurchaseResponse>(purchase);
+                purchaseResponse.Price = package!.Price;
                 return Ok(purchaseResponse);
             }
             catch (Exception ex)

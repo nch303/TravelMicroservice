@@ -18,6 +18,7 @@ namespace AdvertisementService.Application.DTOs.Responses
         public string Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public Guid PackageId { get; set; }
+        public decimal Price { get; set; }
         public string PackageName { get; set; }
     }
 }
