@@ -809,7 +809,7 @@ namespace ScheduleService.API.Controllers
             }
         }
 
-        [HttpPatch("notification/recipients/read")]
+        [HttpPut("notification/recipients/read")]
         [Authorize]
         public async Task<IActionResult> UpdateNoticationRecipient([FromBody] ReadNotificationRecipientRequest request)
         {
