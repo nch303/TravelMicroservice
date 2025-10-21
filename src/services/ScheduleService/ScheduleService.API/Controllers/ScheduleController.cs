@@ -811,11 +811,11 @@ namespace ScheduleService.API.Controllers
 
         [HttpPut("notification/recipients/read")]
         [Authorize]
-        public async Task<IActionResult> UpdateNoticationRecipient([FromBody] ReadNotificationRecipientRequest request)
+        public async Task<IActionResult> UpdateNoticationRecipient(Guid notificationRecipientId)
         {
             try
             {
-                await _notificationRecipientService.UpdateNoticationRecipientAsync(request.notificationRecipientId);
+                await _notificationRecipientService.UpdateNoticationRecipientAsync(notificationRecipientId);
                 return Ok(new { message = "Read notification recipient successfully" });
             }
             catch (Exception ex)
