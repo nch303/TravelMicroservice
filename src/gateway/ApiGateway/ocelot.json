@@ -248,6 +248,18 @@
       ],
       "UpstreamPathTemplate": "/api/admin/{everything}",
       "SwaggerKey": "admin"
+    },
+    {
+      "DownstreamPathTemplate": "/notificationHub",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "scheduleservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/notificationHub",
+      "RouteIsCaseSensitive": false
     }
   ],
   "SwaggerEndPoints": [
