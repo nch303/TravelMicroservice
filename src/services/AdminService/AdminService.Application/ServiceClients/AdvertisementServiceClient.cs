@@ -35,7 +35,7 @@ namespace AdminService.Application.ServiceClients
                     new AuthenticationHeaderValue("Bearer", accessToken.Replace("Bearer ", ""));
             }
 
-            var response = await _httpClient.GetAsync("api/advertisement/package/get-all");
+            var response = await _httpClient.GetAsync("api/advertisement/admin/package/get-all");
 
             if (!response.IsSuccessStatusCode)
             {

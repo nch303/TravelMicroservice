@@ -9,6 +9,7 @@ namespace AdvertisementService.Application.IServices
 {
     public interface IAdvertisementPackageService
     {
+        Task<IEnumerable<AdvertisementPackage>> GetAllActiveAsync();
         Task<IEnumerable<AdvertisementPackage>> GetAllAsync();
         Task<AdvertisementPackage?> GetByIdAsync(Guid id);
         Task<AdvertisementPackage> CreateAsync(AdvertisementPackage package);

@@ -47,8 +47,24 @@ namespace AdvertisementService.API.Controllers
 
 
         [HttpGet("package/get-all")]
-        [Authorize(Roles = "Partner,Admin")]
+        [Authorize(Roles = "Partner")]
         public async Task<IActionResult> GetAll()
+        {
+            try
+            {
+                var packages = await _packageService.GetAllActiveAsync();
+                var packagesResponse = _mapper.Map<List<PackageResponse>>(packages);
+                return Ok(packagesResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("admin/package/get-all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllAdmin()
         {
             try
             {

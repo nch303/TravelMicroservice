@@ -18,8 +18,11 @@ namespace AdvertisementService.Application.Services
             _packageRepository = packageRepository;
         }
 
+        public async Task<IEnumerable<AdvertisementPackage>> GetAllActiveAsync()
+            => await _packageRepository.GetAllActiveAsync();
+
         public async Task<IEnumerable<AdvertisementPackage>> GetAllAsync()
-            => await _packageRepository.GetAllAsync();
+           => await _packageRepository.GetAllAsync();
 
         public async Task<AdvertisementPackage?> GetByIdAsync(Guid id)
             => await _packageRepository.GetByIdAsync(id);

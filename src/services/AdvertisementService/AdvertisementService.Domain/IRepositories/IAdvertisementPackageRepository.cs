@@ -9,6 +9,7 @@ namespace AdvertisementService.Domain.IRepositories
 {
     public interface IAdvertisementPackageRepository
     {
+        Task<IEnumerable<AdvertisementPackage>> GetAllActiveAsync();
         Task<IEnumerable<AdvertisementPackage>> GetAllAsync();
         Task<AdvertisementPackage?> GetByIdAsync(Guid id);
         Task AddAsync(AdvertisementPackage package);

@@ -19,9 +19,14 @@ namespace AdvertisementService.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<AdvertisementPackage>> GetAllAsync()
+        public async Task<IEnumerable<AdvertisementPackage>> GetAllActiveAsync()
         {
             return await _context.AdvertisementPackages.Where(p => p.IsActive).ToListAsync();
+        }
+
+        public async Task<IEnumerable<AdvertisementPackage>> GetAllAsync()
+        {
+            return await _context.AdvertisementPackages.ToListAsync();
         }
 
         public async Task<AdvertisementPackage?> GetByIdAsync(Guid id)
