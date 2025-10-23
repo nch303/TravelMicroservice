@@ -16,7 +16,7 @@ namespace PaymentService.Application.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<ITransactionService, TransactionService>();
-            
+
 
 
             // Cấu hình gọi API từ các service khác
