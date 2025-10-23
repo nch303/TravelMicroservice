@@ -89,9 +89,20 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddControllers();
 
-
+// AI setup
+builder.Services.AddDistributedMemoryCache(); // Thêm bộ nhớ cache
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian chat
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+builder.Services.AddHttpContextAccessor(); // Thêm dịch vụ này
 
 var app = builder.Build();
+
+// AI setup
+app.UseSession(); // Quan trọng: Phải gọi UseSession()
 
 // Configure the HTTP request pipeline
 app.UseSwagger();
