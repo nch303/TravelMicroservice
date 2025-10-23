@@ -63,7 +63,7 @@ class Program
 
         // Notification
         var connection2 = new HubConnectionBuilder()
-            .WithUrl("https://localhost:7021/notificationHub", options =>
+            .WithUrl("http://143.198.203.34:5003/notificationHub", options =>
             {
                 options.HttpMessageHandlerFactory = _ => new HttpClientHandler
                 {
@@ -85,7 +85,7 @@ class Program
         Console.WriteLine("✅ Connected to NotiHub.");
 
         var currentUserId = "5F44A969-8518-4863-8B00-B6170F1B4311".ToLower();
-        var currentScheduleId = "C1F31D44-3D35-453A-3A4C-08DE00029182".ToLower();
+        var currentScheduleId = "89082d2b-b447-48da-9e70-08de03c22f9d".ToLower();
 
         // Nếu user đang trong 1 lịch trình
         await connection2.InvokeAsync("JoinUser", currentUserId);

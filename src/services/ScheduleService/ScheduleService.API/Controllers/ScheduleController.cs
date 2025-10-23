@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using ScheduleService.Application.DTOs.Requests;
 using ScheduleService.Application.DTOs.Responses;
 using ScheduleService.Application.IServiceClients;
@@ -29,12 +30,14 @@ namespace ScheduleService.API.Controllers
         private readonly INotificationService _notificationService;
         private readonly INotificationRecipientService _notificationRecipientService;
         private readonly IRealtimeNotifier _realtimeNotifier;
+        private readonly ITravelAIChatService _travelAIChatService;
 
         public ScheduleController(IScheduleService scheduleService, IMapper mapper, IAuthServiceClient authServiceClient
             , IScheduleParticipantService scheduleParticipantService, IScheduleActivityService scheduleActivityService,
             ICheckedItemService checkedItemService, IScheduleMediaService scheduleMediaService, ICheckItemParticipantService checkItemParticipantService
             , IUserServiceClient userServiceClient, IActivityAttendanceService activityAttendanceService, INotificationService notificationService
-            , INotificationRecipientService notificationRecipientService, IRealtimeNotifier realtimeNotifier)
+            , INotificationRecipientService notificationRecipientService, IRealtimeNotifier realtimeNotifier
+            , ITravelAIChatService travelAIChatService)
         {
             _scheduleService = scheduleService;
             _mapper = mapper;
@@ -49,6 +52,7 @@ namespace ScheduleService.API.Controllers
             _notificationService = notificationService;
             _notificationRecipientService = notificationRecipientService;
             _realtimeNotifier = realtimeNotifier;
+            _travelAIChatService = travelAIChatService;
         }
 
         private DateTime ConvertToUtc7(DateTime localDateTime)
@@ -102,7 +106,7 @@ namespace ScheduleService.API.Controllers
 
                 // ✅ Call service
                 var currentAccount = await _authServiceClient.GetCurrentAccountAsync();
-                if(currentAccount == null)
+                if (currentAccount == null)
                 {
                     throw new UnauthorizedAccessException("Can not authorize");
                 }
@@ -110,7 +114,7 @@ namespace ScheduleService.API.Controllers
                 var currentParticipant = await _scheduleParticipantService.GetByUserIdAndScheduleIdAsync(currentAccount!.Id, scheduleId);
                 var activities = await _scheduleActivityService.GetActivitiesByDateAsync(scheduleId, date);
                 var responses = _mapper.Map<List<ScheduleActivityResponse>>(activities);
-                foreach (var response in responses) 
+                foreach (var response in responses)
                 {
                     response.AttendanceStatus = await _activityAttendanceService.GetAttendanceStatusAsync(response.Id, currentParticipant.Id);
                 }
@@ -639,10 +643,10 @@ namespace ScheduleService.API.Controllers
                 // Get profile
                 var profile = new List<UserServiceClientResponse>();
                 var participant = new ScheduleParticipant();
-                foreach( var response in responses)
+                foreach (var response in responses)
                 {
                     participant = await _scheduleParticipantService.GetParticipantByIdAsync(response.ParticipantId);
-                    profile = await _userServiceClient.GetUsersByIdsAsync(new List<Guid> {participant!.UserId });
+                    profile = await _userServiceClient.GetUsersByIdsAsync(new List<Guid> { participant!.UserId });
                     response.ParticipantName = profile.FirstOrDefault()?.Name;
                     response.ParticipantAvatar = profile.FirstOrDefault()?.AvatarUrl;
                 }
@@ -799,8 +803,9 @@ namespace ScheduleService.API.Controllers
                 {
                     userServiceClientResponse = await _userServiceClient.GetUsersByIdsAsync(new List<Guid> { recipient.SenderId });
                     recipient.SenderName = userServiceClientResponse.FirstOrDefault(ur => ur.Id == recipient.SenderId)!.Name;
+                    recipient.CreatedAt = ConvertToUtc7(recipient.CreatedAt);
                 }
-                responses.OrderByDescending(r => r.CreatedAt);
+                responses = responses.OrderByDescending(r => r.CreatedAt).ToList();
                 return Ok(responses);
             }
             catch (Exception ex)
@@ -834,6 +839,20 @@ namespace ScheduleService.API.Controllers
                 var schedules = await _scheduleService.GetAllSchedulesAsync();
                 var responses = _mapper.Map<List<ScheduleResponse>>(schedules);
                 return Ok(responses);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("AI")]
+        public async Task<IActionResult> AIAsync([FromBody] string text)
+        {
+            try
+            {
+                var response = await _travelAIChatService.GetResponseAsync(text);
+                return Ok(response);
             }
             catch (Exception ex)
             {

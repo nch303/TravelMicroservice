@@ -26,6 +26,7 @@ namespace ScheduleService.Application.Extensions
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<INotificationRecipientService, NotificationRecipientService>();
             services.AddScoped<IRealtimeNotifier, SignalRRealtimeNotifier>();
+            services.AddScoped<ITravelAIChatService, TravelAIChatService>();
 
 
             // Cấu hình gọi API từ các service khác
