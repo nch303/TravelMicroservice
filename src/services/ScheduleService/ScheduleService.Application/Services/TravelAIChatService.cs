@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Mscc.GenerativeAI; // Đảm bảo using này
+using ScheduleService.Application.DTOs.Requests;
 using ScheduleService.Application.Helpers;
 using ScheduleService.Application.IServices;
-using System.Threading.Tasks;
 using System.Collections.Generic; // Cần cho List
 using System.Linq;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ScheduleService.Application.Services
 {
@@ -32,34 +35,101 @@ namespace ScheduleService.Application.Services
             );
         }
 
-        public async Task<string> GetResponseAsync(string userMessage)
+        public async Task<object> GetResponseAsync(string userMessage)
         {
             var session = _httpContextAccessor.HttpContext.Session;
+            var history = session.GetFromJson<List<ContentResponse>>(ChatHistoryKey) ?? new();
 
-            // 2. SỬA LỖI Ở ĐÂY:
-            //    Lấy lịch sử ra với đúng kiểu List<ContentResponse>
-            var history = session.GetFromJson<List<ContentResponse>>(ChatHistoryKey);
-
-            // 3. SỬA LỖI Ở ĐÂY:
-            //    Nếu không có, tạo một List<ContentResponse> mới
-            if (history == null)
-            {
-                history = new List<ContentResponse>();
-            }
-
-            // 4. SỬA LỖI Ở ĐÂY:
-            //    Xóa tham số "history:" đi, chỉ cần truyền biến 'history'
-            //    Bây giờ 'history' là List<ContentResponse> nên sẽ khớp
             var chatSession = _model.StartChat(history);
 
-            // 5. Gửi tin nhắn (đã sửa lỗi chính tả 'SendMessage')
-            var response = await chatSession.SendMessage(userMessage);
+            // Prompt yêu cầu Gemini trả về 3 phần: mô tả + schedule + activities
+            var response = await chatSession.SendMessage($@"
+Người dùng nói: ""{userMessage}"".
 
-            // 6. Lưu lại chatSession.History (vốn là List<ContentResponse>)
+Bạn là trợ lý du lịch thông minh.
+Hãy trả về thông tin gồm **3 phần** sau bằng tiếng Việt:
+
+1️⃣ **Phần mô tả tự nhiên:**
+Giới thiệu chi tiết hành trình du lịch, gợi ý địa điểm nổi bật, và lời khuyên hữu ích.
+
+2️⃣ **Phần JSON đầu tiên** (lịch trình tổng quan - CreateScheduleRequest), theo định dạng:
+{{
+  ""sharedCode"": ""string"",
+  ""title"": ""string"",
+  ""startLocation"": ""string"",
+  ""destination"": ""string"",
+  ""startDate"": ""yyyy-MM-dd"",
+  ""endDate"": ""yyyy-MM-dd"",
+  ""participantsCount"": 1,
+  ""notes"": ""string"",
+  ""isShared"": bool
+}}
+
+3️⃣ **Phần JSON thứ hai** (danh sách hoạt động - List<CreateScheduleActivityRequest>), theo định dạng:
+[
+  {{
+    ""placeName"": ""string"",
+    ""location"": ""string"",
+    ""latitude"": ""string?"",
+    ""longitude"": ""string?"",
+    ""description"": ""string"",
+    ""checkInTime"": ""yyyy-MM-ddTHH:mm:ss"",
+    ""checkOutTime"": ""yyyy-MM-ddTHH:mm:ss"",
+    ""orderIndex"": int,(orderIndex là thứ tự các hoạt động trong 1 ngày, mỗi này sẽ bắt đầu từ số 1)
+    ""scheduleId"": ""00000000-0000-0000-0000-000000000000""
+  }}
+]
+
+⚠️ Ghi chú:
+- Không thêm văn bản nào khác bên trong JSON.
+- Nếu không biết tọa độ, để null.
+- `scheduleId` tạm thời đặt giá trị mặc định (toàn 0).
+- participantCount (là số người tham gia hiện tại của nhóm nên khi tạo mặc định là 1)
+");
+
             session.SetAsJson(ChatHistoryKey, chatSession.History);
 
-            return response.Text;
+            string aiText = response.Text;
+            CreateScheduleRequest? schedule = null;
+            List<CreateScheduleActivityRequest>? activities = null;
+
+            try
+            {
+                // Tìm hai phần JSON trong nội dung AI trả về
+                var jsonMatches = Regex.Matches(aiText, @"\{[\s\S]*?\}|\[[\s\S]*?\]");
+
+                if (jsonMatches.Count >= 2)
+                {
+                    var scheduleJson = jsonMatches[0].Value;
+                    var activitiesJson = jsonMatches[1].Value;
+
+                    schedule = JsonSerializer.Deserialize<CreateScheduleRequest>(scheduleJson,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    activities = JsonSerializer.Deserialize<List<CreateScheduleActivityRequest>>(activitiesJson,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                }
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"❌ Lỗi parse JSON từ AI: {ex.Message}");
+            }
+
+            // Trả về 3 phần trong response JSON
+            var result = new
+            {
+                success = true,
+                message = "AI phản hồi thành công.",
+                timestamp = DateTime.UtcNow,
+                aiMessage = aiText,
+                scheduleData = schedule,
+                activitiesData = activities
+            };
+
+            return result;
         }
+
+
 
         public void ClearChatHistory()
         {

@@ -8,6 +8,6 @@ namespace ScheduleService.Application.IServices
 {
     public interface ITravelAIChatService
     {
-        Task<string> GetResponseAsync(string userMessage);
+        Task<object> GetResponseAsync(string userMessage);
     }
 }
