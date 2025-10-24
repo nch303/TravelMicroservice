@@ -54,13 +54,13 @@ Giới thiệu chi tiết hành trình du lịch, gợi ý địa điểm nổi 
 
 2️⃣ **Phần JSON đầu tiên** (lịch trình tổng quan - CreateScheduleRequest), theo định dạng:
 {{
-  ""sharedCode"": ""string"",
+  ""sharedCode"": ""string"", (mặc định là null)
   ""title"": ""string"",
   ""startLocation"": ""string"",
   ""destination"": ""string"",
   ""startDate"": ""yyyy-MM-dd"",
   ""endDate"": ""yyyy-MM-dd"",
-  ""participantsCount"": 1,
+  ""participantsCount"": 1,(là số người tham gia hiện tại của nhóm nên khi tạo mặc định là 1)
   ""notes"": ""string"",
   ""isShared"": bool
 }}
@@ -85,6 +85,7 @@ Giới thiệu chi tiết hành trình du lịch, gợi ý địa điểm nổi 
 - Nếu không biết tọa độ, để null.
 - `scheduleId` tạm thời đặt giá trị mặc định (toàn 0).
 - participantCount (là số người tham gia hiện tại của nhóm nên khi tạo mặc định là 1)
+- sharedCode mặc định là null
 ");
 
             session.SetAsJson(ChatHistoryKey, chatSession.History);
