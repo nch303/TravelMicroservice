@@ -260,6 +260,18 @@
       ],
       "UpstreamPathTemplate": "/notificationHub",
       "RouteIsCaseSensitive": false
+    },
+    {
+      "DownstreamPathTemplate": "/chatHub",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "messageservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/chatHub",
+      "RouteIsCaseSensitive": false
     }
   ],
   "SwaggerEndPoints": [
