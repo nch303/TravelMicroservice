@@ -58,8 +58,8 @@ Giới thiệu chi tiết hành trình du lịch, gợi ý địa điểm nổi 
   ""title"": ""string"",
   ""startLocation"": ""string"",
   ""destination"": ""string"",
-  ""startDate"": ""yyyy-MM-dd"",
-  ""endDate"": ""yyyy-MM-dd"",
+  ""startDate"": ""yyyy-MM-dd"", (Đảm bảo thời gian phải tương thích với thời gian hiện tại )
+  ""endDate"": ""yyyy-MM-dd"", (Đảm bảo thời gian phải tương thích với thời gian hiện tại) 
   ""participantsCount"": 1,(là số người tham gia hiện tại của nhóm nên khi tạo mặc định là 1)
   ""notes"": ""string"",
   ""isShared"": bool
@@ -73,8 +73,8 @@ Giới thiệu chi tiết hành trình du lịch, gợi ý địa điểm nổi 
     ""latitude"": ""string?"",
     ""longitude"": ""string?"",
     ""description"": ""string"",
-    ""checkInTime"": ""yyyy-MM-ddTHH:mm:ss"",
-    ""checkOutTime"": ""yyyy-MM-ddTHH:mm:ss"",
+    ""checkInTime"": ""yyyy-MM-ddTHH:mm:ss"",(Đảm bảo thời gian phải tương thích với thời gian hiện tại )
+    ""checkOutTime"": ""yyyy-MM-ddTHH:mm:ss"",(Đảm bảo thời gian phải tương thích với thời gian hiện tại )
     ""orderIndex"": int,(orderIndex là thứ tự các hoạt động trong 1 ngày, mỗi này sẽ bắt đầu từ số 1)
     ""scheduleId"": ""00000000-0000-0000-0000-000000000000""
   }}
@@ -86,6 +86,7 @@ Giới thiệu chi tiết hành trình du lịch, gợi ý địa điểm nổi 
 - `scheduleId` tạm thời đặt giá trị mặc định (toàn 0).
 - participantCount (là số người tham gia hiện tại của nhóm nên khi tạo mặc định là 1)
 - sharedCode mặc định là null
+- Đảm bảo thời gian phải tương thích với thời gian hiện tại 
 ");
 
             session.SetAsJson(ChatHistoryKey, chatSession.History);
