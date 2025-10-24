@@ -86,7 +86,7 @@ Giới thiệu chi tiết hành trình du lịch, gợi ý địa điểm nổi 
 - `scheduleId` tạm thời đặt giá trị mặc định (toàn 0).
 - participantCount (là số người tham gia hiện tại của nhóm nên khi tạo mặc định là 1)
 - sharedCode mặc định là null
-- Đảm bảo thời gian phải tương thích với thời gian hiện tại 
+- Đảm bảo thời gian phải tương thích với thời gian hiện tại, đừng tạo lịch hay thời gian trong quá khứ
 ");
 
             session.SetAsJson(ChatHistoryKey, chatSession.History);
