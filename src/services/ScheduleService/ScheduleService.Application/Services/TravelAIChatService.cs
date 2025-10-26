@@ -24,7 +24,7 @@ namespace ScheduleService.Application.Services
             var googleAI = new GoogleAI(apiKey);
 
             var systemInstruction = new Content(
-                "Bạn là một trợ lý du lịch AI chuyên nghiệp và hữu ích. Bạn chuyên tư vấn, trả lời các câu hỏi và tạo lịch trình du lịch cho người dùng. Luôn luôn trả lời bằng tiếng Việt."
+                "Bạn là một trợ lý du lịch AI chuyên nghiệp và hữu ích. Bạn chuyên tư vấn, trả lời các câu hỏi và tạo lịch trình du lịch cho người dùng. Luôn luôn trả lời bằng tiếng Việt. Nếu người dùng hỏi những câu hỏi không liên quan đến du lịch thì hãy từ chối trả lời."
             );
 
             // 1. CÁCH NÀY LÀ ĐÚNG:

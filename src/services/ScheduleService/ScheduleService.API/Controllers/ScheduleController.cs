@@ -31,13 +31,14 @@ namespace ScheduleService.API.Controllers
         private readonly INotificationRecipientService _notificationRecipientService;
         private readonly IRealtimeNotifier _realtimeNotifier;
         private readonly ITravelAIChatService _travelAIChatService;
+        private readonly IMessageServiceClient _messageServiceClient;
 
         public ScheduleController(IScheduleService scheduleService, IMapper mapper, IAuthServiceClient authServiceClient
             , IScheduleParticipantService scheduleParticipantService, IScheduleActivityService scheduleActivityService,
             ICheckedItemService checkedItemService, IScheduleMediaService scheduleMediaService, ICheckItemParticipantService checkItemParticipantService
             , IUserServiceClient userServiceClient, IActivityAttendanceService activityAttendanceService, INotificationService notificationService
             , INotificationRecipientService notificationRecipientService, IRealtimeNotifier realtimeNotifier
-            , ITravelAIChatService travelAIChatService)
+            , ITravelAIChatService travelAIChatService, IMessageServiceClient messageServiceClient)
         {
             _scheduleService = scheduleService;
             _mapper = mapper;
@@ -53,6 +54,7 @@ namespace ScheduleService.API.Controllers
             _notificationRecipientService = notificationRecipientService;
             _realtimeNotifier = realtimeNotifier;
             _travelAIChatService = travelAIChatService;
+            _messageServiceClient = messageServiceClient;
         }
 
         private DateTime ConvertToUtc7(DateTime localDateTime)
@@ -232,6 +234,16 @@ namespace ScheduleService.API.Controllers
                 await _scheduleParticipantService.AddScheduleParticipantAsync(participant);
                 await _scheduleService.SaveChangesAsync();
                 var scheduleResponse = _mapper.Map<ScheduleResponse>(schedule);
+
+                // Create group chat 
+                var messageGroup = new CreateChatGroupRequest
+                {
+                    Name = schedule.Title,
+                    ScheduleId = schedule.Id,
+                    GroupType = ChatGroupType.Schedule,
+                };
+                await _messageServiceClient.CreateMessageGroupAsync(messageGroup);
+
                 return Ok(scheduleResponse);
             }
             catch (Exception ex)

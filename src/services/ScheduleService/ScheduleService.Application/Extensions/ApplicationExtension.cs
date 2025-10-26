@@ -47,6 +47,11 @@ namespace ScheduleService.Application.Extensions
                 client.BaseAddress = new Uri(link);
             });
 
+            services.AddHttpClient<IMessageServiceClient, MessageServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri(link);
+            });
+
             return services;
         }
     }
