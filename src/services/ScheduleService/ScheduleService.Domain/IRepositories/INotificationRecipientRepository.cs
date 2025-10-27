@@ -12,6 +12,6 @@ namespace ScheduleService.Domain.IRepositories
         Task SaveChangesAsync();
         Task CreateNotificationRecipientsAsync(List<NotificationRecipient> notificationRecipients);
         Task<NotificationRecipient?> GetNotificationRecipientByIdAsync(Guid notificationRecipientId);
-        Task<List<NotificationRecipient>> GetAllNotificationRecipientsByUserIdAsync(Guid userId);
+        Task<List<NotificationRecipient>?> GetAllNotificationRecipientsByUserIdAsync(Guid userId);
     }
 }

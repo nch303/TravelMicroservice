@@ -10,6 +10,6 @@ namespace ScheduleService.Application.IServices
     public interface INotificationRecipientService
     {
         Task UpdateNoticationRecipientAsync(Guid notificationRecipientId);
-        Task<List<NotificationRecipient>> GetAllNotificationRecipientsByUserIdAsync(Guid userId);
+        Task<List<NotificationRecipient>?> GetAllNotificationRecipientsByUserIdAsync(Guid userId);
     }
 }

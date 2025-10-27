@@ -36,7 +36,7 @@ namespace ScheduleService.Infrastructure.Repositories
                 .FirstOrDefault(nr => nr.Id == notificationRecipientId));
         }
 
-        public async Task<List<NotificationRecipient>> GetAllNotificationRecipientsByUserIdAsync(Guid userId)
+        public async Task<List<NotificationRecipient>?> GetAllNotificationRecipientsByUserIdAsync(Guid userId)
         {
             return await Task.FromResult(_context.NotificationRecipients
                 .Include(nr => nr.Notification)

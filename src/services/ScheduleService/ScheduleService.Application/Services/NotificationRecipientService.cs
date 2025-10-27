@@ -33,13 +33,9 @@ namespace ScheduleService.Application.Services
             }
         }
 
-        public async Task<List<NotificationRecipient>> GetAllNotificationRecipientsByUserIdAsync(Guid userId)
+        public async Task<List<NotificationRecipient>?> GetAllNotificationRecipientsByUserIdAsync(Guid userId)
         {
             var notificationRecipients = await _notificationRecipientRepository.GetAllNotificationRecipientsByUserIdAsync(userId);
-            if (notificationRecipients == null || notificationRecipients.Count == 0)
-            {
-                throw new Exception("No notification recipient was found");
-            }
 
             return notificationRecipients;
         }
